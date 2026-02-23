@@ -111,8 +111,8 @@ func calculateValueAxisRange(p *Painter, isVertical bool, axisSize int,
 			padLabelCount--
 		}
 	}
-	minPadded, maxPadded := padRange(padLabelCount, minVal, maxVal, minPadScale, maxPadScale)
-	labelCount := padLabelCount
+	minPadded, maxPadded, adjustedCount := padRange(padLabelCount, minVal, maxVal, minPadScale, maxPadScale, labelCountCfg == 0)
+	labelCount := adjustedCount
 	// if the user set only a unit, we may need to refine again after padding to meet the unit
 	if labelCountCfg == 0 && labelUnit > 0 {
 		// Quick exit when the unit itself is larger than the whole span
@@ -355,9 +355,26 @@ func valueLabels(labelsCfg []string, valueFormatter ValueFormatter, min, max flo
 	return labels
 }
 
-func padRange(divideCount int, min, max, minPaddingScale, maxPaddingScale float64) (float64, float64) {
+var niceNums = [...]float64{1, 2, 2.5, 5}
+
+// niceNum returns the smallest "nice" number >= val from {1, 2, 2.5, 5} × 10^n.
+func niceNum(val float64) float64 {
+	if val <= 0 {
+		return 0
+	}
+	exp := math.Floor(math.Log10(val))
+	frac := val / math.Pow(10, exp)
+	for _, n := range niceNums {
+		if n >= frac-1e-10 {
+			return n * math.Pow(10, exp)
+		}
+	}
+	return math.Pow(10, exp+1)
+}
+
+func padRange(divideCount int, min, max, minPaddingScale, maxPaddingScale float64, flexCount bool) (float64, float64, int) {
 	if minPaddingScale <= 0.0 && maxPaddingScale <= 0.0 {
-		return min, max
+		return min, max, divideCount
 	}
 	// scale percents for min value
 	scaledMinPadPercentMin := rangeMinPaddingPercentMin * minPaddingScale
@@ -384,14 +401,18 @@ rootLoop:
 			// use 10^expo so that we prefer 0, 10, 100, etc numbers
 			targetVal := math.Floor(math.Pow(10, expo)) * multiple // Math.Floor to convert 0.1 from -1 expo into 0
 			if targetVal < min-(spanIncrement*scaledMinPadPercentMax) {
-				break expoLoop // no match possible, target value will only get further from start
+				if min < 0 {
+					break expoLoop // negative min means targets decrease, no match possible
+				}
 			} else if targetVal <= min-(spanIncrement*scaledMinPadPercentMin) {
 				// targetVal can be between our span increment increases, calculate and set result
 				updatedMin = true
 				spanIncrementMultiplier = (min - targetVal) / spanIncrement
 				minResult = targetVal
 				break rootLoop
-			} // else try again to meet minimum padding requirements
+			} else if min >= 0 {
+				break expoLoop // past acceptable range for positive data
+			}
 		}
 	}
 	if !updatedMin {
@@ -407,31 +428,90 @@ rootLoop:
 		// no adjustment was made and there is no span, because of that the max calculation below can't function
 		// for that reason we apply a default constant span, still wanting to prefer a zero start if possible
 		if minResult == 0 {
-			return minResult, minResult + (2 * zeroSpanAdjustment)
+			return minResult, minResult + (2 * zeroSpanAdjustment), divideCount
 		}
-		return minResult - zeroSpanAdjustment, minResult + zeroSpanAdjustment
+		return minResult - zeroSpanAdjustment, minResult + zeroSpanAdjustment, divideCount
 	} else if maxPaddingScale <= 0.0 {
-		return minResult, max
-	} else if math.Abs(max) < 10 {
-		return minResult, math.Ceil(max) + 1
+		return minResult, max, divideCount
 	}
 
-	// update max to provide ideal padding and human friendly intervals
-	interval := (max - minResult) / float64(divideCount-1)
-	roundedInterval, _ := friendlyRound(interval, spanIncrement/float64(divideCount-1),
-		math.Max(spanIncrementMultiplier, scaledMaxPadPercentMin),
-		scaledMaxPadPercentMin, scaledMaxPadPercentMax, true)
-	maxResult := minResult + (roundedInterval * float64(divideCount-1))
-	if maxTrunk := math.Trunc(maxResult); maxTrunk >= max+(spanIncrement*scaledMaxPadPercentMin) {
-		maxResult = maxTrunk // remove possible float multiplication inaccuracies
+	var maxResult float64
+	adjustedCount := divideCount
+
+	if flexCount {
+		// attempt to find a nice-number interval by flexing divideCount ±3
+		minPadRequired := max + spanIncrement*scaledMaxPadPercentMin
+		maxPadLimit := max + spanIncrement*scaledMaxPadPercentMax*1.5
+		type niceCandidate struct {
+			dc        int
+			maxResult float64
+			deltaDC   int
+			excess    float64
+		}
+		var bestNice *niceCandidate
+		for delta := -3; delta <= 3; delta++ {
+			dc := divideCount + delta
+			if dc < minimumAxisLabels {
+				continue
+			}
+			rawInterval := (max - minResult) / float64(dc-1)
+			ni := niceNum(rawInterval)
+			if ni <= 0 {
+				continue
+			}
+			candidateMax := minResult + ni*float64(dc-1)
+			if candidateMax < minPadRequired-1e-10 {
+				continue // insufficient padding above data max
+			}
+			if candidateMax > maxPadLimit+1e-10 {
+				continue // too much padding
+			}
+			absDelta := int(math.Abs(float64(delta)))
+			excess := candidateMax - max
+			// scoring: ±1 label count is negligible, so treat absDelta≤1 equally and prefer least excess;
+			// for larger absDelta, prefer smaller delta first, then least excess
+			betterTier := bestNice == nil ||
+				(absDelta <= 1 && bestNice.deltaDC > 1) ||
+				(absDelta <= 1 && bestNice.deltaDC <= 1 && excess < bestNice.excess-1e-10) ||
+				(absDelta > 1 && bestNice.deltaDC > 1 &&
+					(absDelta < bestNice.deltaDC || (absDelta == bestNice.deltaDC && excess < bestNice.excess-1e-10)))
+			if betterTier {
+				bestNice = &niceCandidate{dc: dc, maxResult: candidateMax, deltaDC: absDelta, excess: excess}
+			}
+		}
+		if bestNice != nil {
+			maxResult = bestNice.maxResult
+			adjustedCount = bestNice.dc
+		}
 	}
 
-	return minResult, maxResult
+	if adjustedCount == divideCount && maxResult == 0 {
+		// fixed count or nice-number search found no candidate — use friendlyRound
+		if math.Abs(max) < 10 {
+			return minResult, math.Ceil(max) + 1, divideCount
+		}
+		interval := (max - minResult) / float64(divideCount-1)
+		roundedInterval, _ := friendlyRound(interval, spanIncrement/float64(divideCount-1),
+			math.Max(spanIncrementMultiplier, scaledMaxPadPercentMin),
+			scaledMaxPadPercentMin, scaledMaxPadPercentMax, true)
+		maxResult = minResult + (roundedInterval * float64(divideCount-1))
+		if maxTrunk := math.Trunc(maxResult); maxTrunk >= max+(spanIncrement*scaledMaxPadPercentMin) {
+			maxResult = maxTrunk // remove possible float multiplication inaccuracies
+		}
+	}
+
+	return minResult, maxResult, adjustedCount
 }
 
 func friendlyRound(val, increment, defaultMultiplier, minMultiplier, maxMultiplier float64, add bool) (float64, float64) {
 	absVal := math.Abs(val)
-	for orderOfMagnitude := math.Floor(math.Log10(absVal)); orderOfMagnitude > 0; orderOfMagnitude-- {
+	startOOM := math.Floor(math.Log10(absVal))
+	// for sub-unit values extend to finer-grained rounding, but only when rounding up (add=true)
+	lowerBound := 1.0
+	if absVal > 0 && startOOM < 0 && add {
+		lowerBound = startOOM - 1
+	}
+	for orderOfMagnitude := startOOM; orderOfMagnitude >= lowerBound; orderOfMagnitude-- {
 		roundValue := math.Pow(10, orderOfMagnitude)
 		var proposedVal float64
 		var proposedMultiplier float64

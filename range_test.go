@@ -8,7 +8,7 @@ import (
 )
 
 func newTestRange(size, divideCount int, min, max, minPaddingScale, maxPaddingScale float64) axisRange {
-	min, max = padRange(divideCount, min, max, minPaddingScale, maxPaddingScale)
+	min, max, divideCount = padRange(divideCount, min, max, minPaddingScale, maxPaddingScale, true)
 	return axisRange{
 		divideCount: divideCount,
 		min:         min,
@@ -140,9 +140,9 @@ func TestCalculateValueAxisRange(t *testing.T) {
 			nil, 0, 0, 5, 2,
 			tsl, 0, false, defaultValueFormatter, 0, fs)
 
-		assert.Equal(t, 8, ar.labelCount)
+		assert.Equal(t, 13, ar.labelCount)
 		assert.InDelta(t, 0.0, ar.min, 0.0)
-		assert.InDelta(t, 105.0, ar.max, 0.0)
+		assert.InDelta(t, 120.0, ar.max, 0.0)
 	})
 
 	t.Run("label_unit_adjusted_negative", func(t *testing.T) {
@@ -199,7 +199,7 @@ func TestCalculateValueAxisRange(t *testing.T) {
 			tsl, 0, false, defaultValueFormatter, 0, fs)
 
 		assert.InDelta(t, 1.0, ar.min, 0.0)
-		assert.InDelta(t, 5.0, ar.max, 0.0)
+		assert.InDelta(t, 3.5, ar.max, 0.0)
 		assert.Equal(t, 6, ar.labelCount)
 	})
 
@@ -472,6 +472,39 @@ func TestCalculateCategoryAxisRange(t *testing.T) {
 	})
 }
 
+func TestNiceNum(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		name     string
+		input    float64
+		expected float64
+	}{
+		{"zero", 0, 0},
+		{"negative", -5, 0},
+		{"exact_one", 1, 1},
+		{"exact_two", 2, 2},
+		{"exact_two_point_five", 2.5, 2.5},
+		{"exact_five", 5, 5},
+		{"exact_ten", 10, 10},
+		{"exact_twenty_five", 25, 25},
+		{"sub_unit_small", 0.07, 0.1},
+		{"sub_unit_mid", 0.3, 0.5},
+		{"just_above_one", 0.7, 1.0},
+		{"three", 3, 5},
+		{"seven", 7, 10},
+		{"fifteen_point_six", 15.6, 20},
+		{"twenty_one", 21, 25},
+		{"large_seven_hundred", 700, 1000},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			assert.InDelta(t, tc.expected, niceNum(tc.input), 1e-10)
+		})
+	}
+}
+
 func TestPadRange(t *testing.T) {
 	t.Parallel()
 
@@ -486,7 +519,7 @@ func TestPadRange(t *testing.T) {
 		{
 			name:             "pad_max_only",
 			expectedMinValue: 0.0,
-			expectedMaxValue: 10.5,
+			expectedMaxValue: 11.0,
 			minValue:         0.0,
 			maxValue:         10.0,
 			labelCount:       10,
@@ -494,7 +527,7 @@ func TestPadRange(t *testing.T) {
 		{
 			name:             "pad_min_to_zero",
 			expectedMinValue: 0.0,
-			expectedMaxValue: 21.0,
+			expectedMaxValue: 22.5,
 			minValue:         1.0,
 			maxValue:         20.0,
 			labelCount:       10,
@@ -502,7 +535,7 @@ func TestPadRange(t *testing.T) {
 		{
 			name:             "pad_negative_min_positive_max",
 			expectedMinValue: -5.0,
-			expectedMaxValue: 12.0,
+			expectedMaxValue: 11.0,
 			minValue:         -3.0,
 			maxValue:         10.0,
 			labelCount:       10,
@@ -518,7 +551,7 @@ func TestPadRange(t *testing.T) {
 		{
 			name:             "pad_positive_min_positive_max",
 			expectedMinValue: 100.0,
-			expectedMaxValue: 214.0,
+			expectedMaxValue: 205.0,
 			minValue:         100.0,
 			maxValue:         200.0,
 			labelCount:       20,
@@ -527,7 +560,7 @@ func TestPadRange(t *testing.T) {
 
 	for i, tc := range testCases {
 		t.Run(strconv.Itoa(i)+"-"+tc.name, func(t *testing.T) {
-			min, max := padRange(tc.labelCount, tc.minValue, tc.maxValue, 1.0, 1.0)
+			min, max, _ := padRange(tc.labelCount, tc.minValue, tc.maxValue, 1.0, 1.0, true)
 
 			assert.InDelta(t, tc.expectedMinValue, min, 0, "Unexpected value rounding %v", tc.minValue)
 			assert.InDelta(t, tc.expectedMaxValue, max, 0, "Unexpected value rounding %v", tc.maxValue)
