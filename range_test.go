@@ -588,6 +588,14 @@ func TestPadRange(t *testing.T) {
 			assert.InDelta(t, tc.expectedMaxValue, max, 0, "Unexpected value rounding %v", tc.maxValue)
 		})
 	}
+
+	t.Run("flex_capped_by_baseline", func(t *testing.T) {
+		// niceNum jumps from 2.5→5 inflating the range; flex should be capped by the friendlyRound baseline
+		_, flexMax, _ := padRange(5, 1, 26, 1.0, 1.0, true)
+		_, baselineMax, _ := padRange(5, 1, 26, 1.0, 1.0, false)
+		// the flex result should not significantly exceed the baseline
+		assert.LessOrEqual(t, flexMax, baselineMax+((baselineMax-26)*1.0)+1e-10)
+	})
 }
 
 func TestFriendlyRound(t *testing.T) {

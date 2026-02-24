@@ -113,7 +113,8 @@ func calculateValueAxisRange(p *Painter, isVertical bool, axisSize int,
 		}
 	}
 	// TODO - in v0.6.0 default flexCount if labelCountCfg == 0 && !flagIs(false, preferNiceIntervals)
-	flexCount := flagIs(true, preferNiceIntervals)
+	// secondary axes (yAxisIndex > 0) must keep the same label count as the primary to align grid lines
+	flexCount := yAxisIndex == 0 && flagIs(true, preferNiceIntervals)
 	minPadded, maxPadded, adjustedCount := padRange(padLabelCount, minVal, maxVal, minPadScale, maxPadScale, flexCount)
 	labelCount := adjustedCount
 	// if the user set only a unit, we may need to refine again after padding to meet the unit
@@ -439,13 +440,32 @@ rootLoop:
 	}
 
 	adjustedCount := divideCount
-	var maxResult float64
-	var found bool
+
+	// always compute the friendlyRound baseline as the default and cap for the flex path
+	var baselineMax float64
+	if math.Abs(max) < 10 {
+		baselineMax = math.Ceil(max) + 1
+	} else {
+		interval := (max - minResult) / float64(divideCount-1)
+		roundedInterval, _ := friendlyRound(interval, spanIncrement/float64(divideCount-1),
+			math.Max(spanIncrementMultiplier, scaledMaxPadPercentMin),
+			scaledMaxPadPercentMin, scaledMaxPadPercentMax, true)
+		baselineMax = minResult + (roundedInterval * float64(divideCount-1))
+		if maxTrunk := math.Trunc(baselineMax); maxTrunk >= max+(spanIncrement*scaledMaxPadPercentMin) {
+			baselineMax = maxTrunk // remove possible float multiplication inaccuracies
+		}
+	}
+	maxResult := baselineMax
 
 	if flexCount {
-		// attempt to find a nice-number interval by flexing divideCount ±3
+		// attempt to find a nice-number interval by flexing divideCount ±3, capped by baseline
 		minPadRequired := max + spanIncrement*scaledMaxPadPercentMin
-		maxPadLimit := max + spanIncrement*scaledMaxPadPercentMax*1.5
+		baselineExcess := baselineMax - max
+		// cap is the tighter of a percentage-based limit and the baseline-derived limit
+		maxPadLimit := math.Min(
+			max+spanIncrement*scaledMaxPadPercentMax*1.4,
+			baselineMax+baselineExcess*8,
+		)
 		bestScore := math.Inf(1)
 		for delta := -3; delta <= 3; delta++ {
 			dc := divideCount + delta
@@ -471,23 +491,7 @@ rootLoop:
 				bestScore = score
 				maxResult = candidateMax
 				adjustedCount = dc
-				found = true
 			}
-		}
-	}
-
-	if !found {
-		// fixed count or nice-number search found no candidate — use friendlyRound
-		if math.Abs(max) < 10 {
-			return minResult, math.Ceil(max) + 1, divideCount
-		}
-		interval := (max - minResult) / float64(divideCount-1)
-		roundedInterval, _ := friendlyRound(interval, spanIncrement/float64(divideCount-1),
-			math.Max(spanIncrementMultiplier, scaledMaxPadPercentMin),
-			scaledMaxPadPercentMin, scaledMaxPadPercentMax, true)
-		maxResult = minResult + (roundedInterval * float64(divideCount-1))
-		if maxTrunk := math.Trunc(maxResult); maxTrunk >= max+(spanIncrement*scaledMaxPadPercentMin) {
-			maxResult = maxTrunk // remove possible float multiplication inaccuracies
 		}
 	}
 
