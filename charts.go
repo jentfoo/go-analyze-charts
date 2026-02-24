@@ -254,7 +254,8 @@ func defaultRender(p *Painter, opt defaultRenderOption) (*defaultRenderResult, e
 			opt.xAxis.LabelCount, opt.xAxis.Unit, opt.xAxis.LabelCountAdjustment,
 			opt.seriesList, 0, opt.stackSeries,
 			getPreferredValueFormatter(opt.xAxis.ValueFormatter, opt.valueFormatter),
-			opt.xAxis.LabelRotation, opt.xAxis.LabelFontStyle)
+			opt.xAxis.LabelRotation, opt.xAxis.LabelFontStyle,
+			nil)
 		xAxisOpts = opt.xAxis.toAxisOption(xAxisRange)
 	} else { //  X is category axis
 		xAxisRange := calculateCategoryAxisRange(p, p.Width(), false, flagIs(false, opt.xAxis.BoundaryGap),
@@ -312,7 +313,8 @@ func defaultRender(p *Painter, opt defaultRenderOption) (*defaultRenderResult, e
 				yAxisOption.LabelCount, yAxisOption.Unit, yAxisOption.LabelCountAdjustment,
 				opt.seriesList, yIndex, opt.stackSeries,
 				valueFormatter,
-				yAxisOption.LabelRotation, yAxisOption.LabelFontStyle)
+				yAxisOption.LabelRotation, yAxisOption.LabelFontStyle,
+				yAxisOption.PreferNiceIntervals)
 		}
 		result.yaxisRanges[yIndex] = r
 

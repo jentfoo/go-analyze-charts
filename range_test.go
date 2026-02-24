@@ -110,7 +110,7 @@ func TestCalculateValueAxisRange(t *testing.T) {
 
 		ar := calculateValueAxisRange(p, false, 800, nil, nil, Ptr(0.0),
 			nil, 0, 3, 0, 0,
-			tsl, 0, false, defaultValueFormatter, 0, fs)
+			tsl, 0, false, defaultValueFormatter, 0, fs, nil)
 
 		assert.Len(t, ar.labels, 3)
 		assert.Equal(t, []string{"10", "20", "30"}, ar.labels)
@@ -125,7 +125,7 @@ func TestCalculateValueAxisRange(t *testing.T) {
 
 		ar := calculateValueAxisRange(p, true, 800, nil, nil, nil,
 			nil, 0, 0, 5, 0,
-			tsl, 0, false, defaultValueFormatter, 0, fs)
+			tsl, 0, false, defaultValueFormatter, 0, fs, nil)
 
 		assert.Equal(t, 12, ar.labelCount)
 		assert.Equal(t, []string{"0", "5", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"}, ar.labels)
@@ -138,11 +138,11 @@ func TestCalculateValueAxisRange(t *testing.T) {
 
 		ar := calculateValueAxisRange(p, false, 1200, nil, nil, nil,
 			nil, 0, 0, 5, 2,
-			tsl, 0, false, defaultValueFormatter, 0, fs)
+			tsl, 0, false, defaultValueFormatter, 0, fs, nil)
 
-		assert.Equal(t, 13, ar.labelCount)
+		assert.Equal(t, 8, ar.labelCount)
 		assert.InDelta(t, 0.0, ar.min, 0.0)
-		assert.InDelta(t, 120.0, ar.max, 0.0)
+		assert.InDelta(t, 105.0, ar.max, 0.0)
 	})
 
 	t.Run("label_unit_adjusted_negative", func(t *testing.T) {
@@ -152,7 +152,7 @@ func TestCalculateValueAxisRange(t *testing.T) {
 
 		ar := calculateValueAxisRange(p, false, 2400, nil, nil, nil,
 			nil, 0, 0, 5, 4,
-			tsl, 0, false, defaultValueFormatter, 0, fs)
+			tsl, 0, false, defaultValueFormatter, 0, fs, nil)
 
 		assert.Equal(t, 25, ar.labelCount)
 		assert.InDelta(t, -10.0, ar.min, 0.0)
@@ -168,7 +168,7 @@ func TestCalculateValueAxisRange(t *testing.T) {
 
 		ar := calculateValueAxisRange(p, true, 800, nil, nil, nil,
 			nil, 0, 0, 0, 0,
-			tsl, 0, true, defaultValueFormatter, 0, fs)
+			tsl, 0, true, defaultValueFormatter, 0, fs, nil)
 
 		assert.InDelta(t, 0.0, ar.min, 0.0)
 		assert.InDelta(t, 10.0, ar.max, 0.0)
@@ -183,7 +183,7 @@ func TestCalculateValueAxisRange(t *testing.T) {
 		max := Ptr(25.0)
 		ar := calculateValueAxisRange(p, true, 800, min, max,
 			nil, []string{}, 0, 0, 0, 0,
-			tsl, 0, false, defaultValueFormatter, 0, fs)
+			tsl, 0, false, defaultValueFormatter, 0, fs, nil)
 
 		assert.InDelta(t, 5.0, ar.min, 0.0)
 		assert.InDelta(t, 25.0, ar.max, 0.0)
@@ -196,10 +196,10 @@ func TestCalculateValueAxisRange(t *testing.T) {
 
 		ar := calculateValueAxisRange(p, true, 800, nil, nil, nil,
 			nil, 0, 0, 0, 0,
-			tsl, 0, false, defaultValueFormatter, 0, fs)
+			tsl, 0, false, defaultValueFormatter, 0, fs, nil)
 
 		assert.InDelta(t, 1.0, ar.min, 0.0)
-		assert.InDelta(t, 3.5, ar.max, 0.0)
+		assert.InDelta(t, 5.0, ar.max, 0.0)
 		assert.Equal(t, 6, ar.labelCount)
 	})
 
@@ -213,7 +213,7 @@ func TestCalculateValueAxisRange(t *testing.T) {
 			"WowLookAtTheseLabels!", "AndHereIsAnotherReallyLongLabel"}
 		ar := calculateValueAxisRange(p, false, 800, nil, nil, nil,
 			inputLabels, 0, 0, 0, 0,
-			tsl, 0, false, defaultValueFormatter, 0, fs)
+			tsl, 0, false, defaultValueFormatter, 0, fs, nil)
 
 		assert.Equal(t, 810, ar.textMaxWidth)
 		assert.Equal(t, 41, ar.textMaxHeight)
@@ -229,7 +229,7 @@ func TestCalculateValueAxisRange(t *testing.T) {
 
 		ar := calculateValueAxisRange(p, true, 800, nil, nil, nil,
 			nil, 0, 0, 0, 0,
-			tsl, 0, false, defaultValueFormatter, 0, fs)
+			tsl, 0, false, defaultValueFormatter, 0, fs, nil)
 
 		assert.InDelta(t, 49.0, ar.min, 0.0)
 		assert.InDelta(t, 51.0, ar.max, 0.0)
@@ -243,7 +243,7 @@ func TestCalculateValueAxisRange(t *testing.T) {
 		rotation := DegreesToRadians(45.0)
 		ar := calculateValueAxisRange(p, true, 800, nil, nil, nil,
 			[]string{"Label One", "Label Two", "Label Three", "Label Four"}, 0, 0, 0, 0,
-			tsl, 0, false, defaultValueFormatter, rotation, fs)
+			tsl, 0, false, defaultValueFormatter, rotation, fs, nil)
 
 		assert.Equal(t, 103, ar.textMaxWidth)
 		assert.Equal(t, 103, ar.textMaxHeight)
@@ -261,7 +261,7 @@ func TestCalculateValueAxisRange(t *testing.T) {
 		explicitLabelCount := 3
 		ar := calculateValueAxisRange(p, false, 800, nil, nil, nil,
 			providedLabels, 0, explicitLabelCount, 0, 0,
-			tsl, 0, false, defaultValueFormatter, 0, fs)
+			tsl, 0, false, defaultValueFormatter, 0, fs, nil)
 
 		assert.Equal(t, []string{"Label1", "Label2", "Label3"}, ar.labels)
 		assert.Equal(t, 3, ar.divideCount)
@@ -276,7 +276,7 @@ func TestCalculateValueAxisRange(t *testing.T) {
 		ar := calculateValueAxisRange(p, false, 800,
 			nil, nil, Ptr(0.0), // force no padding
 			nil, 0, 0, 7, 0,
-			tsl, 0, false, defaultValueFormatter, 0, fs)
+			tsl, 0, false, defaultValueFormatter, 0, fs, nil)
 
 		assert.Equal(t, 6, ar.labelCount)
 		assert.InDelta(t, 0.0, ar.min, 0.0)
@@ -292,12 +292,33 @@ func TestCalculateValueAxisRange(t *testing.T) {
 		ar := calculateValueAxisRange(p, false, 800,
 			nil, nil, Ptr(0.0), // force no padding
 			nil, 0, 0, 9, 0,
-			tsl, 0, false, defaultValueFormatter, 0, fs)
+			tsl, 0, false, defaultValueFormatter, 0, fs, nil)
 
 		assert.Equal(t, 4, ar.labelCount)
 		assert.InDelta(t, 9.0, ar.min, 0.0)
 		assert.InDelta(t, 36.0, ar.max, 0.0)
 		assert.Equal(t, []string{"9", "18", "27", "36"}, ar.labels)
+	})
+
+	t.Run("prefer_nice_intervals", func(t *testing.T) {
+		p := NewPainter(PainterOptions{Width: 800, Height: 600})
+		series := testSeries{yAxisIndex: 0, values: []float64{0, 50}}
+		tsl := testSeriesList{series}
+
+		// without PreferNiceIntervals the flex logic is not triggered
+		arDefault := calculateValueAxisRange(p, true, 800, nil, nil, nil,
+			nil, 0, 0, 0, 0,
+			tsl, 0, false, defaultValueFormatter, 0, fs, nil)
+		// with PreferNiceIntervals the flex logic produces nicer intervals
+		arNice := calculateValueAxisRange(p, true, 800, nil, nil, nil,
+			nil, 0, 0, 0, 0,
+			tsl, 0, false, defaultValueFormatter, 0, fs, Ptr(true))
+
+		assert.NotEqual(t, arDefault.max, arNice.max)
+		// verify the nice interval produces a round interval
+		interval := (arNice.max - arNice.min) / float64(arNice.labelCount-1)
+		niceInterval := niceNum(interval)
+		assert.InDelta(t, niceInterval, interval, 1e-10)
 	})
 
 	t.Run("label_unit_infinite_loop", func(t *testing.T) {
@@ -317,6 +338,7 @@ func TestCalculateValueAxisRange(t *testing.T) {
 			tsl, 0, true, // seriesList, yAxisIndex, stackSeries
 			defaultValueFormatter,
 			0, fs, // labelRotation, fontStyle
+			nil, // preferNiceIntervals
 		)
 
 		assert.Equal(t, 2, ar.labelCount)

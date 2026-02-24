@@ -39,7 +39,8 @@ func calculateValueAxisRange(p *Painter, isVertical bool, axisSize int,
 	labelCountCfg int, labelUnit float64, labelCountAdjustment int,
 	seriesList seriesList, yAxisIndex int, stackSeries bool,
 	valueFormatter ValueFormatter,
-	labelRotation float64, fontStyle FontStyle) axisRange {
+	labelRotation float64, fontStyle FontStyle,
+	preferNiceIntervals *bool) axisRange {
 	// calculate the range
 	minVal, maxVal, sumMax := getSeriesMinMaxSumMax(seriesList, yAxisIndex, stackSeries)
 	if stackSeries { // If stacked, maxVal should be the maxVal data point of all series summed together
@@ -111,7 +112,9 @@ func calculateValueAxisRange(p *Painter, isVertical bool, axisSize int,
 			padLabelCount--
 		}
 	}
-	minPadded, maxPadded, adjustedCount := padRange(padLabelCount, minVal, maxVal, minPadScale, maxPadScale, labelCountCfg == 0)
+	// TODO - in v0.6.0 default flexCount if labelCountCfg == 0 && !flagIs(false, preferNiceIntervals)
+	flexCount := flagIs(true, preferNiceIntervals)
+	minPadded, maxPadded, adjustedCount := padRange(padLabelCount, minVal, maxVal, minPadScale, maxPadScale, flexCount)
 	labelCount := adjustedCount
 	// if the user set only a unit, we may need to refine again after padding to meet the unit
 	if labelCountCfg == 0 && labelUnit > 0 {
@@ -387,7 +390,7 @@ func padRange(divideCount int, min, max, minPaddingScale, maxPaddingScale float6
 	var spanIncrementMultiplier float64
 	// find a min value to start our range from
 	// we prefer (in order, negative if necessary), 0, 1, 10, 100, ..., 2, 20, ..., 5, 50, ...
-	updatedMin := false
+	var updatedMin bool
 rootLoop:
 	for _, multiple := range []float64{1.0, 2.0, 5.0} {
 		if min < 0 {
@@ -435,57 +438,45 @@ rootLoop:
 		return minResult, max, divideCount
 	}
 
-	var maxResult float64
 	adjustedCount := divideCount
+	var maxResult float64
+	var found bool
 
 	if flexCount {
 		// attempt to find a nice-number interval by flexing divideCount ±3
 		minPadRequired := max + spanIncrement*scaledMaxPadPercentMin
 		maxPadLimit := max + spanIncrement*scaledMaxPadPercentMax*1.5
-		type niceCandidate struct {
-			dc        int
-			maxResult float64
-			deltaDC   int
-			excess    float64
-		}
-		var bestNice *niceCandidate
+		bestScore := math.Inf(1)
 		for delta := -3; delta <= 3; delta++ {
 			dc := divideCount + delta
 			if dc < minimumAxisLabels {
 				continue
 			}
-			rawInterval := (max - minResult) / float64(dc-1)
-			ni := niceNum(rawInterval)
+			ni := niceNum((max - minResult) / float64(dc-1))
 			if ni <= 0 {
 				continue
 			}
 			candidateMax := minResult + ni*float64(dc-1)
-			if candidateMax < minPadRequired-1e-10 {
-				continue // insufficient padding above data max
-			}
-			if candidateMax > maxPadLimit+1e-10 {
-				continue // too much padding
+			if candidateMax < minPadRequired-1e-10 || candidateMax > maxPadLimit+1e-10 {
+				continue
 			}
 			absDelta := int(math.Abs(float64(delta)))
 			excess := candidateMax - max
-			// scoring: ±1 label count is negligible, so treat absDelta≤1 equally and prefer least excess;
-			// for larger absDelta, prefer smaller delta first, then least excess
-			betterTier := bestNice == nil ||
-				(absDelta <= 1 && bestNice.deltaDC > 1) ||
-				(absDelta <= 1 && bestNice.deltaDC <= 1 && excess < bestNice.excess-1e-10) ||
-				(absDelta > 1 && bestNice.deltaDC > 1 &&
-					(absDelta < bestNice.deltaDC || (absDelta == bestNice.deltaDC && excess < bestNice.excess-1e-10)))
-			if betterTier {
-				bestNice = &niceCandidate{dc: dc, maxResult: candidateMax, deltaDC: absDelta, excess: excess}
+			// prefer ±1 label count change over larger changes, then minimize excess
+			score := excess
+			if absDelta > 1 {
+				score = 1e15 + float64(absDelta)*1e10 + excess
 			}
-		}
-		if bestNice != nil {
-			maxResult = bestNice.maxResult
-			adjustedCount = bestNice.dc
+			if score < bestScore-1e-10 {
+				bestScore = score
+				maxResult = candidateMax
+				adjustedCount = dc
+				found = true
+			}
 		}
 	}
 
-	if adjustedCount == divideCount && maxResult == 0 {
+	if !found {
 		// fixed count or nice-number search found no candidate — use friendlyRound
 		if math.Abs(max) < 10 {
 			return minResult, math.Ceil(max) + 1, divideCount
