@@ -2,6 +2,7 @@ package charts
 
 import (
 	"math"
+	"slices"
 	"strconv"
 
 	"github.com/go-analyze/charts/chartdraw"
@@ -63,9 +64,9 @@ func prepareValueAxisRange(p *Painter, isVertical bool, axisSize int,
 	valueFormatter ValueFormatter,
 	labelRotation float64, fontStyle FontStyle) valueAxisPrep {
 	minVal, maxVal, sumMax := getSeriesMinMaxSumMax(seriesList, yAxisIndex, stackSeries)
-	if stackSeries {
+	if stackSeries { // If stacked, maxVal should be the max per-index sum across all series
 		if minVal > 0 {
-			minVal--
+			minVal-- // subtract to ensure that all series are represented as a small stacked bar (may otherwise have 0 height)
 		}
 		maxVal = sumMax
 	}
@@ -100,7 +101,7 @@ func prepareValueAxisRange(p *Painter, isVertical bool, axisSize int,
 			initialLabelCount =
 				chartdraw.MinInt(chartdraw.MaxInt(int(maxVal-minVal)+1, defaultYAxisLabelCountLow),
 					defaultYAxisLabelCountHigh)
-			if decimalData {
+			if decimalData { // if there is a decimal, we double our labels to provide more detail
 				initialLabelCount = chartdraw.MinInt(initialLabelCount*2, defaultYAxisLabelCountHigh)
 			}
 		}
@@ -109,17 +110,18 @@ func prepareValueAxisRange(p *Painter, isVertical bool, axisSize int,
 	labels := valueLabels(labelsCfg, valueFormatter, minVal, maxVal, initialLabelCount)
 	labelW, labelH := p.measureTextMaxWidthHeight(labels, labelRotation, fontStyle)
 
-	// If user gave an explicit LabelCount, then we do NOT do a collision check.
-	// For default logic we want to make sure we choose a label count that is visually appealing.
+	// If user gave an explicit LabelCount, then we do NOT do a collision check
+	// For default logic we want to make sure we choose a label count that is visually appealing
 	padLabelCount := initialLabelCount
 	maxLabelCount := padLabelCount
 	if labelCountCfg == 0 {
 		if isVertical {
-			if labelH > 0 {
+			if labelH > 0 { // avoid divide by zero
 				maxLabelCount = axisSize / labelH
 			}
 		} else {
 			if labelW > 0 {
+				// add to the label width to give good spacing
 				maxLabelCount = axisSize / (labelW + chartdraw.MinInt(20, labelW))
 			}
 		}
@@ -127,6 +129,7 @@ func prepareValueAxisRange(p *Painter, isVertical bool, axisSize int,
 			padLabelCount = chartdraw.MaxInt(maxLabelCount, minimumAxisLabels)
 		}
 		if labelUnit > 0 && padLabelCount > minimumAxisLabels {
+			// reduce padLabelCount to ensure it remains within the max count if we have to add one to meet unit expectations
 			padLabelCount--
 		}
 	}
@@ -174,6 +177,7 @@ func resolveValueAxisRange(prep *valueAxisPrep, flexCount bool, targetLabelCount
 		if dataSpan := maxPadded - minPadded; labelUnit >= dataSpan {
 			labelCount = minimumAxisLabels
 		} else {
+			// Snap helpers to ensure we maintain a multiple of `labelUnit`
 			down := func(v float64) float64 { return math.Floor(v/labelUnit) * labelUnit }
 			up := func(v float64) float64 { return math.Ceil(v/labelUnit) * labelUnit }
 
@@ -182,13 +186,14 @@ func resolveValueAxisRange(prep *valueAxisPrep, flexCount bool, targetLabelCount
 			bestPad := math.Inf(1)
 			bestDeltaC := math.MaxInt
 
+			// Helper that records the “best so far”
 			accept := func(c int, mn, mx float64) {
 				deltaAbs := int(math.Abs(float64(padLabelCount - c)))
 				pad := (minPadded - mn) + (mx - maxPadded)
 				if pad < bestPad-matrix.DefaultEpsilon ||
 					(math.Abs(pad-bestPad) < matrix.DefaultEpsilon &&
 						(deltaAbs < bestDeltaC || (deltaAbs == bestDeltaC && c > bestCount))) {
-					if bestCount == 0 || down(mn)-mn < matrix.DefaultEpsilon && mx-up(mx) < matrix.DefaultEpsilon {
+					if bestCount == 0 || (down(mn)-mn < matrix.DefaultEpsilon && mx-up(mx) < matrix.DefaultEpsilon) {
 						bestPad = pad
 						bestMin = mn
 						bestMax = mx
@@ -198,6 +203,7 @@ func resolveValueAxisRange(prep *valueAxisPrep, flexCount bool, targetLabelCount
 				}
 			}
 
+			// The search expands symmetrically around padLabelCount
 			maxDelta := chartdraw.MaxInt(padLabelCount-minimumAxisLabels, maxLabelCount-padLabelCount)
 			if targetLabelCount > 0 {
 				maxDelta = 0 // only try the target count
@@ -214,7 +220,7 @@ func resolveValueAxisRange(prep *valueAxisPrep, flexCount bool, targetLabelCount
 					snappedMin := down(minPadded)
 					snappedMax := up(maxPadded)
 					snappedInterval := up((snappedMax - snappedMin) / spanCount)
-					flip := true
+					flip := true // flip to alternate which boundary we expand to meet the snapped interval
 					for snappedMin+(snappedInterval*spanCount)-snappedMax > matrix.DefaultEpsilon {
 						if snappedMin-snappedInterval >= 0 && flip {
 							flip = false
@@ -224,12 +230,13 @@ func resolveValueAxisRange(prep *valueAxisPrep, flexCount bool, targetLabelCount
 							snappedMax += snappedInterval
 						}
 					}
+					// final max adjustment to ensure we meet the snapped interval
 					snappedMax = math.Ceil(snappedMax/snappedInterval) * snappedInterval
 					accept(c, snappedMin, snappedMax)
 
 					// shift MIN downward
 					if prep.minCfg == nil {
-						candMax := up(maxPadded)
+						candMax := up(maxPadded) // snapped top
 						candMin := candMax - span
 						if (minPadded < 0 || candMin >= 0.0-matrix.DefaultEpsilon) &&
 							candMin <= minPadded+matrix.DefaultEpsilon {
@@ -239,6 +246,7 @@ func resolveValueAxisRange(prep *valueAxisPrep, flexCount bool, targetLabelCount
 
 					// split padding (both free)
 					if prep.minCfg == nil && prep.maxCfg == nil {
+						// center the span around the data as much as multiples allow
 						candMin := down(minPadded - (span-dataSpan)/2)
 						candMax := candMin + span
 						if (minPadded < 0 || candMin >= 0.0-matrix.DefaultEpsilon) &&
@@ -250,7 +258,7 @@ func resolveValueAxisRange(prep *valueAxisPrep, flexCount bool, targetLabelCount
 
 					// grow the MAX upward
 					if prep.maxCfg == nil {
-						candMin := down(minPadded)
+						candMin := down(minPadded) // snapped bottom
 						candMax := candMin + span
 						if candMax >= maxPadded-matrix.DefaultEpsilon {
 							accept(c, candMin, candMax)
@@ -258,6 +266,7 @@ func resolveValueAxisRange(prep *valueAxisPrep, flexCount bool, targetLabelCount
 					}
 				}
 
+				// Try padLabelCount-delta and padLabelCount+delta in that order
 				if cand := padLabelCount - delta; cand >= minimumAxisLabels {
 					try(cand)
 				}
@@ -268,7 +277,7 @@ func resolveValueAxisRange(prep *valueAxisPrep, flexCount bool, targetLabelCount
 				}
 
 				if bestPad < matrix.DefaultEpsilon {
-					break
+					break // perfect fit with zero extra padding
 				}
 			}
 
@@ -276,7 +285,7 @@ func resolveValueAxisRange(prep *valueAxisPrep, flexCount bool, targetLabelCount
 				labelCount = bestCount
 				minPadded = bestMin
 				maxPadded = bestMax
-			}
+			} // else, could not match the unit inside range, fallback to the original padLabelCount
 		}
 	}
 
@@ -317,8 +326,7 @@ func coordinateValueAxisRanges(p *Painter, preps []*valueAxisPrep, preferNice []
 	n := len(preps)
 	if n == 0 {
 		return nil
-	}
-	if n == 1 {
+	} else if n == 1 {
 		flexCount := flagIs(true, preferNice[0])
 		mn, mx, count := resolveValueAxisRange(preps[0], flexCount, 0)
 		return []axisRange{finalizeValueAxisRange(p, preps[0], mn, mx, count)}
@@ -350,8 +358,8 @@ func coordinateValueAxisRanges(p *Painter, preps []*valueAxisPrep, preferNice []
 		result := make([]axisRange, n)
 		for i, prep := range preps {
 			if prep.labelCountCfg == forcedCount {
-				flexCount := flagIs(true, preferNice[i])
-				mn, mx, count := resolveValueAxisRange(prep, flexCount, 0)
+				// explicit count set, resolve with that count directly (no flex)
+				mn, mx, count := resolveValueAxisRange(prep, false, 0)
 				result[i] = finalizeValueAxisRange(p, prep, mn, mx, count)
 			} else {
 				mn, mx, count := resolveValueAxisRange(prep, false, forcedCount)
@@ -366,14 +374,9 @@ func coordinateValueAxisRanges(p *Painter, preps []*valueAxisPrep, preferNice []
 	primaryMin, primaryMax, primaryCount := resolveValueAxisRange(preps[0], primaryFlex, 0)
 
 	// check if any secondary axis opts into coordination via PreferNiceIntervals
-	anySecondaryNice := false
-	for i := 1; i < n; i++ {
-		if flagIs(true, preferNice[i]) {
-			anySecondaryNice = true
-			break
-		}
-	}
-
+	anySecondaryNice := slices.ContainsFunc(preferNice[1:], func(b *bool) bool {
+		return flagIs(true, b)
+	})
 	if !anySecondaryNice {
 		// secondary axes adopt the primary's label count directly
 		result := make([]axisRange, n)
@@ -440,8 +443,7 @@ func coordinateValueAxisRanges(p *Painter, preps []*valueAxisPrep, preferNice []
 		for i, prep := range preps {
 			mn, mx, count := resolveValueAxisRange(prep, false, c)
 			if count > 1 {
-				interval := (mx - mn) / float64(count-1)
-				if interval > 0 {
+				if interval := (mx - mn) / float64(count-1); interval > 0 {
 					ni := niceNum(interval)
 					if math.Abs(ni-interval) > 1e-10 {
 						score += 100
@@ -674,8 +676,7 @@ rootLoop:
 		incrementPerLabel := spanIncrement / spanCount
 		intervalQuality := func(candidateMin, mult float64) float64 {
 			interval := (max - candidateMin) / spanCount
-			ri, _ := friendlyRound(interval, incrementPerLabel,
-				math.Max(mult, scaledMaxPadPercentMin),
+			ri, _ := friendlyRound(interval, incrementPerLabel, math.Max(mult, scaledMaxPadPercentMin),
 				scaledMaxPadPercentMin, scaledMaxPadPercentMax, true)
 			finalMax := candidateMin + ri*spanCount
 			if trunk := math.Trunc(finalMax); trunk >= max+(spanIncrement*scaledMaxPadPercentMin) {
@@ -777,8 +778,7 @@ func friendlyRound(val, increment, defaultMultiplier, minMultiplier, maxMultipli
 	}
 	for orderOfMagnitude := startOOM; orderOfMagnitude >= lowerBound; orderOfMagnitude-- {
 		roundValue := math.Pow(10, orderOfMagnitude)
-		var proposedVal float64
-		var proposedMultiplier float64
+		var proposedVal, proposedMultiplier float64
 		for roundAdjust := 0.0; roundAdjust < 9.0; roundAdjust++ {
 			if add {
 				proposedVal = (math.Ceil(absVal/roundValue) * roundValue) + (roundValue * roundAdjust)
@@ -806,8 +806,7 @@ func friendlyRound(val, increment, defaultMultiplier, minMultiplier, maxMultipli
 	}
 	// No match found, let's see if we can just round to the next whole number
 	if (increment*maxMultiplier) >= 1.0 && val != math.Trunc(val) {
-		var proposedVal float64
-		var proposedMultiplier float64
+		var proposedVal, proposedMultiplier float64
 		if add {
 			proposedVal = math.Ceil(val)
 			proposedMultiplier = (proposedVal - val) / increment

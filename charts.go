@@ -286,7 +286,7 @@ func defaultRender(p *Painter, opt defaultRenderOption) (*defaultRenderResult, e
 	rangeHeight := p.Height() - xAxisHeight
 	var rangeWidthLeft, rangeWidthRight int
 
-	// Phase 1: Prepare all y-axis options and range data
+	// prepare all y-axis options and range data (allowing multiple axes to be considered)
 	yAxisCount := getSeriesYAxisCount(opt.seriesList)
 	type yAxisEntry struct {
 		option     YAxisOption
@@ -337,22 +337,15 @@ func defaultRender(p *Painter, opt defaultRenderOption) (*defaultRenderResult, e
 		}
 	}
 
-	// Phase 2: Coordinate and resolve value axis ranges
-	if len(valuePreps) > 1 {
+	// coordinate and resolve value axis ranges
+	if len(valuePreps) > 0 {
 		ranges := coordinateValueAxisRanges(p, valuePreps, valuePrepNice)
 		for i, yIndex := range valuePrepIndices {
 			entries[yIndex].r = ranges[i]
 		}
-	} else {
-		for _, yIndex := range valuePrepIndices {
-			entry := &entries[yIndex]
-			flexCount := flagIs(true, entry.preferNice)
-			mn, mx, count := resolveValueAxisRange(entry.prep, flexCount, 0)
-			entry.r = finalizeValueAxisRange(p, entry.prep, mn, mx, count)
-		}
 	}
 
-	// Phase 3: Render y-axes (reverse order so mark lines from left axis don't extend into right axis)
+	// render y-axes (reverse order so mark lines from left axis don't extend into right axis)
 	for yIndex := yAxisCount - 1; yIndex >= 0; yIndex-- {
 		entry := entries[yIndex]
 		result.yaxisRanges[yIndex] = entry.r
