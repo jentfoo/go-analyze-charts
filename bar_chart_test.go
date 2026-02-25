@@ -229,7 +229,7 @@ func TestBarChart(t *testing.T) {
 			pngCRC: 0xbc7d2dfe,
 		},
 		{
-			name: "double_yaxis",
+			name: "dual_yaxis",
 			makeOptions: func() BarChartOption {
 				opt := makeBasicBarChartOption()
 				opt.Theme = GetTheme(ThemeLight)
