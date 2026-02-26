@@ -357,14 +357,8 @@ func coordinateValueAxisRanges(p *Painter, preps []*valueAxisPrep, preferNice []
 	if forcedCount > 0 {
 		result := make([]axisRange, n)
 		for i, prep := range preps {
-			if prep.labelCountCfg == forcedCount {
-				// explicit count set, resolve with that count directly (no flex)
-				mn, mx, count := resolveValueAxisRange(prep, false, 0)
-				result[i] = finalizeValueAxisRange(p, prep, mn, mx, count)
-			} else {
-				mn, mx, count := resolveValueAxisRange(prep, false, forcedCount)
-				result[i] = finalizeValueAxisRange(p, prep, mn, mx, count)
-			}
+			mn, mx, count := resolveValueAxisRange(prep, false, forcedCount)
+			result[i] = finalizeValueAxisRange(p, prep, mn, mx, count)
 		}
 		return result
 	}
@@ -435,30 +429,95 @@ func coordinateValueAxisRanges(p *Painter, preps []*valueAxisPrep, preferNice []
 	searchMin := chartdraw.MaxInt(minNatural-3, minimumAxisLabels)
 	searchMax := chartdraw.MinInt(maxNatural+3, minMaxLabel)
 
-	bestCount := naturals[0].labelCount
-	bestScore := math.Inf(1)
+	// check if any axis has a configured label unit
+	var hasUnit bool
+	for _, prep := range preps {
+		if prep.labelUnit > 0 {
+			hasUnit = true
+			break
+		}
+	}
 
-	for c := searchMin; c <= searchMax; c++ {
-		var score float64
-		for i, prep := range preps {
-			mn, mx, count := resolveValueAxisRange(prep, false, c)
-			if count > 1 {
-				if interval := (mx - mn) / float64(count-1); interval > 0 {
-					ni := niceNum(interval)
-					if math.Abs(ni-interval) > 1e-10 {
-						score += 100
+	// compute per-axis max pad limits mirroring padRange's maxPadLimit formula,
+	// using the natural resolution as the baseline cap for the coordinated search
+	maxPadLimits := make([]float64, n)
+	for i, prep := range preps {
+		spanIncrement := (prep.maxVal - prep.minVal) * 0.01
+		scaledMaxPadPercentMax := rangeMaxPaddingPercentMax * prep.maxPadScale
+		baselineExcess := naturals[i].max - prep.maxVal
+		maxPadLimits[i] = math.Min(
+			prep.maxVal+spanIncrement*scaledMaxPadPercentMax*1.4,
+			naturals[i].max+baselineExcess*8,
+		)
+	}
+
+	bestCount := naturals[0].labelCount
+
+	if hasUnit {
+		// unit-aware search: best alignment tier wins, closest to natural count breaks ties
+		bestTier := 3 // start worse than any real tier
+		bestDist := math.MaxInt32
+		for c := searchMin; c <= searchMax; c++ {
+			var worstTier, dist int
+			var excessive bool
+			for i, prep := range preps {
+				mn, mx, count := resolveValueAxisRange(prep, false, c)
+				if mx > maxPadLimits[i]+1e-10 {
+					excessive = true
+					break
+				}
+				if count > 1 {
+					interval := (mx - mn) / float64(count-1)
+					if prep.labelUnit > 0 && interval > 0 {
+						tier := unitAlignmentTier(interval, prep.labelUnit)
+						if tier > worstTier {
+							worstTier = tier
+						}
 					}
 				}
+				d := c - naturals[i].labelCount
+				dist += d * d // sum of squared distances
 			}
-			if excess := (mx - prep.maxVal) + (prep.minVal - mn); excess > 0 {
-				score += excess
+			if excessive {
+				continue
 			}
-			score += math.Abs(float64(c-naturals[i].labelCount)) * 10
+			if worstTier < bestTier || (worstTier == bestTier && dist < bestDist) {
+				bestTier = worstTier
+				bestDist = dist
+				bestCount = c
+			}
 		}
-
-		if score < bestScore-1e-10 {
-			bestScore = score
-			bestCount = c
+	} else {
+		// fewest non-nice axes wins, closest to natural count breaks ties
+		bestNonNice := math.MaxInt32
+		bestDist := math.MaxInt32
+		for c := searchMin; c <= searchMax; c++ {
+			var nonNice, dist int
+			var excessive bool
+			for i, prep := range preps {
+				mn, mx, count := resolveValueAxisRange(prep, false, c)
+				if mx > maxPadLimits[i]+1e-10 {
+					excessive = true
+					break
+				}
+				if count > 1 {
+					if interval := (mx - mn) / float64(count-1); interval > 0 {
+						if ni := niceNum(interval); math.Abs(ni-interval) > 1e-10 {
+							nonNice++
+						}
+					}
+				}
+				d := c - naturals[i].labelCount
+				dist += d * d
+			}
+			if excessive {
+				continue
+			}
+			if nonNice < bestNonNice || (nonNice == bestNonNice && dist < bestDist) {
+				bestNonNice = nonNice
+				bestDist = dist
+				bestCount = c
+			}
 		}
 	}
 
@@ -594,20 +653,43 @@ func valueLabels(labelsCfg []string, valueFormatter ValueFormatter, min, max flo
 }
 
 var niceNums = [...]float64{1, 2, 2.5, 5}
+var extendedNiceNums = [...]float64{1, 2, 2.5, 3, 4, 5, 6, 8}
 
-// niceNum returns the smallest "nice" number >= val from {1, 2, 2.5, 5} × 10^n.
-func niceNum(val float64) float64 {
+// niceNumFrom returns the smallest "nice" number >= val from the provided set × 10^n.
+func niceNumFrom(val float64, nums []float64) float64 {
 	if val <= 0 {
 		return 0
 	}
 	exp := math.Floor(math.Log10(val))
 	frac := val / math.Pow(10, exp)
-	for _, n := range niceNums {
+	for _, n := range nums {
 		if n >= frac-1e-10 {
 			return n * math.Pow(10, exp)
 		}
 	}
 	return math.Pow(10, exp+1)
+}
+
+// niceNum returns the smallest "nice" number >= val from {1, 2, 2.5, 5} × 10^n.
+func niceNum(val float64) float64 {
+	return niceNumFrom(val, niceNums[:])
+}
+
+// unitAlignmentTier returns 0 if interval is an integer multiple of unit,
+// 1 if unit is an integer multiple of interval, or 2 otherwise.
+func unitAlignmentTier(interval, unit float64) int {
+	if unit <= 0 || interval <= 0 {
+		return 2
+	}
+	// tier 0: interval is a multiple of unit (e.g. interval=80, unit=40)
+	if ratio := interval / unit; math.Abs(ratio-math.Round(ratio)) < 1e-9 {
+		return 0
+	}
+	// tier 1: unit is a multiple of interval (e.g. interval=20, unit=60)
+	if ratio := unit / interval; math.Abs(ratio-math.Round(ratio)) < 1e-9 {
+		return 1
+	}
+	return 2
 }
 
 func padRange(divideCount int, min, max, minPaddingScale, maxPaddingScale float64, flexCount bool) (float64, float64, int) {
@@ -736,36 +818,58 @@ rootLoop:
 			max+spanIncrement*scaledMaxPadPercentMax*1.4,
 			baselineMax+baselineExcess*8,
 		)
-		bestScore := math.Inf(1)
-		for delta := -3; delta <= 3; delta++ {
-			dc := divideCount + delta
-			if dc < minimumAxisLabels {
-				continue
+		t1Max, t1Count, t1Found := flexNiceSearch(minResult, max, minPadRequired, maxPadLimit,
+			divideCount, func(v float64) float64 { return niceNum(v) })
+		// tier-2: if tier-1 failed, try the extended nice number set
+		if !t1Found {
+			if t2Max, t2Count, t2Found := flexNiceSearch(minResult, max, minPadRequired, maxPadLimit,
+				divideCount, func(v float64) float64 { return niceNumFrom(v, extendedNiceNums[:]) }); t2Found {
+				t1Max, t1Count, t1Found = t2Max, t2Count, t2Found
 			}
-			ni := niceNum((max - minResult) / float64(dc-1))
-			if ni <= 0 {
-				continue
-			}
-			candidateMax := minResult + ni*float64(dc-1)
-			if candidateMax < minPadRequired-1e-10 || candidateMax > maxPadLimit+1e-10 {
-				continue
-			}
-			absDelta := int(math.Abs(float64(delta)))
-			excess := candidateMax - max
-			// prefer ±1 label count change over larger changes, then minimize excess
-			score := excess
-			if absDelta > 1 {
-				score = 1e15 + float64(absDelta)*1e10 + excess
-			}
-			if score < bestScore-1e-10 {
-				bestScore = score
-				maxResult = candidateMax
-				adjustedCount = dc
-			}
+		}
+		if t1Found {
+			maxResult = t1Max
+			adjustedCount = t1Count
 		}
 	}
 
 	return minResult, maxResult, adjustedCount
+}
+
+// flexNiceSearch tries divideCount ±3 looking for a nice-number interval that keeps the max
+// between minPadRequired and maxPadLimit. Returns the best max, count, and whether a match was found.
+func flexNiceSearch(minResult, max, minPadRequired, maxPadLimit float64,
+	divideCount int, niceFunc func(float64) float64,
+) (bestMax float64, bestCount int, found bool) {
+	bestScore := math.Inf(1)
+	for delta := -3; delta <= 3; delta++ {
+		dc := divideCount + delta
+		if dc < minimumAxisLabels {
+			continue
+		}
+		ni := niceFunc((max - minResult) / float64(dc-1))
+		if ni <= 0 {
+			continue
+		}
+		candidateMax := minResult + ni*float64(dc-1)
+		if candidateMax < minPadRequired-1e-10 || candidateMax > maxPadLimit+1e-10 {
+			continue
+		}
+		absDelta := int(math.Abs(float64(delta)))
+		excess := candidateMax - max
+		// strongly penalize delta > 1 from the original count, then minimize excess
+		score := excess
+		if absDelta > 1 {
+			score = 1e15 + float64(absDelta)*1e10 + excess
+		}
+		if score < bestScore-1e-10 {
+			bestScore = score
+			bestMax = candidateMax
+			bestCount = dc
+			found = true
+		}
+	}
+	return bestMax, bestCount, found
 }
 
 func friendlyRound(val, increment, defaultMultiplier, minMultiplier, maxMultiplier float64, add bool) (float64, float64) {
