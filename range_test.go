@@ -6,10 +6,11 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func newTestRange(size, divideCount int, min, max, minPaddingScale, maxPaddingScale float64) axisRange {
-	min, max, divideCount = padRange(divideCount, min, max, minPaddingScale, maxPaddingScale, true, 0)
+	min, max = padRange(divideCount, min, max, minPaddingScale, maxPaddingScale)
 	return axisRange{
 		divideCount: divideCount,
 		min:         min,
@@ -589,7 +590,7 @@ func TestPadRange(t *testing.T) {
 		{
 			name:             "pad_max_only",
 			expectedMinValue: 0.0,
-			expectedMaxValue: 11.0,
+			expectedMaxValue: 10.5,
 			minValue:         0.0,
 			maxValue:         10.0,
 			labelCount:       10,
@@ -597,7 +598,7 @@ func TestPadRange(t *testing.T) {
 		{
 			name:             "pad_min_to_zero",
 			expectedMinValue: 0.0,
-			expectedMaxValue: 22.5,
+			expectedMaxValue: 21.0,
 			minValue:         1.0,
 			maxValue:         20.0,
 			labelCount:       10,
@@ -605,7 +606,7 @@ func TestPadRange(t *testing.T) {
 		{
 			name:             "pad_negative_min_positive_max",
 			expectedMinValue: -5.0,
-			expectedMaxValue: 11.0,
+			expectedMaxValue: 12.0,
 			minValue:         -3.0,
 			maxValue:         10.0,
 			labelCount:       10,
@@ -621,7 +622,7 @@ func TestPadRange(t *testing.T) {
 		{
 			name:             "pad_positive_min_positive_max",
 			expectedMinValue: 100.0,
-			expectedMaxValue: 205.0,
+			expectedMaxValue: 214.0,
 			minValue:         100.0,
 			maxValue:         200.0,
 			labelCount:       20,
@@ -630,7 +631,7 @@ func TestPadRange(t *testing.T) {
 
 	for i, tc := range testCases {
 		t.Run(strconv.Itoa(i)+"-"+tc.name, func(t *testing.T) {
-			min, max, _ := padRange(tc.labelCount, tc.minValue, tc.maxValue, 1.0, 1.0, true, 0)
+			min, max := padRange(tc.labelCount, tc.minValue, tc.maxValue, 1.0, 1.0)
 
 			assert.InDelta(t, tc.expectedMinValue, min, 0, "Unexpected value rounding %v", tc.minValue)
 			assert.InDelta(t, tc.expectedMaxValue, max, 0, "Unexpected value rounding %v", tc.maxValue)
@@ -639,8 +640,12 @@ func TestPadRange(t *testing.T) {
 
 	t.Run("flex_capped_by_baseline", func(t *testing.T) {
 		// niceNum jumps from 2.5→5 inflating the range; flex should be capped by the friendlyRound baseline
-		_, flexMax, _ := padRange(5, 1, 26, 1.0, 1.0, true, 0)
-		_, baselineMax, _ := padRange(5, 1, 26, 1.0, 1.0, false, 0)
+		prep := valueAxisPrep{
+			minVal: 1, maxVal: 26, minPadScale: 1.0, maxPadScale: 1.0,
+			padLabelCount: 5, maxLabelCount: 5,
+		}
+		_, flexMax, _ := resolveValueAxisRange(&prep, true, 0)
+		_, baselineMax, _ := resolveValueAxisRange(&prep, false, 0)
 		// the flex result should not significantly exceed the baseline
 		assert.LessOrEqual(t, flexMax, baselineMax+((baselineMax-26)*1.0)+1e-10)
 	})
@@ -648,11 +653,11 @@ func TestPadRange(t *testing.T) {
 	t.Run("tier2_flex_fallback", func(t *testing.T) {
 		// range where tier-1 niceNums (1,2,2.5,5) can't find a match in ±1 delta,
 		// but tier-2 extended set can find one at the original divideCount
-		// data 0-340: tier-1 niceNum(340/7)=niceNum(48.6)=50, candidateMax=400 (delta=+1)
-		// tier-2 niceNumFrom(340/7, extended)=50 same, but also tries dc=6:
-		// niceNumFrom(340/5)=niceNumFrom(68)=80, candidateMax=400
-		// For dc=8, 340/7≈48.6, niceNumFrom→50, max=350, which has ±0 delta and tight fit
-		_, flexMax, flexCount := padRange(8, 0, 340, 1.0, 1.0, true, 0)
+		prep := valueAxisPrep{
+			minVal: 0, maxVal: 340, minPadScale: 1.0, maxPadScale: 1.0,
+			padLabelCount: 8, maxLabelCount: 8,
+		}
+		_, flexMax, flexCount := resolveValueAxisRange(&prep, true, 0)
 		interval := flexMax / float64(flexCount-1)
 		// the flex path should produce a clean interval
 		assert.InDelta(t, math.Round(interval), interval, 0.5)
@@ -820,8 +825,201 @@ func TestFriendlyRound(t *testing.T) {
 	}
 }
 
+func TestResolveValueAxisRange(t *testing.T) {
+	t.Run("basic_no_flex", func(t *testing.T) {
+		prep := valueAxisPrep{
+			minVal: 10, maxVal: 90, minPadScale: 1.0, maxPadScale: 1.0,
+			padLabelCount: 5, maxLabelCount: 10,
+		}
+		minP, maxP, count := resolveValueAxisRange(&prep, false, 0)
+		// should match padRange baseline
+		expMin, expMax := padRange(5, 10, 90, 1.0, 1.0)
+		assert.InDelta(t, expMin, minP, 1e-10)
+		assert.InDelta(t, expMax, maxP, 1e-10)
+		assert.Equal(t, 5, count)
+	})
+
+	t.Run("target_overrides_count", func(t *testing.T) {
+		prep := valueAxisPrep{
+			minVal: 0, maxVal: 100, minPadScale: 1.0, maxPadScale: 1.0,
+			padLabelCount: 5, maxLabelCount: 10,
+		}
+		_, _, count := resolveValueAxisRange(&prep, true, 8)
+		assert.Equal(t, 8, count)
+	})
+
+	t.Run("flex_produces_nice_interval", func(t *testing.T) {
+		prep := valueAxisPrep{
+			minVal: 0, maxVal: 47, minPadScale: 1.0, maxPadScale: 1.0,
+			padLabelCount: 6, maxLabelCount: 10,
+		}
+		minP, maxP, count := resolveValueAxisRange(&prep, true, 0)
+		require.Greater(t, count, 1)
+		interval := (maxP - minP) / float64(count-1)
+		assert.InDelta(t, niceNum(interval), interval, 1e-10)
+		assert.GreaterOrEqual(t, maxP, 47.0)
+		assert.LessOrEqual(t, minP, 0.0)
+	})
+
+	t.Run("unit_snaps_range", func(t *testing.T) {
+		prep := valueAxisPrep{
+			minVal: 0, maxVal: 50, minPadScale: 1.0, maxPadScale: 1.0,
+			padLabelCount: 6, maxLabelCount: 15,
+			labelUnit: 10,
+		}
+		minP, maxP, count := resolveValueAxisRange(&prep, false, 0)
+		require.Greater(t, count, 1)
+		interval := (maxP - minP) / float64(count-1)
+		// interval should be a multiple of labelUnit
+		ratio := interval / 10
+		assert.InDelta(t, math.Round(ratio), ratio, 1e-9)
+		assert.GreaterOrEqual(t, maxP, 50.0)
+	})
+
+	t.Run("unit_with_target_count", func(t *testing.T) {
+		prep := valueAxisPrep{
+			minVal: 0, maxVal: 100, minPadScale: 1.0, maxPadScale: 1.0,
+			padLabelCount: 6, maxLabelCount: 15,
+			labelUnit: 10,
+		}
+		_, _, count := resolveValueAxisRange(&prep, false, 6)
+		assert.Equal(t, 6, count)
+	})
+
+	t.Run("unit_exceeds_span", func(t *testing.T) {
+		prep := valueAxisPrep{
+			minVal: 10, maxVal: 20, minPadScale: 1.0, maxPadScale: 1.0,
+			padLabelCount: 5, maxLabelCount: 10,
+			labelUnit: 100,
+		}
+		_, _, count := resolveValueAxisRange(&prep, false, 0)
+		assert.Equal(t, minimumAxisLabels, count)
+	})
+
+	t.Run("unit_with_min_cfg", func(t *testing.T) {
+		minCfg := 0.0
+		prep := valueAxisPrep{
+			minVal: 0, maxVal: 100, minPadScale: 0.0, maxPadScale: 1.0,
+			padLabelCount: 6, maxLabelCount: 15,
+			labelUnit: 20, minCfg: &minCfg,
+		}
+		minP, maxP, count := resolveValueAxisRange(&prep, false, 0)
+		// min should stay at or near 0 since minCfg blocks shifting downward
+		assert.InDelta(t, 0.0, minP, 1e-10)
+		require.Greater(t, count, 1)
+		interval := (maxP - minP) / float64(count-1)
+		ratio := interval / 20
+		assert.InDelta(t, math.Round(ratio), ratio, 1e-9)
+	})
+
+	t.Run("unit_with_max_cfg", func(t *testing.T) {
+		maxCfg := 120.0
+		prep := valueAxisPrep{
+			minVal: 0, maxVal: 100, minPadScale: 1.0, maxPadScale: 0.0,
+			padLabelCount: 6, maxLabelCount: 15,
+			labelUnit: 20, maxCfg: &maxCfg,
+		}
+		minP, maxP, count := resolveValueAxisRange(&prep, false, 0)
+		require.Greater(t, count, 1)
+		interval := (maxP - minP) / float64(count-1)
+		ratio := interval / 20
+		assert.InDelta(t, math.Round(ratio), ratio, 1e-9)
+	})
+}
+
 func TestCoordinateValueAxisRanges(t *testing.T) {
 	fs := FontStyle{FontSize: 16, FontColor: ColorGray}
+
+	t.Run("empty_preps", func(t *testing.T) {
+		p := NewPainter(PainterOptions{Width: 800, Height: 600})
+		results := coordinateValueAxisRanges(p, nil)
+		assert.Nil(t, results)
+	})
+
+	t.Run("single_axis", func(t *testing.T) {
+		p := NewPainter(PainterOptions{Width: 800, Height: 600})
+		series := testSeriesList{{values: []float64{0, 100}}}
+		prep := prepareValueAxisRange(p, true, 500,
+			nil, nil, nil, nil, 0, 0, 0, 0,
+			series, 0, false, defaultValueFormatter, 0, fs, Ptr(true))
+		results := coordinateValueAxisRanges(p, []*valueAxisPrep{&prep})
+
+		assert.Len(t, results, 1)
+		assert.GreaterOrEqual(t, results[0].max, 100.0)
+	})
+
+	t.Run("forced_count", func(t *testing.T) {
+		p := NewPainter(PainterOptions{Width: 800, Height: 600})
+		leftSeries := testSeriesList{{values: []float64{0, 100}}}
+		leftPrep := prepareValueAxisRange(p, true, 500,
+			nil, nil, nil, nil, 0, 5, 0, 0,
+			leftSeries, 0, false, defaultValueFormatter, 0, fs, Ptr(true))
+		rightSeries := testSeriesList{{values: []float64{0, 200}}}
+		rightPrep := prepareValueAxisRange(p, true, 500,
+			nil, nil, nil, nil, 0, 0, 0, 0,
+			rightSeries, 0, false, defaultValueFormatter, 0, fs, Ptr(true))
+
+		results := coordinateValueAxisRanges(p, []*valueAxisPrep{&leftPrep, &rightPrep})
+
+		assert.Len(t, results, 2)
+		assert.Equal(t, 5, results[0].labelCount)
+		assert.Equal(t, 5, results[1].labelCount)
+	})
+
+	t.Run("conflicting_counts", func(t *testing.T) {
+		p := NewPainter(PainterOptions{Width: 800, Height: 600})
+		leftSeries := testSeriesList{{values: []float64{0, 100}}}
+		leftPrep := prepareValueAxisRange(p, true, 500,
+			nil, nil, nil, nil, 0, 5, 0, 0,
+			leftSeries, 0, false, defaultValueFormatter, 0, fs, nil)
+		rightSeries := testSeriesList{{values: []float64{0, 200}}}
+		rightPrep := prepareValueAxisRange(p, true, 500,
+			nil, nil, nil, nil, 0, 8, 0, 0,
+			rightSeries, 0, false, defaultValueFormatter, 0, fs, nil)
+
+		results := coordinateValueAxisRanges(p, []*valueAxisPrep{&leftPrep, &rightPrep})
+
+		assert.Len(t, results, 2)
+		// resolved independently, each gets its own count
+		assert.Equal(t, 5, results[0].labelCount)
+		assert.Equal(t, 8, results[1].labelCount)
+	})
+
+	t.Run("no_secondary_nice", func(t *testing.T) {
+		p := NewPainter(PainterOptions{Width: 800, Height: 600})
+		leftSeries := testSeriesList{{values: []float64{0, 100}}}
+		leftPrep := prepareValueAxisRange(p, true, 500,
+			nil, nil, nil, nil, 0, 0, 0, 0,
+			leftSeries, 0, false, defaultValueFormatter, 0, fs, Ptr(true))
+		rightSeries := testSeriesList{{values: []float64{0, 200}}}
+		rightPrep := prepareValueAxisRange(p, true, 500,
+			nil, nil, nil, nil, 0, 0, 0, 0,
+			rightSeries, 0, false, defaultValueFormatter, 0, fs, nil)
+
+		results := coordinateValueAxisRanges(p, []*valueAxisPrep{&leftPrep, &rightPrep})
+
+		assert.Len(t, results, 2)
+		// secondary adopts primary's count
+		assert.Equal(t, results[0].labelCount, results[1].labelCount)
+	})
+
+	t.Run("natural_counts_match", func(t *testing.T) {
+		p := NewPainter(PainterOptions{Width: 800, Height: 600})
+		// use similar data ranges so natural counts are likely the same
+		leftSeries := testSeriesList{{values: []float64{0, 100}}}
+		leftPrep := prepareValueAxisRange(p, true, 500,
+			nil, nil, nil, nil, 0, 0, 0, 0,
+			leftSeries, 0, false, defaultValueFormatter, 0, fs, Ptr(true))
+		rightSeries := testSeriesList{{values: []float64{0, 100}}}
+		rightPrep := prepareValueAxisRange(p, true, 500,
+			nil, nil, nil, nil, 0, 0, 0, 0,
+			rightSeries, 0, false, defaultValueFormatter, 0, fs, Ptr(true))
+
+		results := coordinateValueAxisRanges(p, []*valueAxisPrep{&leftPrep, &rightPrep})
+
+		assert.Len(t, results, 2)
+		assert.Equal(t, results[0].labelCount, results[1].labelCount)
+	})
 
 	t.Run("dual_axis_with_unit", func(t *testing.T) {
 		p := NewPainter(PainterOptions{Width: 800, Height: 600})
@@ -829,25 +1027,23 @@ func TestCoordinateValueAxisRanges(t *testing.T) {
 		leftSeries := testSeriesList{{values: []float64{0, 250}}}
 		leftPrep := prepareValueAxisRange(p, true, 500,
 			nil, nil, nil, nil, 0, 0, 0, 0,
-			leftSeries, 0, false, defaultValueFormatter, 0, fs)
+			leftSeries, 0, false, defaultValueFormatter, 0, fs, Ptr(true))
 		// right axis: data 0-680, unit=40
 		rightSeries := testSeriesList{{values: []float64{0, 680}}}
 		rightPrep := prepareValueAxisRange(p, true, 500,
 			nil, nil, nil, nil, 0, 0, 40, 0,
-			rightSeries, 0, false, defaultValueFormatter, 0, fs)
+			rightSeries, 0, false, defaultValueFormatter, 0, fs, Ptr(true))
 
 		preps := []*valueAxisPrep{&leftPrep, &rightPrep}
-		preferNice := []*bool{Ptr(true), Ptr(true)}
-		results := coordinateValueAxisRanges(p, preps, preferNice)
+		results := coordinateValueAxisRanges(p, preps)
 
 		assert.Len(t, results, 2)
 		// right axis interval should be compatible with unit=40
 		rightRange := results[1]
-		if rightRange.labelCount > 1 {
-			interval := (rightRange.max - rightRange.min) / float64(rightRange.labelCount-1)
-			tier := unitAlignmentTier(interval, 40)
-			assert.LessOrEqual(t, tier, 1, "interval %.1f should align with unit 40", interval)
-		}
+		require.Greater(t, rightRange.labelCount, 1)
+		interval := (rightRange.max - rightRange.min) / float64(rightRange.labelCount-1)
+		tier := unitAlignmentTier(interval, 40)
+		assert.LessOrEqual(t, tier, 1, "interval %.1f should align with unit 40", interval)
 		// both axes should have matching label counts
 		assert.Equal(t, results[0].labelCount, results[1].labelCount)
 	})
@@ -858,26 +1054,24 @@ func TestCoordinateValueAxisRanges(t *testing.T) {
 		leftSeries := testSeriesList{{values: []float64{0, 100}}}
 		leftPrep := prepareValueAxisRange(p, true, 500,
 			nil, nil, nil, nil, 0, 0, 0, 0,
-			leftSeries, 0, false, defaultValueFormatter, 0, fs)
+			leftSeries, 0, false, defaultValueFormatter, 0, fs, Ptr(true))
 		rightSeries := testSeriesList{{values: []float64{0, 200}}}
 		rightPrep := prepareValueAxisRange(p, true, 500,
 			nil, nil, nil, nil, 0, 0, 0, 0,
-			rightSeries, 0, false, defaultValueFormatter, 0, fs)
+			rightSeries, 0, false, defaultValueFormatter, 0, fs, Ptr(true))
 
 		preps := []*valueAxisPrep{&leftPrep, &rightPrep}
-		preferNice := []*bool{Ptr(true), Ptr(true)}
-		results := coordinateValueAxisRanges(p, preps, preferNice)
+		results := coordinateValueAxisRanges(p, preps)
 
 		assert.Len(t, results, 2)
 		// both should have the same label count
 		assert.Equal(t, results[0].labelCount, results[1].labelCount)
 		// intervals should be nice numbers
 		for _, r := range results {
-			if r.labelCount > 1 {
-				interval := (r.max - r.min) / float64(r.labelCount-1)
-				ni := niceNum(interval)
-				assert.InDelta(t, ni, interval, 1e-10, "interval should be a nice number")
-			}
+			require.Greater(t, r.labelCount, 1)
+			interval := (r.max - r.min) / float64(r.labelCount-1)
+			ni := niceNum(interval)
+			assert.InDelta(t, ni, interval, 1e-10, "interval should be a nice number")
 		}
 	})
 }

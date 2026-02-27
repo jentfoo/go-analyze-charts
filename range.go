@@ -39,6 +39,7 @@ type valueAxisPrep struct {
 	minPadScale, maxPadScale float64
 	padLabelCount            int // estimated label count after collision check
 	maxLabelCount            int // max labels that fit the axis pixel size
+	preferNice               *bool
 	// carry-through for resolution and finalization
 	labelsCfg      []string
 	valueFormatter ValueFormatter
@@ -61,7 +62,8 @@ func prepareValueAxisRange(p *Painter, isVertical bool, axisSize int,
 	labelCountCfg int, labelUnit float64, labelCountAdjustment int,
 	seriesList seriesList, yAxisIndex int, stackSeries bool,
 	valueFormatter ValueFormatter,
-	labelRotation float64, fontStyle FontStyle) valueAxisPrep {
+	labelRotation float64, fontStyle FontStyle,
+	preferNice *bool) valueAxisPrep {
 	minVal, maxVal, sumMax := getSeriesMinMaxSumMax(seriesList, yAxisIndex, stackSeries)
 	if stackSeries { // If stacked, maxVal should be the max per-index sum across all series
 		if minVal > 0 {
@@ -139,6 +141,7 @@ func prepareValueAxisRange(p *Painter, isVertical bool, axisSize int,
 		maxPadScale:    maxPadScale,
 		padLabelCount:  padLabelCount,
 		maxLabelCount:  maxLabelCount,
+		preferNice:     preferNice,
 		labelsCfg:      labelsCfg,
 		valueFormatter: valueFormatter,
 		labelCountCfg:  labelCountCfg,
@@ -166,9 +169,33 @@ func resolveValueAxisRange(prep *valueAxisPrep, flexCount bool, targetLabelCount
 		flexCount = false
 	}
 
-	minPadded, maxPadded, adjustedCount := padRange(padLabelCount, prep.minVal, prep.maxVal,
-		prep.minPadScale, prep.maxPadScale, flexCount, maxLabelCount)
-	labelCount := adjustedCount
+	minPadded, maxPadded := padRange(padLabelCount, prep.minVal, prep.maxVal,
+		prep.minPadScale, prep.maxPadScale)
+	labelCount := padLabelCount
+
+	if flexCount {
+		spanIncrement := (prep.maxVal - prep.minVal) * 0.01
+		scaledMaxPadPercentMin := rangeMaxPaddingPercentMin * prep.maxPadScale
+		scaledMaxPadPercentMax := rangeMaxPaddingPercentMax * prep.maxPadScale
+		minPadRequired := prep.maxVal + spanIncrement*scaledMaxPadPercentMin
+		baselineExcess := maxPadded - prep.maxVal
+		maxPadLimit := math.Min(
+			prep.maxVal+spanIncrement*scaledMaxPadPercentMax*1.4,
+			maxPadded+baselineExcess*8,
+		)
+		t1Max, t1Count, t1Found := flexNiceSearch(minPadded, prep.maxVal, minPadRequired, maxPadLimit,
+			padLabelCount, maxLabelCount, func(v float64) float64 { return niceNum(v) })
+		if !t1Found {
+			if t2Max, t2Count, t2Found := flexNiceSearch(minPadded, prep.maxVal, minPadRequired, maxPadLimit,
+				padLabelCount, maxLabelCount, func(v float64) float64 { return niceNumFrom(v, extendedNiceNums[:]) }); t2Found {
+				t1Max, t1Count, t1Found = t2Max, t2Count, t2Found
+			}
+		}
+		if t1Found {
+			maxPadded = t1Max
+			labelCount = t1Count
+		}
+	}
 
 	// if the user set only a unit, we may need to refine again after padding to meet the unit
 	if prep.labelCountCfg == 0 && prep.labelUnit > 0 {
@@ -321,14 +348,25 @@ func finalizeValueAxisRange(p *Painter, prep *valueAxisPrep, minPadded, maxPadde
 // coordinateValueAxisRanges finds a shared label count for multiple value axes so that grid lines
 // align. When at least one secondary axis has PreferNiceIntervals, a search finds the best shared
 // count. Otherwise, secondary axes adopt the primary's resolved count directly.
-func coordinateValueAxisRanges(p *Painter, preps []*valueAxisPrep, preferNice []*bool) []axisRange {
+func coordinateValueAxisRanges(p *Painter, preps []*valueAxisPrep) []axisRange {
 	n := len(preps)
 	if n == 0 {
 		return nil
 	} else if n == 1 {
-		flexCount := flagIs(true, preferNice[0])
+		flexCount := flagIs(true, preps[0].preferNice)
 		mn, mx, count := resolveValueAxisRange(preps[0], flexCount, 0)
 		return []axisRange{finalizeValueAxisRange(p, preps[0], mn, mx, count)}
+	}
+
+	// resolveAllPreps resolves each prep independently and finalizes the results
+	resolveAllPreps := func(targetCount int) []axisRange {
+		result := make([]axisRange, n)
+		for i, prep := range preps {
+			flex := targetCount == 0 && flagIs(true, prep.preferNice)
+			mn, mx, count := resolveValueAxisRange(prep, flex, targetCount)
+			result[i] = finalizeValueAxisRange(p, prep, mn, mx, count)
+		}
+		return result
 	}
 
 	// if any axis has an explicit labelCountCfg, that count wins; others adapt
@@ -344,32 +382,20 @@ func coordinateValueAxisRanges(p *Painter, preps []*valueAxisPrep, preferNice []
 		}
 	}
 	if hasConflict {
-		// conflicting explicit counts - resolve independently
-		result := make([]axisRange, n)
-		for i, prep := range preps {
-			flexCount := flagIs(true, preferNice[i])
-			mn, mx, count := resolveValueAxisRange(prep, flexCount, 0)
-			result[i] = finalizeValueAxisRange(p, prep, mn, mx, count)
-		}
-		return result
+		return resolveAllPreps(0) // conflicting explicit counts - resolve independently
 	}
 	if forcedCount > 0 {
-		result := make([]axisRange, n)
-		for i, prep := range preps {
-			mn, mx, count := resolveValueAxisRange(prep, false, forcedCount)
-			result[i] = finalizeValueAxisRange(p, prep, mn, mx, count)
-		}
-		return result
+		return resolveAllPreps(forcedCount)
 	}
 
 	// resolve primary axis independently
-	primaryFlex := flagIs(true, preferNice[0])
+	primaryFlex := flagIs(true, preps[0].preferNice)
 	primaryMin, primaryMax, primaryCount := resolveValueAxisRange(preps[0], primaryFlex, 0)
 
 	// check if any secondary axis opts into coordination via PreferNiceIntervals
 	var anySecondaryNice bool
-	for _, b := range preferNice[1:] {
-		if flagIs(true, b) {
+	for i := 1; i < n; i++ {
+		if flagIs(true, preps[i].preferNice) {
 			anySecondaryNice = true
 			break
 		}
@@ -393,7 +419,7 @@ func coordinateValueAxisRanges(p *Painter, preps []*valueAxisPrep, preferNice []
 	naturals := make([]naturalResult, n)
 	naturals[0] = naturalResult{primaryMin, primaryMax, primaryCount}
 	for i := 1; i < n; i++ {
-		flexCount := flagIs(true, preferNice[i])
+		flexCount := flagIs(true, preps[i].preferNice)
 		mn, mx, count := resolveValueAxisRange(preps[i], flexCount, 0)
 		naturals[i] = naturalResult{mn, mx, count}
 	}
@@ -524,12 +550,7 @@ func coordinateValueAxisRanges(p *Painter, preps []*valueAxisPrep, preferNice []
 		}
 	}
 
-	result := make([]axisRange, n)
-	for i, prep := range preps {
-		mn, mx, count := resolveValueAxisRange(prep, false, bestCount)
-		result[i] = finalizeValueAxisRange(p, prep, mn, mx, count)
-	}
-	return result
+	return resolveAllPreps(bestCount)
 }
 
 // calculateValueAxisRange centralizes numeric axis logic, selecting human-friendly scale and label count.
@@ -546,7 +567,8 @@ func calculateValueAxisRange(p *Painter, isVertical bool, axisSize int,
 		labelsCfg, dataStartIndex,
 		labelCountCfg, labelUnit, labelCountAdjustment,
 		seriesList, yAxisIndex, stackSeries,
-		valueFormatter, labelRotation, fontStyle)
+		valueFormatter, labelRotation, fontStyle,
+		preferNiceIntervals)
 	// TODO - in v0.6.0 default flexCount if labelCountCfg == 0 && !flagIs(false, preferNiceIntervals)
 	flexCount := flagIs(true, preferNiceIntervals)
 	minPadded, maxPadded, labelCount := resolveValueAxisRange(&prep, flexCount, 0)
@@ -695,9 +717,9 @@ func unitAlignmentTier(interval, unit float64) int {
 	return 2
 }
 
-func padRange(divideCount int, min, max, minPaddingScale, maxPaddingScale float64, flexCount bool, maxLabelCount int) (float64, float64, int) {
+func padRange(divideCount int, min, max, minPaddingScale, maxPaddingScale float64) (float64, float64) {
 	if minPaddingScale <= 0.0 && maxPaddingScale <= 0.0 {
-		return min, max, divideCount
+		return min, max
 	}
 	// scale percents for min value
 	scaledMinPadPercentMin := rangeMinPaddingPercentMin * minPaddingScale
@@ -747,56 +769,27 @@ rootLoop:
 		// no adjustment was made and there is no span, because of that the max calculation below can't function
 		// for that reason we apply a default constant span, still wanting to prefer a zero start if possible
 		if minResult == 0 {
-			return minResult, minResult + (2 * zeroSpanAdjustment), divideCount
+			return minResult, minResult + (2 * zeroSpanAdjustment)
 		}
-		return minResult - zeroSpanAdjustment, minResult + zeroSpanAdjustment, divideCount
+		return minResult - zeroSpanAdjustment, minResult + zeroSpanAdjustment
 	} else if maxPaddingScale <= 0.0 {
-		return minResult, max, divideCount
+		return minResult, max
 	}
 
-	adjustedCount := divideCount
-
-	// always compute the friendlyRound baseline as the default and cap for the flex path
-	var baselineMax float64
 	if math.Abs(max) < 10 {
-		baselineMax = math.Ceil(max) + 1
-	} else {
-		interval := (max - minResult) / float64(divideCount-1)
-		roundedInterval, _ := friendlyRound(interval, spanIncrement/float64(divideCount-1),
-			math.Max(spanIncrementMultiplier, scaledMaxPadPercentMin),
-			scaledMaxPadPercentMin, scaledMaxPadPercentMax, true)
-		baselineMax = minResult + (roundedInterval * float64(divideCount-1))
-		if maxTrunk := math.Trunc(baselineMax); maxTrunk >= max+(spanIncrement*scaledMaxPadPercentMin) {
-			baselineMax = maxTrunk // remove possible float multiplication inaccuracies
-		}
-	}
-	maxResult := baselineMax
-
-	if flexCount {
-		// attempt to find a nice-number interval by flexing divideCount ±3, capped by baseline
-		minPadRequired := max + spanIncrement*scaledMaxPadPercentMin
-		baselineExcess := baselineMax - max
-		// cap is the tighter of a percentage-based limit and the baseline-derived limit
-		maxPadLimit := math.Min(
-			max+spanIncrement*scaledMaxPadPercentMax*1.4,
-			baselineMax+baselineExcess*8,
-		)
-		t1Max, t1Count, t1Found := flexNiceSearch(minResult, max, minPadRequired, maxPadLimit,
-			divideCount, maxLabelCount, func(v float64) float64 { return niceNum(v) })
-		// tier-2: if tier-1 failed, try the extended nice number set
-		if !t1Found {
-			if t2Max, t2Count, t2Found := flexNiceSearch(minResult, max, minPadRequired, maxPadLimit,
-				divideCount, maxLabelCount, func(v float64) float64 { return niceNumFrom(v, extendedNiceNums[:]) }); t2Found {
-				t1Max, t1Count, t1Found = t2Max, t2Count, t2Found
-			}
-		}
-		if t1Found {
-			maxResult = t1Max
-			adjustedCount = t1Count
-		}
+		return minResult, math.Ceil(max) + 1
 	}
 
-	return minResult, maxResult, adjustedCount
+	interval := (max - minResult) / float64(divideCount-1)
+	roundedInterval, _ := friendlyRound(interval, spanIncrement/float64(divideCount-1),
+		math.Max(spanIncrementMultiplier, scaledMaxPadPercentMin),
+		scaledMaxPadPercentMin, scaledMaxPadPercentMax, true)
+	maxResult := minResult + (roundedInterval * float64(divideCount-1))
+	if maxTrunk := math.Trunc(maxResult); maxTrunk >= max+(spanIncrement*scaledMaxPadPercentMin) {
+		maxResult = maxTrunk // remove possible float multiplication inaccuracies
+	}
+
+	return minResult, maxResult
 }
 
 // flexNiceSearch tries divideCount ±3 looking for a nice-number interval that keeps the max

@@ -289,14 +289,12 @@ func defaultRender(p *Painter, opt defaultRenderOption) (*defaultRenderResult, e
 	// prepare all y-axis options and range data (allowing multiple axes to be considered)
 	yAxisCount := getSeriesYAxisCount(opt.seriesList)
 	type yAxisEntry struct {
-		option     YAxisOption
-		prep       *valueAxisPrep
-		preferNice *bool
-		r          axisRange
+		option YAxisOption
+		prep   *valueAxisPrep
+		r      axisRange
 	}
 	var entries []yAxisEntry
 	var valuePreps []*valueAxisPrep
-	var valuePrepNice []*bool
 	var valuePrepIndices []int
 	if yAxisCount > 0 {
 		entries = make([]yAxisEntry, yAxisCount)
@@ -327,11 +325,10 @@ func defaultRender(p *Painter, opt defaultRenderOption) (*defaultRenderResult, e
 					yAxisOption.Labels, 0,
 					yAxisOption.LabelCount, yAxisOption.Unit, yAxisOption.LabelCountAdjustment,
 					opt.seriesList, yIndex, opt.stackSeries,
-					valueFormatter, yAxisOption.LabelRotation, yAxisOption.LabelFontStyle)
+					valueFormatter, yAxisOption.LabelRotation, yAxisOption.LabelFontStyle,
+					yAxisOption.PreferNiceIntervals)
 				entries[yIndex].prep = &prep
-				entries[yIndex].preferNice = yAxisOption.PreferNiceIntervals
 				valuePreps = append(valuePreps, entries[yIndex].prep)
-				valuePrepNice = append(valuePrepNice, yAxisOption.PreferNiceIntervals)
 				valuePrepIndices = append(valuePrepIndices, yIndex)
 			}
 		}
@@ -339,7 +336,7 @@ func defaultRender(p *Painter, opt defaultRenderOption) (*defaultRenderResult, e
 
 	// coordinate and resolve value axis ranges
 	if len(valuePreps) > 0 {
-		ranges := coordinateValueAxisRanges(p, valuePreps, valuePrepNice)
+		ranges := coordinateValueAxisRanges(p, valuePreps)
 		for i, yIndex := range valuePrepIndices {
 			entries[yIndex].r = ranges[i]
 		}
