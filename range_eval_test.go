@@ -1057,15 +1057,17 @@ func evalResolveDualAxisViaCoord(
 		0, 0, 0,
 		combined, 0, false,
 		vf,
-		0, fs)
+		0, fs,
+		niceL)
 	prepR := prepareValueAxisRange(p, true, 600,
 		nil, nil, nil,
 		nil, 0,
 		0, 0, 0,
 		combined, 1, false,
 		vf,
-		0, fs)
-	ars := coordinateValueAxisRanges(p, []*valueAxisPrep{&prepL, &prepR}, []*bool{niceL, niceR})
+		0, fs,
+		niceR)
+	ars := coordinateValueAxisRanges(p, []*valueAxisPrep{&prepL, &prepR})
 	return ars[0], ars[1]
 }
 

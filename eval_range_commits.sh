@@ -14,7 +14,6 @@ cd "$SCRIPT_DIR"
 # ---- Commits to evaluate ----
 # Format: "hash:label"
 COMMITS=(
-    "b887f7b9daa8bd2da210c1269e392954f6c6f81b:improve_intervals"
     "8f7ba7e9671443a8dcf2841e4db9e0f7468a9841:refactor"
 )
 
