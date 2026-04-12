@@ -19,7 +19,7 @@ type axisRange struct {
 	isCategory bool
 	// labels are the rendered labels: 1:1 for categories or range value labels to render.
 	labels []string
-	// dataStartIndex specifies the starting index for label values.
+	// TODO - dataStartIndex deprecated to be removed in v0.6
 	dataStartIndex int
 	tickCount      int
 	divideCount    int
@@ -46,7 +46,7 @@ type valueAxisPrep struct {
 	labelCountCfg  int // user's explicit count (0 = auto)
 	labelUnit      float64
 	minCfg, maxCfg *float64
-	dataStartIndex int
+	dataStartIndex int // TODO - deprecated to be removed in v0.6
 	labelRotation  float64
 	fontStyle      FontStyle
 	axisSize       int

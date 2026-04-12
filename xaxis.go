@@ -16,7 +16,9 @@ type XAxisOption struct {
 	TitleFontStyle FontStyle
 	// Labels provides labels for each value on the x-axis. Indices must match series data indices.
 	Labels []string
-	// DataStartIndex specifies the starting index for data values.
+	// Deprecated: DataStartIndex is deprecated and will be removed in v0.6.0.
+	// Slice your Labels and series data together using Go slice expressions as a direct replacement
+	// (Labels: allLabels[2:], Values: data[2:]).
 	DataStartIndex int
 	// Deprecated: Position is deprecated. Currently, when set to `bottom` and the labels would render on the top
 	// side of the axis line. However, the line would remain at the bottom of the chart. This seems confusing, and
