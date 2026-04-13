@@ -189,7 +189,7 @@ func (k *candlestickChart) renderChart(result *defaultRenderResult) (Box, error)
 	}
 
 	// Use autoDivide for positioning
-	divideValues := result.xaxisRange.autoDivide()
+	divideValues := result.categoryAxisRange.autoDivide()
 
 	// Center positions for each series index
 	seriesCenterValues := make([][]int, seriesList.len())
@@ -214,10 +214,10 @@ func (k *candlestickChart) renderChart(result *defaultRenderResult) (Box, error)
 		series := seriesList.getSeries(seriesIndex).(*CandlestickSeries)
 
 		// Bounds check for Y axis index to prevent panic
-		if series.YAxisIndex >= len(result.yaxisRanges) {
+		if series.YAxisIndex >= len(result.valueAxisRanges) {
 			return BoxZero, errors.New("candlestick series YAxisIndex out of bounds")
 		}
-		yRange := result.yaxisRanges[series.YAxisIndex]
+		yRange := result.valueAxisRanges[series.YAxisIndex]
 
 		// pre-compute patterns for this series
 		var patternMap map[int][]PatternDetectionResult
@@ -442,10 +442,10 @@ func (k *candlestickChart) renderChart(result *defaultRenderResult) (Box, error)
 		series := seriesList.getSeries(seriesIndex).(*CandlestickSeries)
 
 		// Bounds check for Y axis index to prevent panic
-		if series.YAxisIndex >= len(result.yaxisRanges) {
+		if series.YAxisIndex >= len(result.valueAxisRanges) {
 			continue // Skip this series if YAxisIndex is out of bounds
 		}
-		yRange := result.yaxisRanges[series.YAxisIndex]
+		yRange := result.valueAxisRanges[series.YAxisIndex]
 		seriesThemeIndex := seriesIndex
 		if series.absThemeIndex != nil {
 			seriesThemeIndex = *series.absThemeIndex
@@ -565,8 +565,8 @@ func (k *candlestickChart) Render() (Box, error) {
 		theme:          opt.Theme,
 		padding:        opt.Padding,
 		seriesList:     &opt.SeriesList,
-		xAxis:          &opt.XAxis,
-		yAxis:          opt.YAxis,
+		categoryAxis:   &opt.XAxis,
+		valueAxis:      opt.YAxis,
 		title:          opt.Title,
 		legend:         &opt.Legend,
 		valueFormatter: opt.ValueFormatter,

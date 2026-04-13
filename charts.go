@@ -65,28 +65,30 @@ type defaultRenderOption struct {
 	seriesList seriesList
 	// stackSeries when true causes series data to be stacked (summed).
 	stackSeries bool
-	// xAxis contains options for the x-axis.
-	xAxis *XAxisOption
-	// axisRangeOverride, when set, forces the value axis range used for x-axis when axisReversed=true.
-	axisRangeOverride *[2]float64
-	// yAxis contains options for the y-axis. At most two y-axes are supported.
-	yAxis []YAxisOption
+	// categoryAxis configures the chart's single category axis.
+	// TODO - this contract supports at most one category axis and up-to-two value axes.
+	// Extend when defaultRender supports dual category axes.
+	categoryAxis *CategoryAxisOption
+	// valueAxis configures one or two value axes. Length 0, 1, or 2.
+	// Dual value axes are only supported when categoryY is false.
+	valueAxis []ValueAxisOption
+	// categoryY selects which physical axis holds the category axis.
+	// false (typical): category on X, value on Y. true: category on Y, value on X.
+	categoryY bool
 	// title contains options for rendering the chart title.
 	title TitleOption
 	// legend contains options for the data legend.
 	legend *LegendOption
 	// backgroundIsFilled is true if the background is filled.
 	backgroundIsFilled bool
-	// axisReversed is true if the x-axis and y-axis are reversed.
-	axisReversed bool
 	// valueFormatter formats numeric values into labels.
 	valueFormatter ValueFormatter
 }
 
 type defaultRenderResult struct {
-	yaxisRanges   map[int]axisRange
-	xaxisRange    axisRange
-	seriesPainter *Painter
+	valueAxisRanges   map[int]axisRange
+	categoryAxisRange axisRange
+	seriesPainter     *Painter
 }
 
 func (r *defaultRenderResult) renderNoData(theme ColorPalette) {
@@ -120,21 +122,24 @@ func (r *defaultRenderResult) renderNoData(theme ColorPalette) {
 	}, strokeColor, strokeWidth)
 }
 
+// defaultRender handles axis layout, title, and legend rendering for all chart types.
 func defaultRender(p *Painter, opt defaultRenderOption) (*defaultRenderResult, error) {
+	if len(opt.valueAxis) > 1 && opt.categoryY {
+		return nil, errors.New("multiple value axes with categoryY is not supported") // TODO - future support for two continuous value axes
+	}
+
 	theme := getPreferredTheme(opt.theme, p.theme)
-	fillThemeDefaults(theme, &opt.title, opt.legend, opt.xAxis, opt.yAxis)
-	opt.xAxis = opt.xAxis.prep(theme)
+	fillThemeDefaults(theme, &opt.title, opt.legend, opt.categoryAxis, opt.valueAxis)
+	opt.categoryAxis = opt.categoryAxis.prep(theme, opt.categoryY)
 	// TODO - this is a hack, we need to update the yaxis based on the markpoint state
 	if opt.seriesList.hasMarkPoint() {
 		// adjust padding scale to give space for mark point (if not specified by user)
-		for i := range opt.yAxis {
-			if opt.yAxis[i].RangeValuePaddingScale == nil {
-				opt.yAxis[i].RangeValuePaddingScale = Ptr(2.5)
+		for i := range opt.valueAxis {
+			if opt.valueAxis[i].RangeValuePaddingScale == nil {
+				opt.valueAxis[i].RangeValuePaddingScale = Ptr(2.5)
 			}
 		}
 	}
-	top := p
-
 	if !opt.backgroundIsFilled {
 		p.drawBackground(opt.theme.GetBackgroundColor())
 	}
@@ -274,39 +279,35 @@ func defaultRender(p *Painter, opt defaultRenderOption) (*defaultRenderResult, e
 	}
 
 	result := defaultRenderResult{
-		yaxisRanges: make(map[int]axisRange),
+		valueAxisRanges: make(map[int]axisRange),
 	}
 
 	// calculate x-axis range and do a dry-render to find height
 	// we will render on the actual painter once we know the space the y-axis will occupy
 	var xAxisOpts axisOption
-	if opt.axisReversed { // X is value axis
-		var axisMin, axisMax, axisPadScale *float64
-		if opt.axisRangeOverride != nil {
-			axisMin = &opt.axisRangeOverride[0]
-			axisMax = &opt.axisRangeOverride[1]
-			zeroPad := 0.0
-			axisPadScale = &zeroPad
-		}
+	var xValueAxis ValueAxisOption // prepped X-slot value axis; only populated when categoryY
+	if opt.categoryY {             // X is value axis
+		xValueAxis = opt.valueAxis[0] // value copy avoids mutating caller's slice
+		xValueAxis.prep(getPreferredTheme(xValueAxis.Theme, theme), false)
 		xAxisRange := calculateValueAxisRange(p, false, p.Width(),
-			axisMin, axisMax, axisPadScale,
-			opt.xAxis.Labels, opt.xAxis.DataStartIndex,
-			opt.xAxis.LabelCount, opt.xAxis.Unit, opt.xAxis.LabelCountAdjustment,
+			xValueAxis.Min, xValueAxis.Max, xValueAxis.RangeValuePaddingScale,
+			xValueAxis.Labels, 0,
+			xValueAxis.LabelCount, xValueAxis.Unit, xValueAxis.LabelCountAdjustment,
 			opt.seriesList, 0, opt.stackSeries,
-			getPreferredValueFormatter(opt.xAxis.ValueFormatter, opt.valueFormatter),
-			opt.xAxis.LabelRotation, opt.xAxis.LabelFontStyle,
-			nil)
-		xAxisOpts = opt.xAxis.toAxisOption(xAxisRange)
-	} else { //  X is category axis
-		xAxisRange := calculateCategoryAxisRange(p, p.Width(), false, flagIs(false, opt.xAxis.BoundaryGap),
-			opt.xAxis.Labels, opt.xAxis.DataStartIndex,
-			opt.xAxis.LabelCount, opt.xAxis.LabelCountAdjustment, opt.xAxis.Unit,
+			getPreferredValueFormatter(xValueAxis.ValueFormatter, opt.valueFormatter),
+			xValueAxis.LabelRotation, xValueAxis.LabelFontStyle,
+			xValueAxis.PreferNiceIntervals)
+		xAxisOpts = xValueAxis.toAxisOption(xAxisRange)
+	} else { // X is category axis (typical)
+		xAxisRange := calculateCategoryAxisRange(p, p.Width(), false, flagIs(false, opt.categoryAxis.BoundaryGap),
+			opt.categoryAxis.Labels, opt.categoryAxis.DataStartIndex,
+			opt.categoryAxis.LabelCount, opt.categoryAxis.LabelCountAdjustment, opt.categoryAxis.Unit,
 			opt.seriesList,
-			opt.xAxis.LabelRotation, opt.xAxis.LabelFontStyle)
-		xAxisOpts = opt.xAxis.toAxisOption(xAxisRange)
+			opt.categoryAxis.LabelRotation, opt.categoryAxis.LabelFontStyle)
+		xAxisOpts = opt.categoryAxis.toAxisOption(xAxisRange)
 	}
-	if top.Height() < 100 {
-		xAxisOpts.minimumAxisHeight = 0 // don't reserve if chart is too small
+	if xAxisOpts.position == "" {
+		xAxisOpts.position = PositionBottom
 	}
 	xAxisBox, err := newAxisPainter(
 		NewPainter(PainterOptions{
@@ -326,35 +327,57 @@ func defaultRender(p *Painter, opt defaultRenderOption) (*defaultRenderResult, e
 	rangeHeight := p.Height() - xAxisHeight
 	var rangeWidthLeft, rangeWidthRight int
 
-	// prepare all y-axis options and range data (allowing multiple axes to be considered)
+	// prepare y-axis options, range data, and render
 	yAxisCount := getSeriesYAxisCount(opt.seriesList)
 	if yAxisCount < 0 {
 		return nil, errors.New("series specified invalid y-axis index")
 	}
-	type yAxisEntry struct {
-		option YAxisOption
-		prep   *valueAxisPrep
-		r      axisRange
-	}
-	var entries []yAxisEntry
-	var valuePreps []*valueAxisPrep
-	var valuePrepIndices []int
-	if yAxisCount > 0 {
-		entries = make([]yAxisEntry, yAxisCount)
-		for yIndex := 0; yIndex < yAxisCount; yIndex++ {
-			var yAxisOption YAxisOption
-			if len(opt.yAxis) > yIndex {
-				yAxisOption = opt.yAxis[yIndex]
-			}
-			yAxisOption = *yAxisOption.prep(getPreferredTheme(yAxisOption.Theme, theme))
-			entries[yIndex].option = yAxisOption
-			if opt.axisReversed { // Y is category axis
-				entries[yIndex].r = calculateCategoryAxisRange(p, rangeHeight, true, false,
-					yAxisOption.Labels, 0,
-					yAxisOption.LabelCount, yAxisOption.LabelCountAdjustment, yAxisOption.Unit,
-					opt.seriesList,
-					yAxisOption.LabelRotation, yAxisOption.LabelFontStyle)
-			} else { // Standard Y value axis
+
+	if opt.categoryY {
+		// Y-slot renders the category axis directly
+		ca := opt.categoryAxis
+		catRange := calculateCategoryAxisRange(p, rangeHeight, true, false,
+			ca.Labels, ca.DataStartIndex,
+			ca.LabelCount, ca.LabelCountAdjustment, ca.Unit,
+			opt.seriesList,
+			ca.LabelRotation, ca.LabelFontStyle)
+		result.categoryAxisRange = catRange
+		axisOpt := ca.toAxisOption(catRange)
+		if axisOpt.position == "" {
+			axisOpt.position = PositionLeft
+		}
+		yAxisBox, err := newAxisPainter(p.Child(PainterPaddingOption(Box{
+			Left:   rangeWidthLeft,
+			Right:  rangeWidthRight,
+			Bottom: xAxisHeight,
+			IsSet:  true,
+		})), axisOpt).Render()
+		if err != nil {
+			return nil, err
+		} else if axisOpt.position == PositionRight {
+			rangeWidthRight += yAxisBox.Width()
+		} else {
+			rangeWidthLeft += yAxisBox.Width()
+		}
+	} else {
+		// Y-slot renders value axis(es)
+		type yAxisEntry struct {
+			option ValueAxisOption
+			prep   *valueAxisPrep
+			r      axisRange
+		}
+		var entries []yAxisEntry
+		var valuePreps []*valueAxisPrep
+		var valuePrepIndices []int
+		if yAxisCount > 0 {
+			entries = make([]yAxisEntry, yAxisCount)
+			for yIndex := 0; yIndex < yAxisCount; yIndex++ {
+				var yAxisOption ValueAxisOption
+				if len(opt.valueAxis) > yIndex {
+					yAxisOption = opt.valueAxis[yIndex]
+				}
+				yAxisOption = *yAxisOption.prep(getPreferredTheme(yAxisOption.Theme, theme), true)
+				entries[yIndex].option = yAxisOption
 				floatFormatter := getPreferredValueFormatter(yAxisOption.ValueFormatter, opt.valueFormatter)
 				valueFormatter := floatFormatter
 				if yAxisOption.Formatter != "" {
@@ -375,44 +398,44 @@ func defaultRender(p *Painter, opt defaultRenderOption) (*defaultRenderResult, e
 				valuePrepIndices = append(valuePrepIndices, yIndex)
 			}
 		}
-	}
 
-	// coordinate and resolve value axis ranges
-	if len(valuePreps) > 0 {
-		ranges := coordinateValueAxisRanges(p, valuePreps)
-		for i, yIndex := range valuePrepIndices {
-			entries[yIndex].r = ranges[i]
-		}
-	}
-
-	// render y-axes (reverse order so mark lines from left axis don't extend into right axis)
-	for yIndex := yAxisCount - 1; yIndex >= 0; yIndex-- {
-		entry := entries[yIndex]
-		result.yaxisRanges[yIndex] = entry.r
-
-		axisOpt := entry.option.toAxisOption(entry.r)
-		if yIndex != 0 {
-			axisOpt.splitLineShow = false // only show split lines on primary index axis
-		}
-		if axisOpt.position == "" {
-			if yIndex == 0 {
-				axisOpt.position = PositionLeft
-			} else {
-				axisOpt.position = PositionRight
+		// coordinate and resolve value axis ranges
+		if len(valuePreps) > 0 {
+			ranges := coordinateValueAxisRanges(p, valuePreps)
+			for i, yIndex := range valuePrepIndices {
+				entries[yIndex].r = ranges[i]
 			}
 		}
-		yAxisBox, err := newAxisPainter(p.Child(PainterPaddingOption(Box{
-			Left:   rangeWidthLeft,
-			Right:  rangeWidthRight,
-			Bottom: xAxisHeight,
-			IsSet:  true,
-		})), axisOpt).Render()
-		if err != nil {
-			return nil, err
-		} else if axisOpt.position == PositionRight {
-			rangeWidthRight += yAxisBox.Width()
-		} else {
-			rangeWidthLeft += yAxisBox.Width()
+
+		// render y-axes (reverse order so mark lines from left axis don't extend into right axis)
+		for yIndex := yAxisCount - 1; yIndex >= 0; yIndex-- {
+			entry := entries[yIndex]
+			result.valueAxisRanges[yIndex] = entry.r
+
+			axisOpt := entry.option.toAxisOption(entry.r)
+			if yIndex != 0 {
+				axisOpt.splitLineShow = Ptr(false) // only show split lines on primary index axis
+			}
+			if axisOpt.position == "" {
+				if yIndex == 0 {
+					axisOpt.position = PositionLeft
+				} else {
+					axisOpt.position = PositionRight
+				}
+			}
+			yAxisBox, err := newAxisPainter(p.Child(PainterPaddingOption(Box{
+				Left:   rangeWidthLeft,
+				Right:  rangeWidthRight,
+				Bottom: xAxisHeight,
+				IsSet:  true,
+			})), axisOpt).Render()
+			if err != nil {
+				return nil, err
+			} else if axisOpt.position == PositionRight {
+				rangeWidthRight += yAxisBox.Width()
+			} else {
+				rangeWidthLeft += yAxisBox.Width()
+			}
 		}
 	}
 
@@ -421,9 +444,12 @@ func defaultRender(p *Painter, opt defaultRenderOption) (*defaultRenderResult, e
 		Right: rangeWidthRight,
 		IsSet: true,
 	}
-	if opt.axisReversed {
-		xAxisOpts.aRange.size = p.Width() - rangeWidthLeft   // adjust size to match new painter dimensions
-		xAxisOpts = opt.xAxis.toAxisOption(xAxisOpts.aRange) // regenerate axis options after value changes above
+	if opt.categoryY {
+		xAxisOpts.aRange.size = p.Width() - rangeWidthLeft - rangeWidthRight // adjust size to match new painter dimensions
+		xAxisOpts = xValueAxis.toAxisOption(xAxisOpts.aRange)                // regenerate axis options after value changes above
+		if xAxisOpts.position == "" {
+			xAxisOpts.position = PositionBottom
+		}
 	} else {
 		xAxisOpts.aRange.size -= rangeWidthLeft + rangeWidthRight // adjust size to match new painter dimensions
 		xAxisPadding.Top = p.Height() - xAxisHeight
@@ -435,7 +461,11 @@ func defaultRender(p *Painter, opt defaultRenderOption) (*defaultRenderResult, e
 		return nil, err
 	}
 
-	result.xaxisRange = xAxisOpts.aRange
+	if opt.categoryY {
+		result.valueAxisRanges[0] = xAxisOpts.aRange
+	} else {
+		result.categoryAxisRange = xAxisOpts.aRange
+	}
 	result.seriesPainter = p.Child(PainterPaddingOption(Box{
 		Left:   rangeWidthLeft,
 		Right:  rangeWidthRight,
@@ -512,17 +542,17 @@ func Render(opt ChartOption, opts ...OptionFunc) (*Painter, error) {
 		return nil, errors.New("horizontal violin can not mix other charts")
 	}
 
-	axisReversed := len(horizontalBarSeriesList) != 0 || len(violinSeriesList) != 0
+	categoryY := len(horizontalBarSeriesList) != 0 || len(violinSeriesList) != 0
 	renderOpt := defaultRenderOption{
 		theme:          opt.Theme,
 		padding:        opt.Padding,
 		seriesList:     opt.SeriesList,
-		xAxis:          &opt.XAxis,
-		yAxis:          opt.YAxis,
+		categoryAxis:   &opt.XAxis,
+		valueAxis:      opt.YAxis,
 		stackSeries:    flagIs(true, opt.StackSeries),
 		title:          opt.Title,
 		legend:         &opt.Legend,
-		axisReversed:   axisReversed,
+		categoryY:      categoryY,
 		valueFormatter: opt.ValueFormatter,
 		// the background color has been set
 		backgroundIsFilled: true,
@@ -531,26 +561,70 @@ func Render(opt ChartOption, opts ...OptionFunc) (*Painter, error) {
 		len(doughnutSeriesList) != 0 ||
 		len(radarSeriesList) != 0 ||
 		len(funnelSeriesList) != 0 {
-		renderOpt.xAxis.Show = Ptr(false)
-		renderOpt.yAxis = []YAxisOption{
+		renderOpt.categoryAxis.Show = Ptr(false)
+		renderOpt.valueAxis = []ValueAxisOption{
 			{
 				Show: Ptr(false),
 			},
 		}
 	}
 	if len(horizontalBarSeriesList) != 0 {
-		renderOpt.yAxis[0].Unit = 1
+		// Horizontal bar: XAxis carries value data, YAxis carries category data
+		// Translate to semantic slots matching the direct HorizontalBarChartOption.Render() path
+		var catAxis CategoryAxisOption
+		if len(opt.YAxis) > 0 {
+			ya := opt.YAxis[0]
+			catAxis = CategoryAxisOption{
+				Show: ya.Show, Theme: ya.Theme,
+				Title: ya.Title, TitleFontStyle: ya.TitleFontStyle,
+				Labels: ya.Labels, Position: ya.Position,
+				FontStyle: ya.FontStyle, LabelFontStyle: ya.LabelFontStyle,
+				LabelRotation: ya.LabelRotation, ValueFormatter: ya.ValueFormatter,
+				Unit: ya.Unit, LabelCount: ya.LabelCount,
+				LabelCountAdjustment: ya.LabelCountAdjustment,
+			}
+		}
+		catAxis.Unit = 1 // each category bar should have a label; axis fitting skips only when labels don't physically fit
+		valAxis := ValueAxisOption{
+			Show: opt.XAxis.Show, Theme: opt.XAxis.Theme,
+			Title: opt.XAxis.Title, TitleFontStyle: opt.XAxis.TitleFontStyle,
+			Labels:    opt.XAxis.Labels,
+			FontStyle: opt.XAxis.FontStyle, LabelFontStyle: opt.XAxis.LabelFontStyle,
+			LabelRotation: opt.XAxis.LabelRotation, ValueFormatter: opt.XAxis.ValueFormatter,
+			Unit: opt.XAxis.Unit, LabelCount: opt.XAxis.LabelCount,
+			LabelCountAdjustment: opt.XAxis.LabelCountAdjustment,
+		}
+		renderOpt.categoryAxis = &catAxis
+		renderOpt.valueAxis = []ValueAxisOption{valAxis}
 	}
 	if len(violinSeriesList) != 0 {
-		violinConfigureRenderOption(&renderOpt, violinSeriesList, false, nil,
-			getPreferredValueFormatter(opt.XAxis.ValueFormatter, opt.ValueFormatter))
+		var catAxis CategoryAxisOption
+		var valAxis ValueAxisOption
+		if len(renderOpt.valueAxis) > 0 {
+			valAxis = renderOpt.valueAxis[0]
+		}
+		catAxis, valAxis = violinConfigureRenderOption(violinSeriesList, false, nil,
+			getPreferredValueFormatter(opt.XAxis.ValueFormatter, opt.ValueFormatter),
+			catAxis, valAxis)
+		renderOpt.categoryAxis = &catAxis
+		renderOpt.valueAxis = []ValueAxisOption{valAxis}
+		renderOpt.categoryY = true
 	} else if len(horizontalViolinSeriesList) != 0 {
+		var catAxis CategoryAxisOption
+		var valAxis ValueAxisOption
+		if len(renderOpt.valueAxis) > 0 {
+			valAxis = renderOpt.valueAxis[0]
+		}
 		var yAxisValueFormatter ValueFormatter
 		if len(opt.YAxis) > 0 {
 			yAxisValueFormatter = opt.YAxis[0].ValueFormatter
 		}
-		violinConfigureRenderOption(&renderOpt, horizontalViolinSeriesList, true, nil,
-			getPreferredValueFormatter(yAxisValueFormatter, opt.ValueFormatter))
+		catAxis, valAxis = violinConfigureRenderOption(horizontalViolinSeriesList, true, nil,
+			getPreferredValueFormatter(yAxisValueFormatter, opt.ValueFormatter),
+			catAxis, valAxis)
+		renderOpt.categoryAxis = &catAxis
+		renderOpt.valueAxis = []ValueAxisOption{valAxis}
+		renderOpt.categoryY = false
 	}
 
 	renderResult, err := defaultRender(p, renderOpt)

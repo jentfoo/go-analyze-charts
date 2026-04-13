@@ -241,7 +241,9 @@ func (h *heatMap) Render() (Box, error) {
 		Min:                    Ptr(0.0),
 		Max:                    Ptr(float64(numRows - 1)),
 		RangeValuePaddingScale: Ptr(0.0),
-		isCategoryAxis:         true,
+		// TODO - isCategoryAxis is a hack so this Y-position category axis renders with
+		// category styling in the valueAxis slot. Remove when defaultRender supports dual category axes.
+		isCategoryAxis: true,
 	}}
 
 	renderResult, err := defaultRender(p, defaultRenderOption{
@@ -250,11 +252,11 @@ func (h *heatMap) Render() (Box, error) {
 		seriesList: heatMapFakeSeries{
 			rows: numRows,
 		},
-		stackSeries: false,
-		xAxis:       &xAxisOption,
-		yAxis:       yAxisOption,
-		title:       opt.Title,
-		legend:      &LegendOption{Show: Ptr(false)},
+		stackSeries:  false,
+		categoryAxis: &xAxisOption,
+		valueAxis:    yAxisOption,
+		title:        opt.Title,
+		legend:       &LegendOption{Show: Ptr(false)},
 	})
 	if err != nil {
 		return BoxZero, err
@@ -285,7 +287,7 @@ func (h heatMapFakeSeries) getSeriesValues(_ int) []float64 {
 }
 
 func (h heatMapFakeSeries) getSeriesLen(_ int) int {
-	return 0 // not used, current usage in getSeriesMaxDataCount, which is only used when axisReverse is true
+	return 0 // not used, current usage in getSeriesMaxDataCount, which is only used when categoryY is true
 }
 
 func (h heatMapFakeSeries) names() []string {

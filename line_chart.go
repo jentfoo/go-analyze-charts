@@ -165,7 +165,7 @@ func (l *lineChart) renderChart(result *defaultRenderResult) (Box, error) {
 			seriesThemeIndex = *series.absThemeIndex
 		}
 		seriesColor := opt.Theme.GetSeriesColor(seriesThemeIndex)
-		yRange := result.yaxisRanges[series.YAxisIndex]
+		yRange := result.valueAxisRanges[series.YAxisIndex]
 		points := make([]Point, len(series.Values))
 		var labelPainter *seriesLabelPainter
 		if flagIs(true, series.Label.Show) {
@@ -413,8 +413,8 @@ func (l *lineChart) Render() (Box, error) {
 		padding:        opt.Padding,
 		seriesList:     opt.SeriesList,
 		stackSeries:    flagIs(true, opt.StackSeries),
-		xAxis:          &l.opt.XAxis,
-		yAxis:          opt.YAxis,
+		categoryAxis:   &l.opt.XAxis,
+		valueAxis:      opt.YAxis,
 		title:          opt.Title,
 		legend:         &l.opt.Legend,
 		valueFormatter: opt.ValueFormatter,

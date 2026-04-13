@@ -104,7 +104,7 @@ func TestBarChart(t *testing.T) {
 			name:        "basic_themed",
 			themed:      true,
 			makeOptions: makeBasicBarChartOption,
-			pngCRC:      0xf99b3b59,
+			pngCRC:      0x4fb909a1,
 		},
 		{
 			name: "rounded_caps",
@@ -125,7 +125,7 @@ func TestBarChart(t *testing.T) {
 				opt.Title.FontStyle = customFont
 				return opt
 			},
-			pngCRC: 0xdc9be388,
+			pngCRC: 0x99797c4f,
 		},
 		{
 			name: "boundary_gap_enable",
@@ -135,7 +135,7 @@ func TestBarChart(t *testing.T) {
 				opt.YAxis[0].Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0xab7b0063,
+			pngCRC: 0xad9a8d00,
 		},
 		{
 			name: "boundary_gap_disable",
@@ -144,7 +144,7 @@ func TestBarChart(t *testing.T) {
 				opt.XAxis.BoundaryGap = Ptr(false)
 				return opt
 			},
-			pngCRC: 0xd56b1106,
+			pngCRC: 0x348f762e,
 		},
 		{
 			name: "value_formatter",
@@ -155,7 +155,7 @@ func TestBarChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0xae4b0308,
+			pngCRC: 0x844c7378,
 		},
 		{
 			name: "bar_width_truncate",
@@ -227,7 +227,7 @@ func TestBarChart(t *testing.T) {
 				opt.YAxis[1].Theme = opt.Theme.WithYAxisSeriesColor(1)
 				return opt
 			},
-			pngCRC: 0xa34f80b9,
+			pngCRC: 0x25fa0e30,
 		},
 		{
 			name: "mark_line",
@@ -254,7 +254,7 @@ func TestBarChart(t *testing.T) {
 		{
 			name:        "stack_series",
 			makeOptions: makeFullBarChartStackedOption,
-			pngCRC:      0x86614a2,
+			pngCRC:      0x6aa0df43,
 		},
 		{
 			name: "stack_series_capped_bar",
@@ -274,7 +274,7 @@ func TestBarChart(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x58590bd4,
+			pngCRC: 0xf882ee3a,
 		},
 		{
 			name: "stack_series_global_mark_point",
@@ -297,7 +297,7 @@ func TestBarChart(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x6ed1ee54,
+			pngCRC: 0xaaa0a156,
 		},
 		{
 			name: "stack_series_simple",
@@ -330,7 +330,7 @@ func TestBarChart(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x75d281c8,
+			pngCRC: 0x4b03be9b,
 		},
 		{
 			name: "empty_series",
@@ -345,7 +345,7 @@ func TestBarChart(t *testing.T) {
 				opt.YAxis = []YAxisOption{{Show: Ptr(true)}, {Show: Ptr(true)}}
 				return opt
 			},
-			pngCRC: 0xcf932e60,
+			pngCRC: 0x135c35e9,
 		},
 	}
 

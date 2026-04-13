@@ -676,7 +676,7 @@ func TestCandlestickChartPatterns(t *testing.T) {
 					ShadowRatio:   2.0,
 				})
 			},
-			pngCRC: 0xd14dc283,
+			pngCRC: 0xea102049,
 		},
 		{
 			name: "hammer",
@@ -691,7 +691,7 @@ func TestCandlestickChartPatterns(t *testing.T) {
 					ShadowRatio:   2.0,
 				})
 			},
-			pngCRC: 0x48755ffa,
+			pngCRC: 0x8c07bcc,
 		},
 		{
 			name: "inverted_hammer",
@@ -706,7 +706,7 @@ func TestCandlestickChartPatterns(t *testing.T) {
 					ShadowRatio:   2.0,
 				})
 			},
-			pngCRC: 0x2db8b33b,
+			pngCRC: 0xaf126077,
 		},
 		{
 			name: "shooting_star",
@@ -721,7 +721,7 @@ func TestCandlestickChartPatterns(t *testing.T) {
 					ShadowRatio:   2.0,
 				})
 			},
-			pngCRC: 0xf9c1a5ec,
+			pngCRC: 0xecec3ac,
 		},
 		{
 			name: "gravestone_doji",
@@ -736,7 +736,7 @@ func TestCandlestickChartPatterns(t *testing.T) {
 					ShadowRatio:   2.0,
 				})
 			},
-			pngCRC: 0x8159f53b,
+			pngCRC: 0x7cd1f6ed,
 		},
 		{
 			name: "dragonfly_doji",
@@ -751,7 +751,7 @@ func TestCandlestickChartPatterns(t *testing.T) {
 					ShadowRatio:   2.0,
 				})
 			},
-			pngCRC: 0xa6e7aaef,
+			pngCRC: 0x41d23be1,
 		},
 		{
 			name: "bullish_marubozu",
@@ -766,7 +766,7 @@ func TestCandlestickChartPatterns(t *testing.T) {
 					ShadowRatio:   2.0,
 				})
 			},
-			pngCRC: 0xf59a696f,
+			pngCRC: 0x341fae7f,
 		},
 		{
 			name: "bearish_marubozu",
@@ -781,7 +781,7 @@ func TestCandlestickChartPatterns(t *testing.T) {
 					ShadowRatio:   2.0,
 				})
 			},
-			pngCRC: 0x78ba7419,
+			pngCRC: 0x29ca075e,
 		},
 		{
 			name: "bullish_engulfing",
@@ -798,7 +798,7 @@ func TestCandlestickChartPatterns(t *testing.T) {
 					EngulfingMinSize: 0.8,
 				})
 			},
-			pngCRC: 0xd40689c8,
+			pngCRC: 0x48519148,
 		},
 		{
 			name: "bearish_engulfing",
@@ -815,7 +815,7 @@ func TestCandlestickChartPatterns(t *testing.T) {
 					EngulfingMinSize: 0.8,
 				})
 			},
-			pngCRC: 0xa1cca1bc,
+			pngCRC: 0x2fb05a67,
 		},
 		{
 			name: "morning_star",
@@ -832,7 +832,7 @@ func TestCandlestickChartPatterns(t *testing.T) {
 					ShadowRatio:   2.0,
 				})
 			},
-			pngCRC: 0xe848b023,
+			pngCRC: 0x6572b0ed,
 		},
 		{
 			name: "evening_star",
@@ -849,7 +849,7 @@ func TestCandlestickChartPatterns(t *testing.T) {
 					ShadowRatio:   2.0,
 				})
 			},
-			pngCRC: 0x1683fe48,
+			pngCRC: 0xd3e3b972,
 		},
 		{
 			name: "piercing_line",
@@ -865,7 +865,7 @@ func TestCandlestickChartPatterns(t *testing.T) {
 					ShadowRatio:   2.0,
 				})
 			},
-			pngCRC: 0x957f0bb4,
+			pngCRC: 0x5d23cac9,
 		},
 		{
 			name: "dark_cloud_cover",
@@ -881,7 +881,7 @@ func TestCandlestickChartPatterns(t *testing.T) {
 					ShadowRatio:   2.0,
 				})
 			},
-			pngCRC: 0x1f2e9bc3,
+			pngCRC: 0xa3994f0c,
 		},
 		{
 			name: "engulfing_and_stars",

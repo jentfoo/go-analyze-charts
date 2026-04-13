@@ -114,11 +114,11 @@ func (b *barChart) renderChart(result *defaultRenderResult) (Box, error) {
 	}
 	seriesPainter := result.seriesPainter
 
-	x0, x1 := result.xaxisRange.getRange(0)
+	x0, x1 := result.categoryAxisRange.getRange(0)
 	width := int(x1 - x0)
 	barMaxHeight := seriesPainter.Height() // total vertical space for bars
 	seriesNames := opt.SeriesList.names()
-	divideValues := result.xaxisRange.autoDivide()
+	divideValues := result.categoryAxisRange.autoDivide()
 	stackedSeries := flagIs(true, opt.StackSeries)
 	var margin, barMargin, barWidth int
 	var accumulatedHeights []int // prior heights for stacking to avoid recalculating the heights
@@ -129,7 +129,7 @@ func (b *barChart) renderChart(result *defaultRenderResult) (Box, error) {
 			configuredMargin = nil // no margin needed with a single bar
 		}
 		margin, _, barWidth = calculateBarMarginsAndSize(barCount, width, opt.BarWidth, configuredMargin)
-		accumulatedHeights = make([]int, result.xaxisRange.divideCount)
+		accumulatedHeights = make([]int, result.categoryAxisRange.divideCount)
 	} else {
 		margin, barMargin, barWidth = calculateBarMarginsAndSize(seriesCount, width, opt.BarWidth, opt.BarMargin)
 	}
@@ -141,7 +141,7 @@ func (b *barChart) renderChart(result *defaultRenderResult) (Box, error) {
 
 	for index, series := range opt.SeriesList {
 		stackSeries := stackedSeries && series.YAxisIndex == 0
-		yRange := result.yaxisRanges[series.YAxisIndex]
+		yRange := result.valueAxisRanges[series.YAxisIndex]
 		seriesThemeIndex := index
 		if series.absThemeIndex != nil {
 			seriesThemeIndex = *series.absThemeIndex
@@ -156,7 +156,7 @@ func (b *barChart) renderChart(result *defaultRenderResult) (Box, error) {
 
 		points := make([]Point, len(series.Values)) // used for mark points
 		for j, item := range series.Values {
-			if j >= result.xaxisRange.divideCount {
+			if j >= result.categoryAxisRange.divideCount {
 				break
 			}
 
@@ -333,8 +333,8 @@ func (b *barChart) Render() (Box, error) {
 		padding:        opt.Padding,
 		seriesList:     opt.SeriesList,
 		stackSeries:    flagIs(true, opt.StackSeries),
-		xAxis:          &b.opt.XAxis,
-		yAxis:          opt.YAxis,
+		categoryAxis:   &b.opt.XAxis,
+		valueAxis:      opt.YAxis,
 		title:          opt.Title,
 		legend:         &b.opt.Legend,
 		valueFormatter: opt.ValueFormatter,

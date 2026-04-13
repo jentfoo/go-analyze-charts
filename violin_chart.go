@@ -290,16 +290,8 @@ func (v *violinChart) renderChart(result *defaultRenderResult) (Box, error) {
 	}
 	seriesPainter := result.seriesPainter
 
-	// Vertical: xaxisRange=value, yaxisRanges[0]=category
-	// Horizontal: xaxisRange=category, yaxisRanges[0]=value
-	var valueRange, categoryRange axisRange
-	if opt.Horizontal {
-		categoryRange = result.xaxisRange
-		valueRange = result.yaxisRanges[0]
-	} else {
-		valueRange = result.xaxisRange
-		categoryRange = result.yaxisRanges[0]
-	}
+	categoryRange := result.categoryAxisRange
+	valueRange := result.valueAxisRanges[0]
 	if categoryRange.divideCount == 0 {
 		return BoxZero, errors.New("violin category axis produced no slots")
 	}
@@ -467,9 +459,9 @@ func buildViolinMarkLineRenderer(seriesPainter *Painter, opt *ViolinChartOption,
 	return markLine
 }
 
-// violinConfigureRenderOption sets up the axis configuration on a defaultRenderOption for violin charts.
+// violinConfigureRenderOption configures the category and value axis options for violin charts.
 // The limit parameter is only available through the Painter API's ViolinAxis.Limit.
-func violinConfigureRenderOption(renderOpt *defaultRenderOption, sl ViolinSeriesList, horizontal bool, limit *float64, valueFormatter ValueFormatter) {
+func violinConfigureRenderOption(sl ViolinSeriesList, horizontal bool, limit *float64, valueFormatter ValueFormatter, catAxis CategoryAxisOption, valAxis ValueAxisOption) (CategoryAxisOption, ValueAxisOption) {
 	if horizontal {
 		for i := range sl {
 			sl[i].horizontal = true
@@ -482,30 +474,34 @@ func violinConfigureRenderOption(renderOpt *defaultRenderOption, sl ViolinSeries
 		return baseFormatter(math.Abs(val))
 	}
 
+	catAxis.Show = Ptr(false)
+	catAxis.Labels = categoryLabels
+
 	if horizontal {
-		// Horizontal: X is category (hidden), Y is numeric value axis
-		renderOpt.xAxis.Show = Ptr(false)
-		renderOpt.xAxis.Labels = categoryLabels
+		// Horizontal: category on X (hidden), value on Y
 		valueAxisLabelCount :=
-			violinResolveValueAxisLabelCount(renderOpt.yAxis[0].LabelCount, renderOpt.yAxis[0].LabelCountAdjustment)
-		axisMin, axisMax := violinResolveAxisBounds(absMax, limit, valueAxisLabelCount, renderOpt.yAxis[0].Unit)
-		renderOpt.yAxis[0].Min = &axisMin
-		renderOpt.yAxis[0].Max = &axisMax
-		renderOpt.yAxis[0].LabelCount = valueAxisLabelCount
-		renderOpt.yAxis[0].LabelCountAdjustment = 0
-		renderOpt.yAxis[0].ValueFormatter = absoluteValueFormatter
+			violinResolveValueAxisLabelCount(valAxis.LabelCount, valAxis.LabelCountAdjustment)
+		axisMin, axisMax := violinResolveAxisBounds(absMax, limit, valueAxisLabelCount, valAxis.Unit)
+		valAxis.Min = &axisMin
+		valAxis.Max = &axisMax
+		valAxis.LabelCount = valueAxisLabelCount
+		valAxis.LabelCountAdjustment = 0
+		valAxis.ValueFormatter = absoluteValueFormatter
+		valAxis.RangeValuePaddingScale = Ptr(0.0)
 	} else {
-		// Vertical: Y is category (hidden), X is numeric value axis
-		renderOpt.yAxis[0].Show = Ptr(false)
-		renderOpt.yAxis[0].Labels = categoryLabels
-		renderOpt.xAxis.Labels = nil
-		renderOpt.xAxis.LabelCount =
-			violinResolveValueAxisLabelCount(renderOpt.xAxis.LabelCount, renderOpt.xAxis.LabelCountAdjustment)
-		renderOpt.xAxis.LabelCountAdjustment = 0
-		renderOpt.xAxis.ValueFormatter = absoluteValueFormatter
-		axisMin, axisMax := violinResolveAxisBounds(absMax, limit, renderOpt.xAxis.LabelCount, renderOpt.xAxis.Unit)
-		renderOpt.axisRangeOverride = &[2]float64{axisMin, axisMax}
+		// Vertical: category on Y (hidden), value on X
+		valAxis.Labels = nil
+		valueAxisLabelCount :=
+			violinResolveValueAxisLabelCount(valAxis.LabelCount, valAxis.LabelCountAdjustment)
+		valAxis.LabelCountAdjustment = 0
+		valAxis.ValueFormatter = absoluteValueFormatter
+		axisMin, axisMax := violinResolveAxisBounds(absMax, limit, valueAxisLabelCount, valAxis.Unit)
+		valAxis.Min = &axisMin
+		valAxis.Max = &axisMax
+		valAxis.LabelCount = valueAxisLabelCount
+		valAxis.RangeValuePaddingScale = Ptr(0.0)
 	}
+	return catAxis, valAxis
 }
 
 func violinMaxAbsExtent(sl ViolinSeriesList) float64 {
@@ -570,48 +566,35 @@ func (v *violinChart) Render() (Box, error) {
 		opt.Legend.Symbol = SymbolSquare
 	}
 
-	// Vertical (default): X is numeric, Y is hidden category
-	// Horizontal: Y is numeric, X is hidden category
 	axisOpt := opt.ValueAxis
-	xAxisOpt := XAxisOption{}
-	yAxisOpts := []YAxisOption{{}}
-
-	// Map ViolinAxis fields onto the active value axis
-	if opt.Horizontal {
-		yAxisOpts[0].Show = axisOpt.Show
-		yAxisOpts[0].Title = axisOpt.Title
-		yAxisOpts[0].TitleFontStyle = axisOpt.TitleFontStyle
-		yAxisOpts[0].LabelFontStyle = axisOpt.LabelFontStyle
-		yAxisOpts[0].LabelRotation = axisOpt.LabelRotation
-		yAxisOpts[0].Unit = axisOpt.Unit
-		yAxisOpts[0].LabelCount = axisOpt.LabelCount
-		yAxisOpts[0].LabelCountAdjustment = axisOpt.LabelCountAdjustment
-		yAxisOpts[0].PreferNiceIntervals = axisOpt.PreferNiceIntervals
-	} else {
-		xAxisOpt.Show = axisOpt.Show
-		xAxisOpt.Title = axisOpt.Title
-		xAxisOpt.TitleFontStyle = axisOpt.TitleFontStyle
-		xAxisOpt.LabelFontStyle = axisOpt.LabelFontStyle
-		xAxisOpt.LabelRotation = axisOpt.LabelRotation
-		xAxisOpt.Unit = axisOpt.Unit
-		xAxisOpt.LabelCount = axisOpt.LabelCount
-		xAxisOpt.LabelCountAdjustment = axisOpt.LabelCountAdjustment
+	var catAxis CategoryAxisOption
+	valAxis := ValueAxisOption{
+		Show:                 axisOpt.Show,
+		Title:                axisOpt.Title,
+		TitleFontStyle:       axisOpt.TitleFontStyle,
+		LabelFontStyle:       axisOpt.LabelFontStyle,
+		LabelRotation:        axisOpt.LabelRotation,
+		Unit:                 axisOpt.Unit,
+		LabelCount:           axisOpt.LabelCount,
+		LabelCountAdjustment: axisOpt.LabelCountAdjustment,
+		PreferNiceIntervals:  axisOpt.PreferNiceIntervals,
 	}
 
-	renderOpt := defaultRenderOption{
+	// categoryY: !opt.Horizontal because violin's Horizontal means "categories arranged horizontally" (category on X)
+	catAxis, valAxis = violinConfigureRenderOption(opt.SeriesList, opt.Horizontal, axisOpt.Limit,
+		opt.ValueFormatter, catAxis, valAxis)
+
+	renderResult, err := defaultRender(p, defaultRenderOption{
 		theme:          opt.Theme,
 		padding:        opt.Padding,
 		seriesList:     opt.SeriesList,
-		xAxis:          &xAxisOpt,
-		yAxis:          yAxisOpts,
+		categoryAxis:   &catAxis,
+		valueAxis:      []ValueAxisOption{valAxis},
 		title:          opt.Title,
 		legend:         &opt.Legend,
 		valueFormatter: opt.ValueFormatter,
-		axisReversed:   !opt.Horizontal,
-	}
-	violinConfigureRenderOption(&renderOpt, opt.SeriesList, opt.Horizontal, axisOpt.Limit, opt.ValueFormatter)
-
-	renderResult, err := defaultRender(p, renderOpt)
+		categoryY:      !opt.Horizontal,
+	})
 	if err != nil {
 		return BoxZero, err
 	}

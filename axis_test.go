@@ -16,6 +16,10 @@ func TestAxisRender(t *testing.T) {
 	letterLabels := []string{"A", "B", "C", "D", "E", "F", "G"}
 	fs := NewFontStyleWithSize(18)
 	fs.FontColor = ColorGreen
+	axisTheme := GetDefaultTheme().
+		WithXAxisColor(ColorBlue).
+		WithYAxisColor(ColorBlue).
+		WithAxisSplitLineColor(ColorGray)
 
 	tests := []struct {
 		name          string
@@ -28,7 +32,7 @@ func TestAxisRender(t *testing.T) {
 					BoundaryGap: Ptr(true),
 					FontStyle:   fs,
 				}
-				return opt.prep(nil).toAxisOption(newTestRangeForLabels(dayLabels, 0, fs))
+				return opt.prep(axisTheme, false).toAxisOption(newTestRangeForLabels(dayLabels, 0, fs))
 			},
 		},
 		{
@@ -38,7 +42,7 @@ func TestAxisRender(t *testing.T) {
 					BoundaryGap: Ptr(true),
 					FontStyle:   fs,
 				}
-				return opt.prep(nil).toAxisOption(newTestRangeForLabels(dayLabels, DegreesToRadians(45), fs))
+				return opt.prep(axisTheme, false).toAxisOption(newTestRangeForLabels(dayLabels, DegreesToRadians(45), fs))
 			},
 		},
 		{
@@ -49,15 +53,16 @@ func TestAxisRender(t *testing.T) {
 					BoundaryGap: Ptr(true),
 					FontStyle:   fs,
 				}
-				return opt.prep(nil).toAxisOption(newTestRangeForLabels(dayLabels, DegreesToRadians(90), fs))
+				return opt.prep(axisTheme, false).toAxisOption(newTestRangeForLabels(dayLabels, DegreesToRadians(90), fs))
 			},
 		},
 		{
 			name: "x-axis_splitline",
 			optionFactory: func(p *Painter) axisOption {
 				return axisOption{
+					theme:         axisTheme,
 					aRange:        newTestRangeForLabels(letterLabels, 0, fs),
-					splitLineShow: true,
+					splitLineShow: Ptr(true),
 				}
 			},
 		},
@@ -68,17 +73,18 @@ func TestAxisRender(t *testing.T) {
 					Position:       PositionLeft,
 					isCategoryAxis: true,
 				}
-				return opt.prep(nil).toAxisOption(newTestRangeForLabels(dayLabels, 0, fs))
+				return opt.prep(axisTheme, true).toAxisOption(newTestRangeForLabels(dayLabels, 0, fs))
 			},
 		},
 		{
 			name: "y-axis_right",
 			optionFactory: func(p *Painter) axisOption {
 				return axisOption{
+					theme:         axisTheme,
 					aRange:        newTestRangeForLabels(dayLabels, 0, fs),
 					position:      PositionRight,
 					boundaryGap:   Ptr(false),
-					splitLineShow: true,
+					splitLineShow: Ptr(true),
 				}
 			},
 		},
@@ -88,8 +94,9 @@ func TestAxisRender(t *testing.T) {
 				aRange := newTestRangeForLabels(letterLabels, 0, fs)
 				aRange.labelCount -= 2
 				return axisOption{
+					theme:         axisTheme,
 					aRange:        aRange,
-					splitLineShow: false,
+					splitLineShow: Ptr(false),
 				}
 			},
 		},
@@ -99,6 +106,7 @@ func TestAxisRender(t *testing.T) {
 				aRange := newTestRangeForLabels(letterLabels, 0, fs)
 				aRange.dataStartIndex = 2
 				return axisOption{
+					theme:  axisTheme,
 					aRange: aRange,
 				}
 			},
@@ -111,6 +119,7 @@ func TestAxisRender(t *testing.T) {
 					FontColor: ColorBlue,
 				}
 				return axisOption{
+					theme:  axisTheme,
 					aRange: newTestRangeForLabels(letterLabels, 0, fs),
 				}
 			},
@@ -119,6 +128,7 @@ func TestAxisRender(t *testing.T) {
 			name: "boundary_gap_disable",
 			optionFactory: func(p *Painter) axisOption {
 				return axisOption{
+					theme:       axisTheme,
 					aRange:      newTestRangeForLabels(letterLabels, 0, fs),
 					boundaryGap: Ptr(false),
 				}
@@ -128,6 +138,7 @@ func TestAxisRender(t *testing.T) {
 			name: "boundary_gap_enable",
 			optionFactory: func(p *Painter) axisOption {
 				return axisOption{
+					theme:       axisTheme,
 					aRange:      newTestRangeForLabels(letterLabels, 0, fs),
 					boundaryGap: Ptr(true),
 				}
@@ -149,6 +160,7 @@ func TestAxisRender(t *testing.T) {
 					tsl = append(tsl, testSeries{values: []float64{float64(i)}})
 				}
 				return axisOption{
+					theme: axisTheme,
 					aRange: calculateCategoryAxisRange(p, p.Width(), false, false, labels, 0,
 						0, 0, 0, tsl, 0, fs),
 					boundaryGap: Ptr(true),
@@ -166,9 +178,205 @@ func TestAxisRender(t *testing.T) {
 			}, PainterPaddingOption(NewBoxEqual(50)))
 
 			opt := tt.optionFactory(p)
-			opt.axisColor = ColorBlue
-			opt.axisSplitLineColor = ColorGray
 			_, err := newAxisPainter(p, opt).Render()
+			require.NoError(t, err)
+			data, err := p.Bytes()
+			require.NoError(t, err)
+			assertTestdataSVG(t, data)
+		})
+	}
+}
+
+func TestBottomXAxis(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name       string
+		makeOption func() XAxisOption
+		makeValue  bool
+	}{
+		{
+			name: "basic",
+			makeOption: func() XAxisOption {
+				return XAxisOption{
+					Labels: []string{"a", "b", "c", "d"},
+				}
+			},
+		},
+		{
+			name: "value",
+			makeOption: func() XAxisOption {
+				return XAxisOption{
+					Labels: []string{"a", "b", "c", "d"},
+				}
+			},
+			makeValue: true,
+		},
+		{
+			name: "title",
+			makeOption: func() XAxisOption {
+				return XAxisOption{
+					Title:  "Title",
+					Labels: []string{"a", "b", "c", "d"},
+				}
+			},
+		},
+		{
+			name: "boundary_gap_disabled",
+			makeOption: func() XAxisOption {
+				return XAxisOption{
+					Labels:      []string{"a", "b", "c", "d"},
+					BoundaryGap: Ptr(false),
+				}
+			},
+		},
+		{
+			name: "font_style",
+			makeOption: func() XAxisOption {
+				return XAxisOption{
+					Labels:        []string{"abc", "def", "ghi"},
+					FontStyle:     NewFontStyleWithSize(20),
+					LabelRotation: DegreesToRadians(90),
+				}
+			},
+		},
+		{
+			name: "label_start_offset",
+			makeOption: func() XAxisOption {
+				return XAxisOption{
+					Labels:         []string{"a", "b", "c", "d", "e", "f"},
+					DataStartIndex: 2,
+				}
+			},
+		},
+	}
+
+	for i, tt := range tests {
+		t.Run(strconv.Itoa(i)+"-"+tt.name, func(t *testing.T) {
+			theme := GetTheme(ThemeLight)
+			p := NewPainter(PainterOptions{
+				OutputFormat: ChartOutputSVG,
+				Width:        600,
+				Height:       400,
+			}, PainterThemeOption(theme), PainterPaddingOption(NewBoxEqual(100)))
+
+			xAxisOpt := tt.makeOption()
+			xAxisOpt = *xAxisOpt.prep(theme, false)
+			aRange := newTestRangeForLabels(xAxisOpt.Labels, xAxisOpt.LabelRotation,
+				fillFontStyleDefaults(xAxisOpt.LabelFontStyle, defaultFontSize, theme.GetXAxisTextColor()))
+			aRange.isCategory = !tt.makeValue
+			_, err := newAxisPainter(p, xAxisOpt.toAxisOption(aRange)).Render()
+			require.NoError(t, err)
+			data, err := p.Bytes()
+			require.NoError(t, err)
+			assertTestdataSVG(t, data)
+		})
+	}
+}
+
+func TestYAxis(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name             string
+		makeOption       func() *YAxisOption
+		makeCategory     bool
+		disableSplitLine bool
+	}{
+		{
+			name: "basic",
+			makeOption: func() *YAxisOption {
+				return &YAxisOption{
+					Position: PositionLeft, // typically defaulted in defaultRender
+					Labels:   []string{"a", "b", "c", "d"},
+				}
+			},
+		},
+		{
+			name: "category",
+			makeOption: func() *YAxisOption {
+				return &YAxisOption{
+					Position:       PositionLeft, // typically defaulted in defaultRender
+					Labels:         []string{"a", "b", "c", "d"},
+					isCategoryAxis: true,
+				}
+			},
+			makeCategory: true,
+		},
+		{
+			name: "font_style_with_rotation",
+			makeOption: func() *YAxisOption {
+				return &YAxisOption{
+					Position:      PositionLeft, // typically defaulted in defaultRender
+					Labels:        []string{"a", "b", "c"},
+					FontStyle:     NewFontStyleWithSize(20),
+					LabelRotation: DegreesToRadians(270),
+				}
+			},
+		},
+		{
+			name: "lines",
+			makeOption: func() *YAxisOption {
+				return &YAxisOption{
+					Position:      PositionLeft, // typically defaulted in defaultRender
+					Labels:        []string{"a", "b", "c", "d"},
+					SplitLineShow: Ptr(true),
+					SpineLineShow: Ptr(true),
+				}
+			},
+		},
+		{
+			name: "title_left",
+			makeOption: func() *YAxisOption {
+				return &YAxisOption{
+					Position: PositionLeft, // typically defaulted in defaultRender
+					Title:    "title",
+					Labels:   []string{"a", "b", "c", "d"},
+				}
+			},
+		},
+		{
+			name: "title_right",
+			makeOption: func() *YAxisOption {
+				return &YAxisOption{
+					Position: PositionRight,
+					Title:    "title",
+					Labels:   []string{"a", "b", "c", "d"},
+				}
+			},
+		},
+		{
+			name: "split_line_disable",
+			makeOption: func() *YAxisOption {
+				return &YAxisOption{
+					Position: PositionRight,
+					Labels:   []string{"a", "b", "c", "d"},
+				}
+			},
+			disableSplitLine: true,
+		},
+	}
+
+	for i, tt := range tests {
+		t.Run(strconv.Itoa(i)+"-"+tt.name, func(t *testing.T) {
+			theme := GetTheme(ThemeLight)
+			p := NewPainter(PainterOptions{
+				OutputFormat: ChartOutputSVG,
+				Width:        600,
+				Height:       400,
+			}, PainterThemeOption(theme),
+				PainterPaddingOption(NewBoxEqual(100)))
+
+			yAxisOpt := tt.makeOption()
+			yAxisOpt = yAxisOpt.prep(theme, true)
+			aRange := newTestRangeForLabels(yAxisOpt.Labels, yAxisOpt.LabelRotation,
+				fillFontStyleDefaults(yAxisOpt.LabelFontStyle, defaultFontSize, theme.GetYAxisTextColor()))
+			aRange.isCategory = tt.makeCategory
+			axisOpt := yAxisOpt.toAxisOption(aRange)
+			if tt.disableSplitLine {
+				axisOpt.splitLineShow = Ptr(false)
+			}
+			_, err := newAxisPainter(p, axisOpt).Render()
 			require.NoError(t, err)
 			data, err := p.Bytes()
 			require.NoError(t, err)

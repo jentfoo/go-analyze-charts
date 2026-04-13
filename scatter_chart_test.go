@@ -193,7 +193,7 @@ func TestScatterChart(t *testing.T) {
 			name:        "basic_themed",
 			themed:      true,
 			makeOptions: makeFullScatterChartOption,
-			pngCRC:      0xcd5f3c75,
+			pngCRC:      0xfab51933,
 		},
 		{
 			name: "boundary_gap_enable",
@@ -203,7 +203,7 @@ func TestScatterChart(t *testing.T) {
 				opt.XAxis.BoundaryGap = Ptr(true)
 				return opt
 			},
-			pngCRC: 0xc111bfbf,
+			pngCRC: 0x540701a7,
 		},
 		{
 			name: "dual_yaxis",
@@ -530,7 +530,7 @@ func TestScatterChart(t *testing.T) {
 					},
 				}
 			},
-			pngCRC: 0xe30566f0,
+			pngCRC: 0xbd9f53a,
 		},
 		{
 			name: "bollinger",
@@ -545,7 +545,7 @@ func TestScatterChart(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0xfe4eb3ff,
+			pngCRC: 0xb5c50ea9,
 		},
 		{
 			name: "rsi",
@@ -557,7 +557,7 @@ func TestScatterChart(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0xae1ba5f4,
+			pngCRC: 0x178936f4,
 		},
 		{
 			name: "empty_series",
@@ -572,7 +572,7 @@ func TestScatterChart(t *testing.T) {
 				opt.YAxis = []YAxisOption{{Show: Ptr(true)}, {Show: Ptr(true)}}
 				return opt
 			},
-			pngCRC: 0x19d63c4,
+			pngCRC: 0xff2e2e71,
 		},
 	}
 

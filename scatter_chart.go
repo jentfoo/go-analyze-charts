@@ -103,7 +103,7 @@ func (s *scatterChart) renderChart(result *defaultRenderResult) (Box, error) {
 			seriesThemeIndex = *series.absThemeIndex
 		}
 		seriesColor := opt.Theme.GetSeriesColor(seriesThemeIndex)
-		yRange := result.yaxisRanges[series.YAxisIndex]
+		yRange := result.valueAxisRanges[series.YAxisIndex]
 		var labelPainter *seriesLabelPainter
 		if flagIs(true, series.Label.Show) {
 			labelPainter = newSeriesLabelPainter(seriesPainter, seriesNames, series.Label, opt.Theme, opt.Padding.Right)
@@ -206,12 +206,13 @@ func (s *scatterChart) Render() (Box, error) {
 		}
 	}
 
+	// TODO - scatter uses CategoryAxisOption as a faux-category axis for what is semantically value data
 	renderResult, err := defaultRender(p, defaultRenderOption{
 		theme:          opt.Theme,
 		padding:        opt.Padding,
 		seriesList:     opt.SeriesList,
-		xAxis:          &s.opt.XAxis,
-		yAxis:          opt.YAxis,
+		categoryAxis:   &s.opt.XAxis,
+		valueAxis:      opt.YAxis,
 		title:          opt.Title,
 		legend:         &s.opt.Legend,
 		valueFormatter: opt.ValueFormatter,

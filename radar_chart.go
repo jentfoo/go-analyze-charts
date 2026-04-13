@@ -230,10 +230,10 @@ func (r *radarChart) Render() (Box, error) {
 		theme:      opt.Theme,
 		padding:    opt.Padding,
 		seriesList: opt.SeriesList,
-		xAxis: &XAxisOption{
+		categoryAxis: &CategoryAxisOption{
 			Show: Ptr(false),
 		},
-		yAxis: []YAxisOption{
+		valueAxis: []ValueAxisOption{
 			{
 				Show: Ptr(false),
 			},

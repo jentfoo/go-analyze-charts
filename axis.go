@@ -1,8 +1,167 @@
 package charts
 
+import (
+	"math"
+)
+
+type CategoryAxisOption struct {
+	// Show specifies if the axis should be rendered. Set to *false (via Ptr(false)) to hide the axis.
+	Show *bool
+	// Theme specifies the colors used for the axis.
+	Theme ColorPalette
+	// Title specifies a name for the axis. If set, the title is rendered adjacent to the axis.
+	Title string
+	// TitleFontStyle specifies the font, size, and color for the axis title.
+	TitleFontStyle FontStyle
+	// Labels provides labels for each value on the axis. Indices must match series data indices.
+	Labels []string
+	// Deprecated: DataStartIndex is deprecated and will be removed in v0.6.0.
+	// Slice your Labels and series data together using Go slice expressions as a direct replacement.
+	DataStartIndex int
+	// Position controls the physical axis placement.
+	// Supported values are PositionBottom (default) and PositionTop.
+	Position string
+	// BoundaryGap specifies that the chart should have additional space on the left and right, with data points being
+	// centered between two axis ticks. Default is set based on the dataset density / size to produce an easy-to-read
+	// graph. Specify a *bool (through charts.Ptr(false) or charts.Ptr(true)) to enforce a spacing.
+	BoundaryGap *bool
+	// Deprecated: FontStyle is deprecated, use LabelFontStyle.
+	FontStyle FontStyle
+	// LabelFontStyle specifies the font configuration for each label.
+	LabelFontStyle FontStyle
+	// LabelRotation is the rotation angle in radians for labels. Use DegreesToRadians(float64) to convert from degrees.
+	LabelRotation float64
+	// LabelOffset is the position offset for each label.
+	LabelOffset OffsetInt
+	// ValueFormatter defines how float values are rendered to strings, notably for numeric axis labels.
+	ValueFormatter ValueFormatter
+	// Unit suggests the axis step size (recommendation only). Larger values result in fewer labels.
+	Unit float64
+	// LabelCount is the number of labels to show on the axis. Use a smaller count to reduce text collisions.
+	LabelCount int
+	// LabelCountAdjustment specifies a relative influence on how many labels should be rendered.
+	// Typically, this is negative to result in cleaner graphs, positive values may result in text collisions.
+	LabelCountAdjustment int
+}
+
+// XAxisOption is an alias for CategoryAxisOption. Use whatever the chart type accepts.
+type XAxisOption = CategoryAxisOption
+
+// prepAxisStyles resolves theme, label, and title font styles for either axis option type.
+func prepAxisStyles(theme *ColorPalette, fallbackTheme ColorPalette, isVertical bool,
+	labelFontStyle *FontStyle, deprecatedFontStyle FontStyle, titleFontStyle *FontStyle) {
+	*theme = getPreferredTheme(*theme, fallbackTheme)
+	if labelFontStyle.IsZero() {
+		*labelFontStyle = deprecatedFontStyle
+	}
+	textColor := (*theme).GetXAxisTextColor()
+	if isVertical {
+		textColor = (*theme).GetYAxisTextColor()
+	}
+	*labelFontStyle = fillFontStyleDefaults(*labelFontStyle, defaultFontSize, textColor)
+	*titleFontStyle = fillFontStyleDefaults(*titleFontStyle, math.Max(labelFontStyle.FontSize, defaultFontSize),
+		labelFontStyle.FontColor, labelFontStyle.Font)
+}
+
+func (opt *CategoryAxisOption) prep(fallbackTheme ColorPalette, isVertical bool) *CategoryAxisOption {
+	prepAxisStyles(&opt.Theme, fallbackTheme, isVertical, &opt.LabelFontStyle, opt.FontStyle, &opt.TitleFontStyle)
+	return opt
+}
+
+// toAxisOption converts the CategoryAxisOption to axisOption after prep has been invoked.
+func (opt *CategoryAxisOption) toAxisOption(xAxisRange axisRange) axisOption {
+	return axisOption{
+		show:           opt.Show,
+		theme:          opt.Theme,
+		aRange:         xAxisRange,
+		title:          opt.Title,
+		titleFontStyle: opt.TitleFontStyle,
+		boundaryGap:    opt.BoundaryGap,
+		position:       opt.Position,
+		labelOffset:    opt.LabelOffset,
+	}
+}
+
+// ValueAxisOption configures the value (numeric / range) axis.
+type ValueAxisOption struct {
+	// Show specifies if the axis should be rendered. Set to *false (via Ptr(false)) to hide the axis.
+	Show *bool
+	// Theme specifies the colors used for the axis.
+	Theme ColorPalette
+	// Title specifies a name for the axis. If set, the axis name is rendered on the outside of the axis.
+	Title string
+	// TitleFontStyle specifies the font, size, and color for the axis title.
+	TitleFontStyle FontStyle
+	// Min forces the minimum value of the axis when set (Use Ptr(float64)).
+	Min *float64
+	// Max forces the maximum value of the axis when set (Use Ptr(float64)).
+	Max *float64
+	// RangeValuePaddingScale suggests a padding scale to apply to the max and min values.
+	RangeValuePaddingScale *float64
+	// Labels provides labels for each value on the axis.
+	Labels []string
+	// Position describes the axis position: 'left' or 'right'.
+	Position string
+	// Deprecated: FontStyle is deprecated, use LabelFontStyle.
+	FontStyle FontStyle
+	// LabelFontStyle specifies the font configuration for each label.
+	LabelFontStyle FontStyle
+	// LabelRotation is the rotation angle in radians for labels. Use DegreesToRadians(float64) to convert from degrees.
+	LabelRotation float64
+	// Deprecated: Formatter is deprecated, use ValueFormatter instead.
+	Formatter string
+	// Unit suggests the axis step size (recommendation only). Larger values result in fewer labels.
+	Unit float64
+	// LabelCount is the number of labels to show on the axis. Use a smaller count to reduce text collisions.
+	LabelCount int
+	// LabelCountAdjustment specifies relative influence on label count.
+	// Negative values result in cleaner graphs; positive values may cause text collisions.
+	LabelCountAdjustment int
+	// PreferNiceIntervals allows the label count to flex slightly to produce rounder axis intervals.
+	// TODO - reconsider default for v0.6.0 (possibly with padding default changes)
+	PreferNiceIntervals *bool
+	// LabelSkipCount specifies a qty of lines between labels that show only horizontal lines without labels.
+	LabelSkipCount int
+	// SplitLineShow when set to *true shows horizontal axis split lines.
+	SplitLineShow *bool
+	// SpineLineShow controls whether the vertical spine line is shown.
+	// Default is hidden unless it's a category axis.
+	SpineLineShow *bool
+	// ValueFormatter defines how float values are rendered to strings, notably for numeric axis labels.
+	ValueFormatter ValueFormatter
+	// TODO - isCategoryAxis is a hack used only by heat map so its Y-position axis
+	// renders with category styling. Remove when defaultRender supports dual category axes.
+	isCategoryAxis bool
+}
+
+// YAxisOption is an alias for ValueAxisOption. Use whatever the chart type accepts.
+type YAxisOption = ValueAxisOption
+
+func (opt *ValueAxisOption) prep(fallbackTheme ColorPalette, isVertical bool) *ValueAxisOption {
+	prepAxisStyles(&opt.Theme, fallbackTheme, isVertical, &opt.LabelFontStyle, opt.FontStyle, &opt.TitleFontStyle)
+	return opt
+}
+
+// toAxisOption converts the ValueAxisOption to axisOption after prep has been invoked.
+func (opt *ValueAxisOption) toAxisOption(yAxisRange axisRange) axisOption {
+	return axisOption{
+		show:           opt.Show,
+		theme:          opt.Theme,
+		aRange:         yAxisRange,
+		title:          opt.Title,
+		titleFontStyle: opt.TitleFontStyle,
+		position:       opt.Position,
+		splitLineShow:  opt.SplitLineShow,
+		spineLineShow:  opt.SpineLineShow,
+		isCategoryAxis: opt.isCategoryAxis,
+		labelSkipCount: opt.LabelSkipCount,
+	}
+}
+
 const axisMargin = 4
 const minimumAxisLabels = 2            // 2 labels so range is fully shown
 const minimumHorizontalAxisHeight = 24 // too small looks too crowded to the chart data, notable for horizontal bar charts
+const boundaryGapDefaultThreshold = 40
 
 type axisPainter struct {
 	p   *Painter
@@ -18,6 +177,7 @@ func newAxisPainter(p *Painter, opt axisOption) *axisPainter {
 
 type axisOption struct {
 	show           *bool
+	theme          ColorPalette
 	aRange         axisRange
 	title          string
 	titleFontStyle FontStyle
@@ -26,14 +186,14 @@ type axisOption struct {
 	// boundaryGap specifies that the chart should have additional space on the left and right, with data points being
 	// centered between two axis ticks. Default is set based on the dataset density / size to produce an easy-to-read
 	// graph. Specify a *bool to enforce a spacing.
-	boundaryGap          *bool
-	strokeWidth          float64
-	minimumAxisHeight    int
+	boundaryGap   *bool
+	splitLineShow *bool // nil = painter decides based on isCategory
+	spineLineShow *bool // nil = painter decides based on isCategory
+	// TODO - isCategoryAxis is a hack used only by heat map so its Y-position axis
+	// renders with category styling. Remove when defaultRender supports dual category axes.
+	isCategoryAxis       bool
 	tickLength           int
 	labelMargin          int
-	axisSplitLineColor   Color
-	axisColor            Color
-	splitLineShow        bool
 	labelOffset          OffsetInt
 	labelSkipCount       int
 	painterPrePositioned bool
@@ -47,16 +207,50 @@ func (a *axisPainter) Render() (Box, error) {
 
 	top := a.p
 	isVertical := opt.position == PositionLeft || opt.position == PositionRight
-	strokeWidth := opt.strokeWidth
-	if strokeWidth == 0 {
-		strokeWidth = 1
-	} else if strokeWidth < 0 {
-		strokeWidth = 0 // set to zero as negative values will confuse calculations below
+	isCategory := opt.isCategoryAxis || opt.aRange.isCategory
+
+	// rendering defaults derived from physical position, theme, and axis data type
+	axisTheme := getPreferredTheme(opt.theme, top.theme)
+	axisSplitLineColor := axisTheme.GetAxisSplitLineColor()
+	var axisColor Color
+	var minimumAxisHeight int
+	if isVertical {
+		axisColor = axisTheme.GetYAxisStrokeColor()
+	} else {
+		axisColor = axisTheme.GetXAxisStrokeColor()
+		if top.Height() >= 100 { // don't reserve space if chart is too small
+			minimumAxisHeight = minimumHorizontalAxisHeight
+		}
 	}
 
-	// calculate how much space the axis line + tick marks + labels need
+	// spine line: category axes show spine, value axes hide it, user override wins
+	var strokeWidth float64 = 1
+	if !isCategory {
+		strokeWidth = -1
+	}
+	if opt.spineLineShow != nil {
+		if *opt.spineLineShow {
+			strokeWidth = 1
+		} else {
+			strokeWidth = -1
+		}
+	}
+	if strokeWidth < 0 {
+		strokeWidth = 0
+	}
+
+	// split lines: value axes show them, category axes don't, user override wins
+	splitLineShow := !isCategory
+	if opt.splitLineShow != nil {
+		splitLineShow = *opt.splitLineShow
+	}
+
+	// label margin: tighter for horizontal axes
 	tickLength := getDefaultInt(opt.tickLength, 5)
 	labelMargin := getDefaultInt(opt.labelMargin, 5)
+	if !isVertical {
+		labelMargin = 2
+	}
 	var axisNeededWidth, axisNeededHeight int
 	if isVertical {
 		axisNeededWidth = labelMargin + opt.aRange.textMaxWidth + axisMargin
@@ -81,8 +275,8 @@ func (a *axisPainter) Render() (Box, error) {
 			axisNeededHeight += titleShift
 		}
 	}
-	if axisNeededHeight < opt.minimumAxisHeight {
-		axisNeededHeight = opt.minimumAxisHeight
+	if axisNeededHeight < minimumAxisHeight {
+		axisNeededHeight = minimumAxisHeight
 	}
 
 	// Build a Box to reduce the parent's painter area, so that
@@ -147,7 +341,7 @@ func (a *axisPainter) Render() (Box, error) {
 		child.LineStroke([]Point{
 			{X: x0, Y: y0},
 			{X: x1, Y: y1},
-		}, opt.axisColor, strokeWidth)
+		}, axisColor, strokeWidth)
 	}
 
 	rangeLabels := opt.aRange.labels
@@ -159,10 +353,11 @@ func (a *axisPainter) Render() (Box, error) {
 	}
 
 	// Decide whether to center the labels between ticks or align them
-	centerLabels := true
+	centerLabels := isCategory // category axes default to boundary gap, value axes don't
 	if opt.boundaryGap != nil {
 		centerLabels = *opt.boundaryGap
-	} else if opt.aRange.divideCount > 1 && top.Width()/opt.aRange.divideCount <= boundaryGapDefaultThreshold {
+	} else if opt.aRange.isCategory && !isVertical && opt.aRange.divideCount > 1 &&
+		top.Width()/opt.aRange.divideCount <= boundaryGapDefaultThreshold {
 		// for dense datasets it's visually better to have the label aligned to the tick mark
 		// this default is also handled in the chart rendering to ensure data aligns with the labels
 		centerLabels = false
@@ -202,7 +397,7 @@ func (a *axisPainter) Render() (Box, error) {
 			vertical:    isVertical,
 			firstIndex:  opt.aRange.dataStartIndex,
 			strokeWidth: strokeWidth,
-			strokeColor: opt.axisColor,
+			strokeColor: axisColor,
 		})
 	}
 
@@ -250,7 +445,7 @@ func (a *axisPainter) Render() (Box, error) {
 		fontStyle:      opt.aRange.labelFontStyle,
 	})
 
-	if opt.splitLineShow { // show auxiliary lines
+	if splitLineShow { // show auxiliary lines
 		if isVertical {
 			var x0Split, x1Split int
 			if opt.position == PositionLeft {
@@ -269,7 +464,7 @@ func (a *axisPainter) Render() (Box, error) {
 				top.LineStroke([]Point{
 					{X: x0Split, Y: yy},
 					{X: x1Split, Y: yy},
-				}, opt.axisSplitLineColor, 1)
+				}, axisSplitLineColor, 1)
 			}
 		} else {
 			var y0Split, y1Split int
@@ -288,12 +483,12 @@ func (a *axisPainter) Render() (Box, error) {
 				top.LineStroke([]Point{
 					{X: xx, Y: y0Split},
 					{X: xx, Y: y1Split},
-				}, opt.axisSplitLineColor, 1)
+				}, axisSplitLineColor, 1)
 			}
 		}
 	}
 
-	// Return the “used” dimension for this axis
+	// Return the "used" dimension for this axis
 	// This consumed space will be removed from the chart space in defaultRender
 	return Box{
 		Right:  axisNeededWidth + ceilFloatToInt(strokeWidth),

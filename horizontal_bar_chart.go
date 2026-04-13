@@ -71,7 +71,7 @@ func (h *horizontalBarChart) renderChart(result *defaultRenderResult) (Box, erro
 		return p.box, nil
 	}
 	seriesPainter := result.seriesPainter
-	yRange := result.yaxisRanges[0]
+	yRange := result.categoryAxisRange
 	y0, y1 := yRange.getRange(0)
 	height := int(y1 - y0)
 	stackedSeries := flagIs(true, opt.StackSeries)
@@ -111,7 +111,7 @@ func (h *horizontalBarChart) renderChart(result *defaultRenderResult) (Box, erro
 			y := divideValues[reversedJ] + margin
 
 			// Determine the width (horizontal length) of the bar based on the data value
-			w := result.xaxisRange.getHeight(item)
+			w := result.valueAxisRanges[0].getHeight(item)
 
 			var left, right int
 			if stackedSeries {
@@ -189,7 +189,7 @@ func (h *horizontalBarChart) renderChart(result *defaultRenderResult) (Box, erro
 					font:           opt.Font,
 					marklines:      seriesMarks,
 					seriesValues:   series.Values,
-					axisRange:      result.xaxisRange,
+					axisRange:      result.valueAxisRanges[0],
 					valueFormatter: markLineValueFormatter,
 				})
 			}
@@ -205,7 +205,7 @@ func (h *horizontalBarChart) renderChart(result *defaultRenderResult) (Box, erro
 					font:           opt.Font,
 					marklines:      globalMarks,
 					seriesValues:   globalSeriesData,
-					axisRange:      result.xaxisRange,
+					axisRange:      result.valueAxisRanges[0],
 					valueFormatter: markLineValueFormatter,
 				})
 			}
@@ -229,17 +229,50 @@ func (h *horizontalBarChart) Render() (Box, error) {
 		opt.Legend.Symbol = SymbolSquare
 	}
 
+	// Translate axis types to semantic slots for defaultRender
+	// XAxis carries value-axis data; translate shared fields to ValueAxisOption
+	// YAxis carries category-axis data; translate shared fields to CategoryAxisOption
+	valueAxisFromX := ValueAxisOption{
+		Show:                 h.opt.XAxis.Show,
+		Theme:                h.opt.XAxis.Theme,
+		Title:                h.opt.XAxis.Title,
+		TitleFontStyle:       h.opt.XAxis.TitleFontStyle,
+		Labels:               h.opt.XAxis.Labels,
+		FontStyle:            h.opt.XAxis.FontStyle,
+		LabelFontStyle:       h.opt.XAxis.LabelFontStyle,
+		LabelRotation:        h.opt.XAxis.LabelRotation,
+		ValueFormatter:       h.opt.XAxis.ValueFormatter,
+		Unit:                 h.opt.XAxis.Unit,
+		LabelCount:           h.opt.XAxis.LabelCount,
+		LabelCountAdjustment: h.opt.XAxis.LabelCountAdjustment,
+	}
+	categoryAxisFromY := CategoryAxisOption{
+		Show:                 opt.YAxis.Show,
+		Theme:                opt.YAxis.Theme,
+		Title:                opt.YAxis.Title,
+		TitleFontStyle:       opt.YAxis.TitleFontStyle,
+		Labels:               opt.YAxis.Labels,
+		Position:             opt.YAxis.Position,
+		FontStyle:            opt.YAxis.FontStyle,
+		LabelFontStyle:       opt.YAxis.LabelFontStyle,
+		LabelRotation:        opt.YAxis.LabelRotation,
+		ValueFormatter:       opt.YAxis.ValueFormatter,
+		Unit:                 opt.YAxis.Unit,
+		LabelCount:           opt.YAxis.LabelCount,
+		LabelCountAdjustment: opt.YAxis.LabelCountAdjustment,
+	}
+
 	renderResult, err := defaultRender(p, defaultRenderOption{
 		theme:          opt.Theme,
 		padding:        opt.Padding,
 		seriesList:     opt.SeriesList,
 		stackSeries:    flagIs(true, opt.StackSeries),
-		xAxis:          &h.opt.XAxis,
-		yAxis:          []YAxisOption{opt.YAxis},
+		categoryAxis:   &categoryAxisFromY,
+		valueAxis:      []ValueAxisOption{valueAxisFromX},
 		title:          opt.Title,
 		legend:         &h.opt.Legend,
 		valueFormatter: opt.ValueFormatter,
-		axisReversed:   true,
+		categoryY:      true,
 	})
 	if err != nil {
 		return BoxZero, err

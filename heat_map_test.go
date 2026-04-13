@@ -91,7 +91,7 @@ func TestHeatMapChart(t *testing.T) {
 			name:        "basic_themed",
 			themed:      true,
 			makeOptions: makeBasicHeatMapOption,
-			pngCRC:      0xce5f0709,
+			pngCRC:      0xd88c4181,
 		},
 		{
 			name: "scale_override",
@@ -102,7 +102,7 @@ func TestHeatMapChart(t *testing.T) {
 				opt.ScaleMaxValue = &maxVal
 				return opt
 			},
-			pngCRC: 0x7abb75db,
+			pngCRC: 0x9d92e25f,
 		},
 		{
 			name: "values_label",
@@ -120,7 +120,7 @@ func TestHeatMapChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x3c6cead7,
+			pngCRC: 0x51d9d9f4,
 		},
 		{
 			name: "varying_row_lengths",
@@ -132,12 +132,12 @@ func TestHeatMapChart(t *testing.T) {
 					nil,
 				})
 			},
-			pngCRC: 0x6bc4178,
+			pngCRC: 0x6e0a51f1,
 		},
 		{
 			name:        "dense_data",
 			makeOptions: makeDenseHeatMapOption,
-			pngCRC:      0x314e2a7a,
+			pngCRC:      0xa8704daa,
 		},
 		{
 			name: "empty_values",
@@ -149,7 +149,7 @@ func TestHeatMapChart(t *testing.T) {
 					YAxis:   HeatMapAxis{Title: "Y-Axis", Labels: []string{"Row1", "Row2"}},
 				}
 			},
-			pngCRC: 0x2a939d81,
+			pngCRC: 0xb9d1ae15,
 		},
 		{
 			name: "no_columns",
@@ -161,7 +161,7 @@ func TestHeatMapChart(t *testing.T) {
 					YAxis:   HeatMapAxis{Title: "Y-Axis", Labels: []string{"Row1", "Row2"}},
 				}
 			},
-			pngCRC: 0xcc723e71,
+			pngCRC: 0x4439933e,
 		},
 	}
 
