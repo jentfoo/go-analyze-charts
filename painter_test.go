@@ -563,7 +563,7 @@ func TestPainterRoundedRect(t *testing.T) {
 					Right:  30,
 					Bottom: 150,
 					Top:    10,
-				}, 5, true, true, ColorBlue, ColorBlue, 1)
+				}, 5, roundTopLeft|roundTopRight|roundBottomRight|roundBottomLeft, ColorBlue, ColorBlue, 1)
 			},
 			pngCRC: 0x63ab7f9f,
 		},
@@ -575,7 +575,7 @@ func TestPainterRoundedRect(t *testing.T) {
 					Right:  30,
 					Bottom: 150,
 					Top:    10,
-				}, 5, false, true, ColorBlue, ColorBlue, 1)
+				}, 5, roundBottomRight|roundBottomLeft, ColorBlue, ColorBlue, 1)
 			},
 			pngCRC: 0x47fb7794,
 		},
@@ -587,7 +587,7 @@ func TestPainterRoundedRect(t *testing.T) {
 					Right:  30,
 					Bottom: 150,
 					Top:    10,
-				}, 5, true, false, ColorBlue, ColorBlue, 1)
+				}, 5, roundTopLeft|roundTopRight, ColorBlue, ColorBlue, 1)
 			},
 			pngCRC: 0xe8bb388c,
 		},

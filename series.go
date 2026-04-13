@@ -458,6 +458,8 @@ type BarSeries struct {
 
 	// absThemeIndex represents the series index when combined with other chart types.
 	absThemeIndex *int
+	// horizontal marks this series as a horizontal bar for correct type reporting.
+	horizontal bool
 }
 
 func (b *BarSeries) getYAxisIndex() int {
@@ -469,6 +471,9 @@ func (b *BarSeries) getValues() []float64 {
 }
 
 func (b *BarSeries) getType() string {
+	if b.horizontal {
+		return ChartTypeHorizontalBar
+	}
 	return ChartTypeBar
 }
 
@@ -551,7 +556,7 @@ func (b BarSeriesList) ToGenericSeriesList() GenericSeriesList {
 			YAxisIndex: s.YAxisIndex,
 			Label:      s.Label,
 			Name:       s.Name,
-			Type:       ChartTypeBar,
+			Type:       s.getType(),
 			MarkLine:   s.MarkLine,
 			MarkPoint:  s.MarkPoint,
 		}
@@ -559,7 +564,7 @@ func (b BarSeriesList) ToGenericSeriesList() GenericSeriesList {
 	return result
 }
 
-// HorizontalBarSeries references a population of data for horizontal bar charts.
+// Deprecated: HorizontalBarSeries is deprecated, use BarSeries with BarChartOption.Horizontal set to true.
 type HorizontalBarSeries struct {
 	// Values provides the series data values.
 	Values []float64
@@ -587,7 +592,7 @@ func (h *HorizontalBarSeries) Summary() PopulationSummary {
 	return summarizePopulationData(h.Values)
 }
 
-// HorizontalBarSeriesList provides the data populations for horizontal bar charts (HorizontalBarChartOption).
+// Deprecated: HorizontalBarSeriesList is deprecated, use BarSeriesList with BarChartOption.Horizontal set to true.
 type HorizontalBarSeriesList []HorizontalBarSeries
 
 func (h HorizontalBarSeriesList) names() []string {
@@ -1161,6 +1166,41 @@ func filterSeriesList[T any](sl seriesList, chartType string) T {
 		}
 		return any(result).(T)
 	case ChartTypeHorizontalBar:
+		// support both BarSeriesList and HorizontalBarSeriesList
+		var target T
+		if _, isBar := any(target).(BarSeriesList); isBar {
+			result := make(BarSeriesList, 0, sl.len())
+			for i := 0; i < sl.len(); i++ {
+				s := sl.getSeries(i)
+				if chartTypeMatch(chartType, s.getType()) {
+					switch v := s.(type) {
+					case *HorizontalBarSeries:
+						result = append(result, BarSeries{
+							Values:     v.Values,
+							Label:      v.Label,
+							Name:       v.Name,
+							MarkLine:   v.MarkLine,
+							horizontal: true,
+						})
+					case *BarSeries:
+						bs := *v
+						bs.horizontal = true
+						result = append(result, bs)
+					case *GenericSeries:
+						result = append(result, BarSeries{
+							Values:        v.Values,
+							Label:         v.Label,
+							Name:          v.Name,
+							MarkLine:      v.MarkLine,
+							MarkPoint:     v.MarkPoint,
+							absThemeIndex: Ptr(i),
+							horizontal:    true,
+						})
+					}
+				}
+			}
+			return any(result).(T)
+		}
 		result := make(HorizontalBarSeriesList, 0, sl.len())
 		for i := 0; i < sl.len(); i++ {
 			s := sl.getSeries(i)
@@ -1540,8 +1580,7 @@ func NewSeriesListBar(values [][]float64, opts ...BarSeriesOption) BarSeriesList
 	return seriesList
 }
 
-// NewSeriesListHorizontalBar builds a SeriesList for a horizontal bar chart. Horizontal bar charts are unique in that
-// these Series can not be combined with any other chart type.
+// Deprecated: NewSeriesListHorizontalBar is deprecated, use NewSeriesListBar with BarChartOption.Horizontal set to true.
 func NewSeriesListHorizontalBar(values [][]float64, opts ...BarSeriesOption) HorizontalBarSeriesList {
 	var opt BarSeriesOption
 	if len(opts) != 0 {

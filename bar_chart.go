@@ -1,6 +1,7 @@
 package charts
 
 import (
+	"errors"
 	"math"
 
 	"github.com/golang/freetype/truetype"
@@ -26,12 +27,14 @@ func NewBarChartOptionWithData(data [][]float64) BarChartOption {
 
 // NewBarChartOptionWithSeries returns an initialized BarChartOption with the provided SeriesList.
 func NewBarChartOptionWithSeries(sl BarSeriesList) BarChartOption {
+	yAxisCount := getSeriesYAxisCount(sl)
 	return BarChartOption{
 		SeriesList:     sl,
 		Padding:        defaultPadding,
 		Theme:          GetDefaultTheme(),
 		Font:           GetDefaultFont(),
-		YAxis:          make([]YAxisOption, getSeriesYAxisCount(sl)),
+		ValueAxis:      make([]ValueAxisOption, yAxisCount),
+		YAxis:          make([]YAxisOption, yAxisCount),
 		ValueFormatter: defaultValueFormatter,
 	}
 }
@@ -44,30 +47,96 @@ type BarChartOption struct {
 	Padding Box
 	// Deprecated: Font is deprecated, instead the font needs to be set on the SeriesLabel, or other specific elements.
 	Font *truetype.Font
+	// Horizontal selects horizontal bar orientation when true, swapping the category and value axis.
+	Horizontal bool
+	// ValueAxis configures the value (numeric) axis. This axis represents the series values.
+	ValueAxis []ValueAxisOption
+	// CategoryAxis configures the category axis. This axis represents the series group.
+	CategoryAxis CategoryAxisOption
 	// SeriesList provides the data population for the chart. Typically constructed using NewSeriesListBar.
 	SeriesList BarSeriesList
 	// StackSeries when *true renders series stacked within one bar.
 	// This ignores some options including BarMargin and SeriesLabelPosition.
 	// MarkLine only renders for the first series and stacking only applies to the first y-axis.
 	StackSeries *bool
-	// SeriesLabelPosition specifies the label position for the series: "top" or "bottom".
+	// SeriesLabelPosition specifies the label position for the series.
+	// Vertical bars: "top" or "bottom". Horizontal bars: "left" or "right".
 	SeriesLabelPosition string
-	// XAxis contains options for the x-axis.
+	// Deprecated: Use CategoryAxis as a direct replacement.
 	XAxis XAxisOption
-	// YAxis contains options for the y-axis. At most two y-axes are supported.
+	// Deprecated: Use ValueAxis as a direct replacement.
 	YAxis []YAxisOption
 	// Title contains options for rendering the chart title.
 	Title TitleOption
 	// Legend contains options for the data legend.
 	Legend LegendOption
-	// BarWidth specifies the width of each bar. May be reduced to fit all series on the chart.
-	BarWidth int // TODO - v0.6 - Update to float64 to represent a precent
-	// BarMargin specifies the margin between grouped bars. BarWidth takes priority over a set margin.
+	// Deprecated: Use BarSize as a direct replacement.
+	BarWidth int
+	// BarSize sets the bar thickness, width in vertical orientation, height in horizontal orientation.
+	BarSize int // TODO - v0.6 - Update to float64 to represent a percent
+	// BarMargin specifies the margin between grouped bars. BarSize takes priority over a set margin.
 	BarMargin *float64 // TODO - v0.6 - Update to be percent based
-	// RoundedBarCaps when *true draws bars with rounded top corners.
+	// RoundedBarCaps when *true draws bars with rounded corners on the value-end of the bar.
 	RoundedBarCaps *bool
 	// ValueFormatter defines how float values are rendered to strings, notably for numeric axis labels.
 	ValueFormatter ValueFormatter
+}
+
+func (opt *BarChartOption) resolveAxes() (CategoryAxisOption, []ValueAxisOption) {
+	var catAxis CategoryAxisOption
+	if !opt.CategoryAxis.isZero() {
+		catAxis = opt.CategoryAxis
+	} else {
+		catAxis = opt.XAxis
+	}
+
+	var valAxis []ValueAxisOption
+	if len(opt.ValueAxis) > 1 || (len(opt.ValueAxis) > 0 && !opt.ValueAxis[0].isZero()) {
+		valAxis = opt.ValueAxis
+	} else if len(opt.YAxis) > 0 {
+		valAxis = opt.YAxis
+	} else { // default to a single value axis when none is configured
+		valAxis = []ValueAxisOption{{}}
+	}
+
+	return catAxis, valAxis
+}
+
+// normalizeBarAxisPositions silently normalizes unsupported position values to their defaults.
+func normalizeBarAxisPositions(horizontal bool, catAxis *CategoryAxisOption, valAxes []ValueAxisOption) {
+	if horizontal {
+		// category axis on Y: left and right supported, others normalize to left
+		if p := catAxis.Position; p != "" && p != PositionLeft && p != PositionRight {
+			catAxis.Position = PositionLeft
+		}
+		// value axis on X: only bottom supported
+		// TODO - top-positioned value axis rendering is not yet supported
+		for i := range valAxes {
+			if p := valAxes[i].Position; p != "" && p != PositionBottom {
+				valAxes[i].Position = PositionBottom
+			}
+		}
+	} else {
+		// category axis on X: only bottom supported
+		// TODO - top-positioned category axis rendering for vertical bars is not yet supported
+		if p := catAxis.Position; p != "" && p != PositionBottom {
+			catAxis.Position = PositionBottom
+		}
+		// value axis on Y: left/right supported
+		for i := range valAxes {
+			p := valAxes[i].Position
+			if p == "" {
+				continue
+			}
+			if p != PositionLeft && p != PositionRight {
+				if i == 0 {
+					valAxes[i].Position = PositionLeft
+				} else {
+					valAxes[i].Position = PositionRight
+				}
+			}
+		}
+	}
 }
 
 // TODO - v0.6 - calculateBarMarginsAndSize should handle percents and maybe de-duplicate with calculateCandleMarginsAndSize
@@ -105,13 +174,20 @@ func calculateBarMarginsAndSize(seriesCount, space int, configuredBarSize int, c
 }
 
 func (b *barChart) renderChart(result *defaultRenderResult) (Box, error) {
+	if len(b.opt.SeriesList) == 0 {
+		result.renderNoData(b.opt.Theme)
+		return b.p.box, nil
+	}
+	if b.opt.Horizontal {
+		return b.renderHorizontalBars(result)
+	}
+	return b.renderVerticalBars(result)
+}
+
+func (b *barChart) renderVerticalBars(result *defaultRenderResult) (Box, error) {
 	p := b.p
 	opt := b.opt
 	seriesCount := len(opt.SeriesList)
-	if seriesCount == 0 {
-		result.renderNoData(opt.Theme)
-		return p.box, nil
-	}
 	seriesPainter := result.seriesPainter
 
 	x0, x1 := result.categoryAxisRange.getRange(0)
@@ -120,6 +196,10 @@ func (b *barChart) renderChart(result *defaultRenderResult) (Box, error) {
 	seriesNames := opt.SeriesList.names()
 	divideValues := result.categoryAxisRange.autoDivide()
 	stackedSeries := flagIs(true, opt.StackSeries)
+	barSize := opt.BarSize
+	if barSize == 0 {
+		barSize = opt.BarWidth
+	}
 	var margin, barMargin, barWidth int
 	var accumulatedHeights []int // prior heights for stacking to avoid recalculating the heights
 	if stackedSeries {
@@ -128,10 +208,10 @@ func (b *barChart) renderChart(result *defaultRenderResult) (Box, error) {
 		if barCount == 1 {
 			configuredMargin = nil // no margin needed with a single bar
 		}
-		margin, _, barWidth = calculateBarMarginsAndSize(barCount, width, opt.BarWidth, configuredMargin)
+		margin, _, barWidth = calculateBarMarginsAndSize(barCount, width, barSize, configuredMargin)
 		accumulatedHeights = make([]int, result.categoryAxisRange.divideCount)
 	} else {
-		margin, barMargin, barWidth = calculateBarMarginsAndSize(seriesCount, width, opt.BarWidth, opt.BarMargin)
+		margin, barMargin, barWidth = calculateBarMarginsAndSize(seriesCount, width, barSize, opt.BarMargin)
 	}
 
 	markPointPainter := newMarkPointPainter(seriesPainter)
@@ -181,7 +261,7 @@ func (b *barChart) renderChart(result *defaultRenderResult) (Box, error) {
 			if flagIs(true, opt.RoundedBarCaps) && (!stackSeries || index == seriesCount-1) {
 				seriesPainter.roundedRect(
 					Box{Top: top, Left: x, Right: x + barWidth, Bottom: bottom, IsSet: true},
-					barWidth, true, false, seriesColor, seriesColor, 0.0)
+					barWidth, roundTopLeft|roundTopRight, seriesColor, seriesColor, 0.0)
 			} else {
 				seriesPainter.FilledRect(x, top, x+barWidth, bottom, seriesColor, seriesColor, 0.0)
 			}
@@ -328,19 +408,243 @@ func (b *barChart) Render() (Box, error) {
 		opt.Legend.Symbol = SymbolSquare
 	}
 
+	categoryAxis, valueAxis := opt.resolveAxes()
+	// TODO - support dual horizontal value axis when top x-axis rendering is added
+	if opt.Horizontal && len(valueAxis) > 1 {
+		return BoxZero, errors.New("dual value axes with horizontal bars is not supported")
+	}
+	normalizeBarAxisPositions(opt.Horizontal, &categoryAxis, valueAxis)
+
 	renderResult, err := defaultRender(p, defaultRenderOption{
 		theme:          opt.Theme,
 		padding:        opt.Padding,
 		seriesList:     opt.SeriesList,
 		stackSeries:    flagIs(true, opt.StackSeries),
-		categoryAxis:   &b.opt.XAxis,
-		valueAxis:      opt.YAxis,
+		categoryAxis:   &categoryAxis,
+		valueAxis:      valueAxis,
 		title:          opt.Title,
 		legend:         &b.opt.Legend,
 		valueFormatter: opt.ValueFormatter,
+		categoryY:      opt.Horizontal,
 	})
 	if err != nil {
 		return BoxZero, err
 	}
 	return b.renderChart(renderResult)
+}
+
+func (b *barChart) renderHorizontalBars(result *defaultRenderResult) (Box, error) {
+	p := b.p
+	opt := b.opt
+	seriesCount := len(opt.SeriesList)
+	seriesPainter := result.seriesPainter
+	yRange := result.categoryAxisRange
+	y0, y1 := yRange.getRange(0)
+	height := int(y1 - y0)
+	stackedSeries := flagIs(true, opt.StackSeries)
+	barSize := opt.BarSize
+	if barSize == 0 {
+		barSize = opt.BarWidth
+	}
+
+	// if stacking, keep track of accumulated widths for each data index (after the "reverse" logic)
+	var accumulatedWidths []int
+	var margin, barMargin, barHeight int
+	if stackedSeries {
+		accumulatedWidths = make([]int, yRange.divideCount)
+		margin, _, barHeight = calculateBarMarginsAndSize(1, height, barSize, nil)
+	} else {
+		margin, barMargin, barHeight = calculateBarMarginsAndSize(seriesCount, height, barSize, opt.BarMargin)
+	}
+
+	seriesNames := opt.SeriesList.names()
+	divideValues := yRange.autoDivide()
+
+	markPointPainter := newMarkPointPainter(seriesPainter)
+	markLinePainter := newMarkLinePainter(seriesPainter)
+	// render list must start with the markPointPainter, as it can influence label painters (if enabled)
+	rendererList := []renderer{markPointPainter, markLinePainter}
+
+	for index, series := range opt.SeriesList {
+		seriesThemeIndex := index
+		if series.absThemeIndex != nil {
+			seriesThemeIndex = *series.absThemeIndex
+		}
+		seriesColor := opt.Theme.GetSeriesColor(seriesThemeIndex)
+
+		var labelPainter *seriesLabelPainter
+		if flagIs(true, series.Label.Show) {
+			labelPainter = newSeriesLabelPainter(seriesPainter, seriesNames, series.Label, opt.Theme, opt.Padding.Right)
+			rendererList = append(rendererList, labelPainter)
+		}
+
+		points := make([]Point, len(series.Values))
+		for j, item := range series.Values {
+			if j >= yRange.divideCount {
+				break
+			}
+			// Reverse the category index for drawing from top to bottom
+			reversedJ := yRange.divideCount - j - 1
+
+			// Compute the top of this bar "row"
+			y := divideValues[reversedJ] + margin
+
+			// Determine the width (horizontal length) of the bar based on the data value
+			w := result.valueAxisRanges[0].getHeight(item)
+
+			var left, right int
+			if stackedSeries {
+				// Start where the previous series ended
+				left = accumulatedWidths[reversedJ]
+				right = left + w
+				accumulatedWidths[reversedJ] = right
+			} else {
+				// Offset each series in its own lane
+				if index != 0 {
+					y += index * (barHeight + barMargin)
+				}
+				left = 0
+				right = w
+			}
+
+			// In stacked mode, only round caps on the last series
+			if flagIs(true, opt.RoundedBarCaps) && (!stackedSeries || index == seriesCount-1) {
+				seriesPainter.roundedRect(
+					Box{Top: y, Left: left, Right: right, Bottom: y + barHeight, IsSet: true},
+					barHeight, roundTopRight|roundBottomRight, seriesColor, seriesColor, 0.0)
+			} else {
+				seriesPainter.FilledRect(left, y, right, y+barHeight, seriesColor, seriesColor, 0.0)
+			}
+
+			// Prepare point for mark points
+			points[j] = Point{
+				X: right,                // right edge of bar
+				Y: y + (barHeight >> 1), // vertical center of bar
+			}
+
+			if labelPainter != nil {
+				fontStyle := series.Label.FontStyle
+				labelX := right
+				labelY := y + (barHeight >> 1)
+				labelLeft := opt.SeriesLabelPosition == PositionLeft && !stackedSeries
+				if labelLeft {
+					labelX = 0
+				}
+				if fontStyle.FontColor.IsZero() {
+					var testColor Color
+					if labelLeft {
+						testColor = seriesColor
+					} else if stackedSeries && index+1 < seriesCount {
+						testColor = opt.Theme.GetSeriesColor(index + 1)
+					}
+					if !testColor.IsZero() {
+						if isLightColor(testColor) {
+							fontStyle.FontColor = defaultLightFontColor
+						} else {
+							fontStyle.FontColor = defaultDarkFontColor
+						}
+					}
+				}
+				if fontStyle.Font == nil {
+					fontStyle.Font = opt.Font
+				}
+
+				labelPainter.Add(labelValue{
+					vertical:  false, // horizontal label
+					index:     index,
+					value:     item,
+					x:         labelX,
+					y:         labelY,
+					offset:    series.Label.Offset,
+					fontStyle: fontStyle,
+				})
+			}
+		}
+
+		var globalSeriesData []float64 // lazily initialized
+		if len(series.MarkLine.Lines) > 0 {
+			markLineValueFormatter := getPreferredValueFormatter(series.MarkLine.ValueFormatter,
+				series.Label.ValueFormatter, opt.ValueFormatter)
+			var seriesMarks, globalMarks SeriesMarkList
+			if stackedSeries && index == seriesCount-1 { // global is only allowed when stacked and on the last series
+				seriesMarks, globalMarks = series.MarkLine.Lines.splitGlobal()
+			} else {
+				seriesMarks = series.MarkLine.Lines.filterGlobal(false)
+			}
+			if len(seriesMarks) > 0 && (!stackedSeries || index == 0) {
+				// in stacked mode we only support the line painter for the first series
+				markLinePainter.add(markLineRenderOption{
+					verticalLine:   true,
+					fillColor:      seriesColor,
+					fontColor:      opt.Theme.GetMarkTextColor(),
+					strokeColor:    seriesColor,
+					font:           getPreferredFont(series.Label.FontStyle.Font, opt.Font),
+					marklines:      seriesMarks,
+					seriesValues:   series.Values,
+					axisRange:      result.valueAxisRanges[0],
+					valueFormatter: markLineValueFormatter,
+				})
+			}
+			if len(globalMarks) > 0 {
+				if globalSeriesData == nil {
+					globalSeriesData = sumSeriesData(opt.SeriesList, 0)
+				}
+				markLinePainter.add(markLineRenderOption{
+					verticalLine:   true,
+					fillColor:      defaultGlobalMarkFillColor,
+					fontColor:      opt.Theme.GetMarkTextColor(),
+					strokeColor:    defaultGlobalMarkFillColor,
+					font:           getPreferredFont(series.Label.FontStyle.Font, opt.Font),
+					marklines:      globalMarks,
+					seriesValues:   globalSeriesData,
+					axisRange:      result.valueAxisRanges[0],
+					valueFormatter: markLineValueFormatter,
+				})
+			}
+		}
+		if len(series.MarkPoint.Points) > 0 {
+			markPointValueFormatter := getPreferredValueFormatter(series.MarkPoint.ValueFormatter,
+				series.Label.ValueFormatter, opt.ValueFormatter)
+			var seriesMarks, globalMarks SeriesMarkList
+			if stackedSeries && index == seriesCount-1 { // global is only allowed when stacked and on the last series
+				seriesMarks, globalMarks = series.MarkPoint.Points.splitGlobal()
+			} else {
+				seriesMarks = series.MarkPoint.Points.filterGlobal(false)
+			}
+			if len(seriesMarks) > 0 {
+				markPointPainter.add(markPointRenderOption{
+					fillColor:          seriesColor,
+					font:               getPreferredFont(series.Label.FontStyle.Font, opt.Font),
+					symbolSize:         series.MarkPoint.SymbolSize,
+					rotationRadians:    -math.Pi / 2,
+					markpoints:         seriesMarks,
+					seriesValues:       series.Values,
+					points:             points,
+					valueFormatter:     markPointValueFormatter,
+					seriesLabelPainter: labelPainter,
+				})
+			}
+			if len(globalMarks) > 0 {
+				if globalSeriesData == nil {
+					globalSeriesData = sumSeriesData(opt.SeriesList, 0)
+				}
+				markPointPainter.add(markPointRenderOption{
+					fillColor:          defaultGlobalMarkFillColor,
+					font:               getPreferredFont(series.Label.FontStyle.Font, opt.Font),
+					symbolSize:         series.MarkPoint.SymbolSize,
+					rotationRadians:    -math.Pi / 2,
+					markpoints:         globalMarks,
+					seriesValues:       globalSeriesData,
+					points:             points,
+					valueFormatter:     markPointValueFormatter,
+					seriesLabelPainter: labelPainter,
+				})
+			}
+		}
+	}
+
+	if err := doRender(rendererList...); err != nil {
+		return BoxZero, err
+	}
+	return p.box, nil
 }

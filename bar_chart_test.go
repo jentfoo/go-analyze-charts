@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/dustin/go-humanize"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -85,6 +86,7 @@ func TestNewBarChartOptionWithData(t *testing.T) {
 	assert.Len(t, opt.SeriesList, 2)
 	assert.Equal(t, ChartTypeBar, opt.SeriesList[0].getType())
 	assert.Len(t, opt.YAxis, 1)
+	assert.Len(t, opt.ValueAxis, 1)
 	assert.Equal(t, defaultPadding, opt.Padding)
 
 	p := NewPainter(PainterOptions{})
@@ -520,5 +522,285 @@ func TestBarChartError(t *testing.T) {
 			require.Error(t, err)
 			require.ErrorContains(t, err, tt.errorMsgContains)
 		})
+	}
+}
+
+func makeBasicHorizontalBarOption() BarChartOption {
+	return BarChartOption{
+		Horizontal: true,
+		Padding:    NewBoxEqual(10),
+		SeriesList: NewSeriesListBar([][]float64{
+			{18203, 23489, 29034, 104970, 131744, 630230},
+			{19325, 23438, 31000, 121594, 134141, 681807},
+		}),
+		Title: TitleOption{
+			Text: "World Population",
+		},
+		Legend: LegendOption{
+			SeriesNames: []string{"2011", "2012"},
+			Symbol:      SymbolDot,
+		},
+		CategoryAxis: CategoryAxisOption{
+			Labels: []string{"Brazil", "Indonesia", "USA", "India", "China", "World"},
+		},
+	}
+}
+
+func makeMinimalHorizontalBarOption() BarChartOption {
+	opt := NewBarChartOptionWithData([][]float64{
+		{12, 24},
+		{24, 48},
+	})
+	opt.Horizontal = true
+	opt.CategoryAxis = CategoryAxisOption{
+		Show:   Ptr(false),
+		Labels: []string{"A", "B"},
+	}
+	opt.ValueAxis[0].Show = Ptr(false)
+	return opt
+}
+
+func makeFullHorizontalBarStackedOption() BarChartOption {
+	seriesList := NewSeriesListBar([][]float64{
+		{4.9, 23.2, 25.6, 102.6, 142.2, 32.6, 20.0, 3.3},
+		{19.0, 26.4, 28.7, 144.6, 122.2, 48.7, 28.8, 22.3},
+		{80.0, 40.4, 28.4, 28.8, 24.4, 24.2, 40.8, 80.8},
+	}, BarSeriesOption{
+		Label: SeriesLabel{
+			Show: Ptr(true),
+			ValueFormatter: func(f float64) string {
+				return strconv.Itoa(int(f))
+			},
+		},
+	})
+	return BarChartOption{
+		Horizontal:  true,
+		Padding:     NewBoxEqual(20),
+		SeriesList:  seriesList,
+		StackSeries: Ptr(true),
+		Legend: LegendOption{
+			Symbol: SymbolDot,
+		},
+		CategoryAxis: CategoryAxisOption{
+			Labels: []string{"1", "2", "3", "4", "5", "6", "7", "8"},
+		},
+	}
+}
+
+func TestBarChartHorizontal(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name        string
+		themed      bool
+		makeOptions func() BarChartOption
+		pngCRC      uint32
+	}{
+		{
+			name:        "basic_themed",
+			themed:      true,
+			makeOptions: makeBasicHorizontalBarOption,
+			pngCRC:      0xfb168012,
+		},
+		{
+			name: "custom_fonts",
+			makeOptions: func() BarChartOption {
+				opt := makeBasicHorizontalBarOption()
+				customFont := NewFontStyleWithSize(4.0).WithColor(ColorBlue)
+				opt.Legend.FontStyle = customFont
+				opt.ValueAxis = []ValueAxisOption{{FontStyle: customFont}}
+				opt.CategoryAxis.FontStyle = customFont
+				opt.Title.FontStyle = customFont
+				return opt
+			},
+			pngCRC: 0x7d773c06,
+		},
+		{
+			name: "value_labels",
+			makeOptions: func() BarChartOption {
+				opt := makeBasicHorizontalBarOption()
+				series := opt.SeriesList
+				for i := range series {
+					series[i].Label.Show = Ptr(true)
+					series[i].Label.ValueFormatter = func(f float64) string {
+						return humanize.FtoaWithDigits(f, 2)
+					}
+				}
+				return opt
+			},
+			pngCRC: 0xdda92f8,
+		},
+		{
+			name: "value_formatter",
+			makeOptions: func() BarChartOption {
+				opt := makeBasicHorizontalBarOption()
+				opt.ValueFormatter = func(f float64) string {
+					return "f"
+				}
+				series := opt.SeriesList
+				for i := range series {
+					series[i].Label.Show = Ptr(true)
+					series[i].Label.ValueFormatter = opt.ValueFormatter
+				}
+				return opt
+			},
+			pngCRC: 0xd72c917f,
+		},
+		{
+			name: "bar_size_truncate",
+			makeOptions: func() BarChartOption {
+				opt := makeBasicHorizontalBarOption()
+				opt.Title.Show = Ptr(false)
+				opt.ValueAxis = []ValueAxisOption{{Show: Ptr(false)}}
+				opt.CategoryAxis.Show = Ptr(false)
+				opt.Legend.Show = Ptr(false)
+				opt.BarSize = 1000
+				return opt
+			},
+			pngCRC: 0xb35224f4,
+		},
+		{
+			name: "mark_line",
+			makeOptions: func() BarChartOption {
+				opt := makeBasicHorizontalBarOption()
+				opt.SeriesList[0].MarkLine = NewMarkLine(SeriesMarkTypeMax, SeriesMarkTypeAverage)
+				opt.CategoryAxis.Show = Ptr(false)
+				opt.Legend.Show = Ptr(false)
+				return opt
+			},
+			pngCRC: 0x56386ea2,
+		},
+		{
+			name: "bar_size_thin",
+			makeOptions: func() BarChartOption {
+				opt := makeMinimalHorizontalBarOption()
+				opt.BarSize = 2
+				return opt
+			},
+			pngCRC: 0xedf8c602,
+		},
+		{
+			name: "bar_margin_narrow",
+			makeOptions: func() BarChartOption {
+				opt := makeMinimalHorizontalBarOption()
+				opt.BarMargin = Ptr(0.0)
+				return opt
+			},
+			pngCRC: 0x62e361ae,
+		},
+		{
+			name: "bar_margin_wide",
+			makeOptions: func() BarChartOption {
+				opt := makeMinimalHorizontalBarOption()
+				opt.BarMargin = Ptr(1000.0) // will be limited to fit graph
+				return opt
+			},
+			pngCRC: 0xe22b0ccd,
+		},
+		{
+			name: "bar_size_and_narrow_margin",
+			makeOptions: func() BarChartOption {
+				opt := makeMinimalHorizontalBarOption()
+				opt.BarSize = 10
+				opt.BarMargin = Ptr(0.0)
+				return opt
+			},
+			pngCRC: 0x8a6043ab,
+		},
+		{
+			name: "bar_size_and_wide_margin",
+			makeOptions: func() BarChartOption {
+				opt := makeMinimalHorizontalBarOption()
+				opt.BarSize = 10
+				opt.BarMargin = Ptr(1000.0) // will be limited for readability
+				return opt
+			},
+			pngCRC: 0x56436af8,
+		},
+		{
+			name:        "stack_series",
+			makeOptions: makeFullHorizontalBarStackedOption,
+			pngCRC:      0xf75e263c,
+		},
+		{
+			name: "stack_series_simple",
+			makeOptions: func() BarChartOption {
+				opt := NewBarChartOptionWithData([][]float64{{4.0}, {1.0}})
+				opt.Horizontal = true
+				opt.StackSeries = Ptr(true)
+				opt.ValueAxis[0].Unit = 1
+				opt.CategoryAxis = CategoryAxisOption{Show: Ptr(false)}
+				return opt
+			},
+			pngCRC: 0x2f4f3f65,
+		},
+		{
+			name: "stack_series_with_mark",
+			makeOptions: func() BarChartOption {
+				opt := makeFullHorizontalBarStackedOption()
+				opt.SeriesList[0].MarkLine = NewMarkLine(SeriesMarkTypeMax, SeriesMarkTypeAverage)
+				opt.SeriesList[len(opt.SeriesList)-1].MarkLine = NewMarkLine(SeriesMarkTypeMax)
+				opt.SeriesList[len(opt.SeriesList)-1].MarkLine.Lines[0].Global = true
+				opt.CategoryAxis.Show = Ptr(false)
+				opt.Legend.Show = Ptr(false)
+				return opt
+			},
+			pngCRC: 0x2e00befd,
+		},
+		{
+			name: "empty_series",
+			makeOptions: func() BarChartOption {
+				opt := NewBarChartOptionWithData([][]float64{})
+				opt.Horizontal = true
+				opt.Padding = NewBoxEqual(10)
+				opt.Legend = LegendOption{
+					Show:        Ptr(true),
+					SeriesNames: []string{"Series A", "Series B"},
+				}
+				opt.CategoryAxis = CategoryAxisOption{
+					Show:   Ptr(true),
+					Labels: []string{"A", "B", "C"},
+				}
+				opt.ValueAxis = []ValueAxisOption{{Show: Ptr(true)}}
+				return opt
+			},
+			pngCRC: 0x82eca088,
+		},
+	}
+
+	for i, tt := range tests {
+		painterOptions := PainterOptions{
+			OutputFormat: ChartOutputSVG,
+			Width:        600,
+			Height:       400,
+		}
+		rasterOptions := PainterOptions{
+			OutputFormat: ChartOutputPNG,
+			Width:        600,
+			Height:       400,
+		}
+		if tt.themed {
+			t.Run(strconv.Itoa(i)+"-"+tt.name+"-painter", func(t *testing.T) {
+				p := NewPainter(painterOptions, PainterThemeOption(GetTheme(ThemeVividDark)))
+				r := NewPainter(rasterOptions, PainterThemeOption(GetTheme(ThemeVividDark)))
+
+				validateBarChartRender(t, p, r, tt.makeOptions(), tt.pngCRC)
+			})
+			t.Run(strconv.Itoa(i)+"-"+tt.name+"-options", func(t *testing.T) {
+				p := NewPainter(painterOptions)
+				r := NewPainter(rasterOptions)
+				opt := tt.makeOptions()
+				opt.Theme = GetTheme(ThemeVividDark)
+
+				validateBarChartRender(t, p, r, opt, tt.pngCRC)
+			})
+		} else {
+			t.Run(strconv.Itoa(i)+"-"+tt.name, func(t *testing.T) {
+				p := NewPainter(painterOptions)
+				r := NewPainter(rasterOptions)
+
+				validateBarChartRender(t, p, r, tt.makeOptions(), tt.pngCRC)
+			})
+		}
 	}
 }

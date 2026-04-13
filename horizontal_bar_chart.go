@@ -9,7 +9,7 @@ type horizontalBarChart struct {
 	opt *HorizontalBarChartOption
 }
 
-// NewHorizontalBarChartOptionWithData returns an initialized HorizontalBarChartOption with the SeriesList set with the provided data slice.
+// Deprecated: NewHorizontalBarChartOptionWithData is deprecated, use NewBarChartOptionWithData and set Horizontal to true.
 func NewHorizontalBarChartOptionWithData(data [][]float64) HorizontalBarChartOption {
 	sl := NewSeriesListHorizontalBar(data)
 	return HorizontalBarChartOption{
@@ -21,8 +21,7 @@ func NewHorizontalBarChartOptionWithData(data [][]float64) HorizontalBarChartOpt
 	}
 }
 
-// HorizontalBarChartOption defines the options for rendering a horizontal bar chart.
-// Render the chart using Painter.HorizontalBarChart.
+// Deprecated: HorizontalBarChartOption is deprecated, use BarChartOption with Horizontal set to true.
 type HorizontalBarChartOption struct {
 	// Theme specifies the colors used for the chart.
 	Theme ColorPalette

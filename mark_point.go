@@ -1,6 +1,8 @@
 package charts
 
 import (
+	"math"
+
 	"github.com/golang/freetype/truetype"
 )
 
@@ -51,6 +53,7 @@ type markPointRenderOption struct {
 	fillColor          Color
 	font               *truetype.Font
 	symbolSize         int
+	rotationRadians    float64
 	seriesValues       []float64
 	markpoints         []SeriesMark
 	seriesLabelPainter *seriesLabelPainter
@@ -97,14 +100,27 @@ func (m *markPointPainter) Render() (Box, error) {
 				opt.seriesLabelPainter.values[index].text = ""
 			}
 
-			painter.Pin(p.X, p.Y-opt.symbolSize>>1, opt.symbolSize, opt.fillColor, opt.fillColor, 0.0)
+			// compute anchor and text offset, rotating when needed
+			var anchorOffsetX int
+			anchorOffsetY := -(opt.symbolSize >> 1)
+			if opt.rotationRadians != 0 {
+				cos := math.Cos(opt.rotationRadians)
+				sin := math.Sin(opt.rotationRadians)
+				rx := cos*float64(anchorOffsetX) - sin*float64(anchorOffsetY)
+				ry := sin*float64(anchorOffsetX) + cos*float64(anchorOffsetY)
+				anchorOffsetX = int(math.Round(rx))
+				anchorOffsetY = int(math.Round(ry))
+			}
+			painter.MarkPin(p.X+anchorOffsetX, p.Y+anchorOffsetY, opt.symbolSize,
+				opt.rotationRadians, opt.fillColor, opt.fillColor, 0.0)
 			text := opt.valueFormatter(value)
 			textBox := painter.MeasureText(text, 0, textStyle)
 			if textStyle.FontSize > smallLabelFontSize && textBox.Width() > opt.symbolSize {
 				textStyle.FontSize = smallLabelFontSize
 				textBox = painter.MeasureText(text, 0, textStyle)
 			}
-			painter.Text(text, p.X-textBox.Width()>>1, p.Y-opt.symbolSize>>1-2, 0, textStyle)
+			painter.Text(text, p.X+anchorOffsetX-(textBox.Width()>>1),
+				p.Y+anchorOffsetY-2, 0, textStyle)
 		}
 	}
 	return BoxZero, nil

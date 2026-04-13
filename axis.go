@@ -18,8 +18,8 @@ type CategoryAxisOption struct {
 	// Deprecated: DataStartIndex is deprecated and will be removed in v0.6.0.
 	// Slice your Labels and series data together using Go slice expressions as a direct replacement.
 	DataStartIndex int
-	// Position controls the physical axis placement.
-	// Supported values are PositionBottom (default) and PositionTop.
+	// Position controls the physical axis placement. All four position constants are accepted.
+	// TODO - top-positioned category axis rendering for vertical bars is not yet supported.
 	Position string
 	// BoundaryGap specifies that the chart should have additional space on the left and right, with data points being
 	// centered between two axis ticks. Default is set based on the dataset density / size to produce an easy-to-read
@@ -42,6 +42,26 @@ type CategoryAxisOption struct {
 	// LabelCountAdjustment specifies a relative influence on how many labels should be rendered.
 	// Typically, this is negative to result in cleaner graphs, positive values may result in text collisions.
 	LabelCountAdjustment int
+}
+
+// isZero returns true if all fields are at their zero values.
+func (opt *CategoryAxisOption) isZero() bool {
+	return opt.Show == nil &&
+		opt.Theme == nil &&
+		opt.Title == "" &&
+		opt.TitleFontStyle.IsZero() &&
+		len(opt.Labels) == 0 &&
+		opt.DataStartIndex == 0 &&
+		opt.Position == "" &&
+		opt.BoundaryGap == nil &&
+		opt.FontStyle.IsZero() &&
+		opt.LabelFontStyle.IsZero() &&
+		opt.LabelRotation == 0 &&
+		opt.LabelOffset == (OffsetInt{}) &&
+		opt.ValueFormatter == nil &&
+		opt.Unit == 0 &&
+		opt.LabelCount == 0 &&
+		opt.LabelCountAdjustment == 0
 }
 
 // XAxisOption is an alias for CategoryAxisOption. Use whatever the chart type accepts.
@@ -100,7 +120,8 @@ type ValueAxisOption struct {
 	RangeValuePaddingScale *float64
 	// Labels provides labels for each value on the axis.
 	Labels []string
-	// Position describes the axis position: 'left' or 'right'.
+	// Position controls the physical axis placement. All four position constants are accepted.
+	// TODO - top-positioned value axis rendering is not yet supported.
 	Position string
 	// Deprecated: FontStyle is deprecated, use LabelFontStyle.
 	FontStyle FontStyle
@@ -132,6 +153,32 @@ type ValueAxisOption struct {
 	// TODO - isCategoryAxis is a hack used only by heat map so its Y-position axis
 	// renders with category styling. Remove when defaultRender supports dual category axes.
 	isCategoryAxis bool
+}
+
+// isZero returns true if all fields are at their zero values.
+func (opt *ValueAxisOption) isZero() bool {
+	return opt.Show == nil &&
+		opt.Theme == nil &&
+		opt.Title == "" &&
+		opt.TitleFontStyle.IsZero() &&
+		opt.Min == nil &&
+		opt.Max == nil &&
+		opt.RangeValuePaddingScale == nil &&
+		len(opt.Labels) == 0 &&
+		opt.Position == "" &&
+		opt.FontStyle.IsZero() &&
+		opt.LabelFontStyle.IsZero() &&
+		opt.LabelRotation == 0 &&
+		opt.Formatter == "" &&
+		opt.Unit == 0 &&
+		opt.LabelCount == 0 &&
+		opt.LabelCountAdjustment == 0 &&
+		opt.PreferNiceIntervals == nil &&
+		opt.LabelSkipCount == 0 &&
+		opt.SplitLineShow == nil &&
+		opt.SpineLineShow == nil &&
+		opt.ValueFormatter == nil &&
+		!opt.isCategoryAxis
 }
 
 // YAxisOption is an alias for ValueAxisOption. Use whatever the chart type accepts.

@@ -463,7 +463,7 @@ func drawLabelWithBackground(p *Painter, text string, x, y int, radians float64,
 			if cornerRadius > maxRadius {
 				cornerRadius = maxRadius
 			}
-			p.roundedRect(bgBox, cornerRadius, true, true, backgroundColor, borderColor, borderWidth)
+			p.roundedRect(bgBox, cornerRadius, roundTopLeft|roundTopRight|roundBottomRight|roundBottomLeft, backgroundColor, borderColor, borderWidth)
 		} else {
 			p.FilledRect(bgBox.Left, bgBox.Top, bgBox.Right, bgBox.Bottom, backgroundColor, borderColor, borderWidth)
 		}

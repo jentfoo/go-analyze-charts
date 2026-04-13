@@ -546,32 +546,63 @@ const (
 	_3pi2 = (3 * math.Pi) / 2.0
 )
 
-// Pin draws a pin shape (circle + curved tail).
+// Deprecated: Pin is deprecated, use MarkPin with 0 radians as a replacement.
 func (p *Painter) Pin(x, y, width int, fillColor, strokeColor Color, strokeWidth float64) {
+	p.MarkPin(x, y, width, 0, fillColor, strokeColor, strokeWidth)
+}
+
+// MarkPin draws a rotatable pin shape (circle + curved tail) used for mark points.
+// rotationRadians rotates the entire pin shape around the anchor point (x, y).
+// A rotation of 0 draws the pin pointing downward.
+func (p *Painter) MarkPin(x, y, width int, rotationRadians float64, fillColor, strokeColor Color, strokeWidth float64) {
 	r := float64(width) / 2
-	y -= width / 4
 	angle := DegreesToRadians(15)
 
-	// Draw the pin head with fill and stroke
-	startAngle := _pi2 + angle
+	if rotationRadians == 0 {
+		// fast path for downward pin
+		py := y - width/4
+		startAngle := _pi2 + angle
+		delta := _2pi - 2*angle
+		p.arcTo(x, py, r, r, startAngle, delta)
+		p.lineTo(x, py)
+		p.close()
+		p.fillStroke(fillColor, strokeColor, strokeWidth)
+
+		startX := x - int(r)
+		endX := x + int(r)
+		p.moveTo(startX, py)
+		cx := x
+		cy := py + int(r*2.5)
+		p.quadCurveTo(cx, cy, endX, py)
+		p.close()
+		p.fillStroke(fillColor, strokeColor, strokeWidth)
+		return
+	}
+
+	// rotate all offsets around the anchor (x, y)
+	cos := math.Cos(rotationRadians)
+	sin := math.Sin(rotationRadians)
+	rotX := func(dx, dy float64) int { return x + int(math.Round(cos*dx-sin*dy)) }
+	rotY := func(dx, dy float64) int { return y + int(math.Round(sin*dx+cos*dy)) }
+
+	// head center offset from anchor is (0, -width/4)
+	headDY := float64(-width / 4)
+	headCX := rotX(0, headDY)
+	headCY := rotY(0, headDY)
+
+	// draw head arc
+	startAngle := _pi2 + angle + rotationRadians
 	delta := _2pi - 2*angle
-	p.arcTo(x, y, r, r, startAngle, delta)
-	p.lineTo(x, y)
+	p.arcTo(headCX, headCY, r, r, startAngle, delta)
+	p.lineTo(headCX, headCY)
 	p.close()
 	p.fillStroke(fillColor, strokeColor, strokeWidth)
 
-	// The curved tail
-	startX := x - int(r)
-	startY := y
-	endX := x + int(r)
-	endY := y
-	p.moveTo(startX, startY)
-	cx := x
-	cy := y + int(r*2.5)
-	p.quadCurveTo(cx, cy, endX, endY)
+	// tail: start and end at head center ± r horizontally (in rotated frame)
+	p.moveTo(rotX(-r, headDY), rotY(-r, headDY))
+	cy := headDY + r*2.5
+	p.quadCurveTo(rotX(0, cy), rotY(0, cy), rotX(r, headDY), rotY(r, headDY))
 	p.close()
-
-	// Apply both fill and stroke to the tail
 	p.fillStroke(fillColor, strokeColor, strokeWidth)
 }
 
@@ -1004,55 +1035,75 @@ func (p *Painter) diamonds(points []Point, fillColor, strokeColor Color, strokeW
 	p.render.FillStroke()
 }
 
-// roundedRect is similar to filledRect except the top and bottom are rounded.
-func (p *Painter) roundedRect(box Box, radius int, roundTop, roundBottom bool,
+const (
+	roundTopLeft = 1 << iota
+	roundTopRight
+	roundBottomRight
+	roundBottomLeft
+)
+
+// roundedRect draws a filled rectangle with selectively rounded corners specified by the corners bitmask.
+func (p *Painter) roundedRect(box Box, radius, corners int,
 	fillColor, strokeColor Color, strokeWidth float64) {
-	r := (box.Right - box.Left) / 2
+	w := box.Right - box.Left
+	h := box.Bottom - box.Top
+	// cap radius based on the edge being rounded:
+	// two corners on the same horizontal edge (top or bottom pair) are bounded by width/2,
+	// two corners on the same vertical edge (left or right pair) are bounded by height/2
+	topPair := corners&(roundTopLeft|roundTopRight) == roundTopLeft|roundTopRight
+	bottomPair := corners&(roundBottomLeft|roundBottomRight) == roundBottomLeft|roundBottomRight
+	leftPair := corners&(roundTopLeft|roundBottomLeft) == roundTopLeft|roundBottomLeft
+	rightPair := corners&(roundTopRight|roundBottomRight) == roundTopRight|roundBottomRight
+	horizontalEdge := topPair || bottomPair
+	verticalEdge := leftPair || rightPair
+	var r int
+	switch {
+	case horizontalEdge && verticalEdge:
+		r = chartdraw.MinInt(w, h) / 2 // TODO - use min with go update
+	case verticalEdge:
+		r = h / 2
+	default: // horizontalEdge or single corners
+		r = w / 2
+	}
 	if radius > r {
 		radius = r
 	}
 	rx := float64(radius)
 	ry := float64(radius)
 
-	if roundTop {
-		// Start at the appropriate point depending on rounding at the top
+	// top edge: left to right
+	if corners&roundTopLeft != 0 {
 		p.moveTo(box.Left+radius, box.Top)
-		p.lineTo(box.Right-radius, box.Top)
-
-		// right top
-		cx := box.Right - radius
-		cy := box.Top + radius
-		p.arcTo(cx, cy, rx, ry, -_pi2, _pi2)
 	} else {
 		p.moveTo(box.Left, box.Top)
+	}
+	if corners&roundTopRight != 0 {
+		p.lineTo(box.Right-radius, box.Top)
+		p.arcTo(box.Right-radius, box.Top+radius, rx, ry, -_pi2, _pi2)
+	} else {
 		p.lineTo(box.Right, box.Top)
 	}
 
-	if roundBottom {
+	// right edge: top to bottom
+	if corners&roundBottomRight != 0 {
 		p.lineTo(box.Right, box.Bottom-radius)
-
-		// right bottom
-		cx := box.Right - radius
-		cy := box.Bottom - radius
-		p.arcTo(cx, cy, rx, ry, 0, _pi2)
-
-		p.lineTo(box.Left+radius, box.Bottom)
-
-		// left bottom
-		cx = box.Left + radius
-		cy = box.Bottom - radius
-		p.arcTo(cx, cy, rx, ry, _pi2, _pi2)
+		p.arcTo(box.Right-radius, box.Bottom-radius, rx, ry, 0, _pi2)
 	} else {
 		p.lineTo(box.Right, box.Bottom)
+	}
+
+	// bottom edge: right to left
+	if corners&roundBottomLeft != 0 {
+		p.lineTo(box.Left+radius, box.Bottom)
+		p.arcTo(box.Left+radius, box.Bottom-radius, rx, ry, _pi2, _pi2)
+	} else {
 		p.lineTo(box.Left, box.Bottom)
 	}
 
-	if roundTop {
-		// left top
+	// left edge: bottom to top
+	if corners&roundTopLeft != 0 {
 		p.lineTo(box.Left, box.Top+radius)
-		cx := box.Left + radius
-		cy := box.Top + radius
-		p.arcTo(cx, cy, rx, ry, math.Pi, _pi2)
+		p.arcTo(box.Left+radius, box.Top+radius, rx, ry, math.Pi, _pi2)
 	} else {
 		p.lineTo(box.Left, box.Top)
 	}
@@ -1086,7 +1137,7 @@ func (p *Painter) BarChart(opt BarChartOption) error {
 	return err
 }
 
-// HorizontalBarChart renders a horizontal bar chart with the provided configuration to the painter.
+// Deprecated: HorizontalBarChart is deprecated, use Painter.BarChart with Horizontal set to true.
 func (p *Painter) HorizontalBarChart(opt HorizontalBarChartOption) error {
 	_, err := newHorizontalBarChart(p, opt).Render()
 	return err

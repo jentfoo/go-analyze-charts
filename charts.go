@@ -515,7 +515,7 @@ func Render(opt ChartOption, opts ...OptionFunc) (*Painter, error) {
 	scatterSeriesList := filterSeriesList[ScatterSeriesList](opt.SeriesList, ChartTypeScatter)
 	barSeriesList := filterSeriesList[BarSeriesList](opt.SeriesList, ChartTypeBar)
 	candlestickSeries := filterSeriesList[CandlestickSeriesList](opt.SeriesList, ChartTypeCandlestick)
-	horizontalBarSeriesList := filterSeriesList[HorizontalBarSeriesList](opt.SeriesList, ChartTypeHorizontalBar)
+	horizontalBarSeriesList := filterSeriesList[BarSeriesList](opt.SeriesList, ChartTypeHorizontalBar)
 	pieSeriesList := filterSeriesList[PieSeriesList](opt.SeriesList, ChartTypePie)
 	doughnutSeriesList := filterSeriesList[DoughnutSeriesList](opt.SeriesList, ChartTypeDoughnut)
 	radarSeriesList := filterSeriesList[RadarSeriesList](opt.SeriesList, ChartTypeRadar)
@@ -656,27 +656,24 @@ func Render(opt ChartOption, opts ...OptionFunc) (*Painter, error) {
 
 	// horizontal bar chart
 	if len(horizontalBarSeriesList) != 0 {
-		var yAxis YAxisOption
-		if len(opt.YAxis) > 0 {
-			if len(opt.YAxis) > 1 {
-				return nil, errors.New("horizontal bar chart only accepts a single Y-Axis")
-			}
-			yAxis = opt.YAxis[0]
+		if len(opt.YAxis) > 1 {
+			return nil, errors.New("horizontal bar chart only accepts a single Y-Axis")
 		}
 
 		handler.Add(func() error {
-			height := opt.BarSize
-			if height == 0 {
-				height = opt.BarHeight
+			size := opt.BarSize
+			if size == 0 {
+				size = opt.BarHeight
 			}
-			_, err := newHorizontalBarChart(p, HorizontalBarChartOption{
-				Theme:       opt.Theme,
-				Font:        opt.Font,
-				BarHeight:   height,
-				BarMargin:   opt.BarMargin,
-				YAxis:       yAxis,
-				SeriesList:  horizontalBarSeriesList,
-				StackSeries: opt.StackSeries,
+			_, err := newBarChart(p, BarChartOption{
+				Horizontal:     true,
+				Theme:          opt.Theme,
+				Font:           opt.Font,
+				BarSize:        size,
+				BarMargin:      opt.BarMargin,
+				SeriesList:     horizontalBarSeriesList,
+				StackSeries:    opt.StackSeries,
+				ValueFormatter: opt.ValueFormatter,
 			}).renderChart(renderResult)
 			return err
 		})
