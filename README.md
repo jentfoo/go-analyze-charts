@@ -176,6 +176,8 @@ Top Bar Chart Examples:
 
 Horizontal Bar Chart Feature List: https://github.com/go-analyze/charts/wiki/Feature-Overview#horizontal-bar-charts
 
+Horizontal bar charts are configured with `BarChartOption` and `Horizontal: true`. The category axis runs vertically and the value axis runs along the bottom.
+
 Top Horizontal Bar Chart Examples:
 * [horizontal_bar_chart-1-basic](./examples/1-Painter/horizontal_bar_chart-1-basic) - Basic horizontal bar chart.
 

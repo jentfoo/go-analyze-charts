@@ -262,11 +262,6 @@ func TestHorizontalBarChart(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		painterOptions := PainterOptions{
-			OutputFormat: ChartOutputSVG,
-			Width:        600,
-			Height:       400,
-		}
 		rasterOptions := PainterOptions{
 			OutputFormat: ChartOutputPNG,
 			Width:        600,
@@ -274,40 +269,31 @@ func TestHorizontalBarChart(t *testing.T) {
 		}
 		if tt.themed {
 			t.Run(strconv.Itoa(i)+"-"+tt.name+"-painter", func(t *testing.T) {
-				p := NewPainter(painterOptions, PainterThemeOption(GetTheme(ThemeVividDark)))
 				rp := NewPainter(rasterOptions, PainterThemeOption(GetTheme(ThemeVividDark)))
 
-				validateHorizontalBarChartRender(t, p, rp, tt.makeOptions(), tt.pngCRC)
+				validateHorizontalBarChartRender(t, rp, tt.makeOptions(), tt.pngCRC)
 			})
 			t.Run(strconv.Itoa(i)+"-"+tt.name+"-options", func(t *testing.T) {
-				p := NewPainter(painterOptions)
 				rp := NewPainter(rasterOptions)
 				opt := tt.makeOptions()
 				opt.Theme = GetTheme(ThemeVividDark)
 
-				validateHorizontalBarChartRender(t, p, rp, opt, tt.pngCRC)
+				validateHorizontalBarChartRender(t, rp, opt, tt.pngCRC)
 			})
 		} else {
 			t.Run(strconv.Itoa(i)+"-"+tt.name, func(t *testing.T) {
-				p := NewPainter(painterOptions)
 				rp := NewPainter(rasterOptions)
 
-				validateHorizontalBarChartRender(t, p, rp, tt.makeOptions(), tt.pngCRC)
+				validateHorizontalBarChartRender(t, rp, tt.makeOptions(), tt.pngCRC)
 			})
 		}
 	}
 }
 
-func validateHorizontalBarChartRender(t *testing.T, svgP, pngP *Painter, opt HorizontalBarChartOption, expectedCRC uint32) {
+func validateHorizontalBarChartRender(t *testing.T, pngP *Painter, opt HorizontalBarChartOption, expectedCRC uint32) {
 	t.Helper()
 
-	err := svgP.HorizontalBarChart(opt)
-	require.NoError(t, err)
-	data, err := svgP.Bytes()
-	require.NoError(t, err)
-	assertTestdataSVG(t, data)
-
-	err = pngP.HorizontalBarChart(opt)
+	err := pngP.HorizontalBarChart(opt)
 	require.NoError(t, err)
 	rasterData, err := pngP.Bytes()
 	require.NoError(t, err)

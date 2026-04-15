@@ -366,7 +366,7 @@ func (v *violinChart) renderChart(result *defaultRenderResult) (Box, error) {
 					}
 					seriesPainter.FilledRect(bandStart, top, bandEnd, bottom, seriesColor, ColorTransparent, 0)
 				} else { // Vertical: bands go top-bottom in slot, value goes left-right
-					left, right := valueRange.getHeight(-a), valueRange.getHeight(b)
+					left, right := valueRange.valuePosition(-a), valueRange.valuePosition(b)
 					if left > right { // Normalize
 						left, right = right, left
 					}
@@ -384,7 +384,7 @@ func (v *violinChart) renderChart(result *defaultRenderResult) (Box, error) {
 					{X: slotStart + margin + violinWidth, Y: spineY},
 				}, spineColor, spineWidth)
 			} else {
-				spineX := valueRange.getHeight(0)
+				spineX := valueRange.valuePosition(0)
 				seriesPainter.LineStroke([]Point{
 					{X: spineX, Y: slotStart + margin},
 					{X: spineX, Y: slotStart + margin + violinWidth},

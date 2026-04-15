@@ -97,7 +97,7 @@ func resolveMarkLineSummary(opt markLineRenderOption) PopulationSummary {
 func (m *markLinePainter) renderOne(opt markLineRenderOption, text string, textBox Box, value float64,
 	painter *Painter, fontStyle FontStyle) {
 	if opt.verticalLine {
-		x := opt.axisRange.getHeight(value) // x coordinate for the mark line
+		x := opt.axisRange.valuePosition(value) // x coordinate for the mark line
 		height := painter.Height() - 2
 		if height <= 0 {
 			return

@@ -27,7 +27,8 @@ func main() {
 		{20, 40, 60, 80, 100, 120, 140},
 	}
 
-	opt := charts.NewHorizontalBarChartOptionWithData(values)
+	opt := charts.NewBarChartOptionWithData(values)
+	opt.Horizontal = true
 	opt.Title.Text = "World Population"
 	opt.Padding = charts.Box{
 		Top:    20,
@@ -38,7 +39,7 @@ func main() {
 	opt.Legend.SeriesNames = []string{
 		"2011", "2012",
 	}
-	opt.YAxis = charts.YAxisOption{
+	opt.CategoryAxis = charts.CategoryAxisOption{
 		Labels: []string{
 			"UN", "Brazil", "Indonesia", "USA", "India", "China", "World",
 		},
@@ -51,7 +52,7 @@ func main() {
 		Width:        600,
 		Height:       400,
 	})
-	if err := p.HorizontalBarChart(opt); err != nil {
+	if err := p.BarChart(opt); err != nil {
 		panic(err)
 	} else if buf, err := p.Bytes(); err != nil {
 		panic(err)

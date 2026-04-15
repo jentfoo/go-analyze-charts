@@ -1,6 +1,8 @@
 package charts
 
 import (
+	"math"
+
 	"github.com/golang/freetype/truetype"
 )
 
@@ -51,6 +53,7 @@ type markPointRenderOption struct {
 	fillColor          Color
 	font               *truetype.Font
 	symbolSize         int
+	rotationRadians    float64
 	seriesValues       []float64
 	markpoints         []SeriesMark
 	seriesLabelPainter *seriesLabelPainter
@@ -97,14 +100,49 @@ func (m *markPointPainter) Render() (Box, error) {
 				opt.seriesLabelPainter.values[index].text = ""
 			}
 
-			painter.Pin(p.X, p.Y-opt.symbolSize>>1, opt.symbolSize, opt.fillColor, opt.fillColor, 0.0)
+			// In the default (down-pointing) pin, the anchor passed to MarkPin is the base of
+			// the tail where it joins the head; the head center sits at (0, -3w/4) relative to
+			// the bar anchor p, and the outer edge of the head (opposite the tail tip) sits at
+			// (0, -5w/4). Rotating these offsets gives the same positions for a rotated pin.
+			anchorOffsetX, anchorOffsetY := 0, -(opt.symbolSize >> 1)
+			headOuterOffsetX := 0
+			headOuterOffsetY := -(5 * opt.symbolSize) / 4
+			if opt.rotationRadians != 0 {
+				cos := math.Cos(opt.rotationRadians)
+				sin := math.Sin(opt.rotationRadians)
+				rotate := func(dx, dy int) (int, int) {
+					fx, fy := float64(dx), float64(dy)
+					return int(math.Round(cos*fx - sin*fy)),
+						int(math.Round(sin*fx + cos*fy))
+				}
+				anchorOffsetX, anchorOffsetY = rotate(anchorOffsetX, anchorOffsetY)
+				headOuterOffsetX, _ = rotate(headOuterOffsetX, headOuterOffsetY)
+			}
+			drawnAnchorX, drawnAnchorY := p.X+anchorOffsetX, p.Y+anchorOffsetY
+			painter.MarkPin(drawnAnchorX, drawnAnchorY, opt.symbolSize,
+				opt.rotationRadians, opt.fillColor, opt.fillColor, 0.0)
 			text := opt.valueFormatter(value)
 			textBox := painter.MeasureText(text, 0, textStyle)
 			if textStyle.FontSize > smallLabelFontSize && textBox.Width() > opt.symbolSize {
 				textStyle.FontSize = smallLabelFontSize
 				textBox = painter.MeasureText(text, 0, textStyle)
 			}
-			painter.Text(text, p.X-textBox.Width()>>1, p.Y-opt.symbolSize>>1-2, 0, textStyle)
+			const textInset = 2
+			var textX, textY int
+			if opt.rotationRadians == 0 {
+				// vertical pin: keep the horizontal centering on the head center
+				textX = drawnAnchorX - (textBox.Width() >> 1)
+				textY = drawnAnchorY - textInset
+			} else {
+				// horizontal pin: anchor the text just inside the outer head curve
+				if headOuterOffsetX >= 0 {
+					textX = p.X + headOuterOffsetX - textInset - textBox.Width()
+				} else {
+					textX = p.X + headOuterOffsetX + textInset
+				}
+				textY = drawnAnchorY - textInset + (textBox.Height() >> 1)
+			}
+			painter.Text(text, textX, textY, 0, textStyle)
 		}
 	}
 	return BoxZero, nil

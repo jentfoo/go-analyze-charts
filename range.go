@@ -17,6 +17,8 @@ const zeroSpanAdjustment = 1
 // axisRange represents the calculated range for the axis, as well as values for fitting labels on the range.
 type axisRange struct {
 	isCategory bool
+	// reversed indicates the axis renders its range in reverse order.
+	reversed bool
 	// labels are the rendered labels: 1:1 for categories or range value labels to render.
 	labels []string
 	// TODO - dataStartIndex deprecated to be removed in v0.6
@@ -949,6 +951,16 @@ func (r axisRange) getHeight(value float64) int {
 
 func (r axisRange) getRestHeight(value float64) int {
 	return r.size - r.getHeight(value)
+}
+
+// valuePosition returns the pixel offset (along the axis) of value, respecting r.reversed.
+// Prefer this over getHeight when drawing at a position rather than measuring a magnitude.
+func (r axisRange) valuePosition(value float64) int {
+	h := r.getHeight(value)
+	if r.reversed {
+		return r.size - h
+	}
+	return h
 }
 
 // getRange returns a range at a given index.
