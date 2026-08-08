@@ -377,16 +377,13 @@ func (vr *vectorRenderer) ClearTextRotation() {
 	vr.c.textTheta = nil
 }
 
-// Save saves the renderer's contents to a writer.
+// Save writes a complete SVG snapshot of everything drawn so far to w. It may be called any number
+// of times, and reflects any drawing done since an earlier call.
 func (vr *vectorRenderer) Save(w io.Writer) error {
-	vr.c.End()
-	for _, face := range vr.faceCache {
-		if err := face.Close(); err != nil {
-			return err
-		}
+	if _, err := w.Write(vr.b.Bytes()); err != nil {
+		return err
 	}
-	vr.faceCache = nil
-	_, err := w.Write(vr.b.Bytes())
+	_, err := w.Write([]byte("</svg>"))
 	return err
 }
 
@@ -494,10 +491,6 @@ func (c *canvas) Circle(x, y int, r float64, style Style) {
 	bb.WriteString(`/>`)
 
 	_, _ = c.w.Write(bb.Bytes())
-}
-
-func (c *canvas) End() {
-	_, _ = c.w.Write([]byte("</svg>"))
 }
 
 // nonFinite reports whether v is NaN or infinite.

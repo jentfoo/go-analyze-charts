@@ -38,6 +38,67 @@ func TestVectorRendererPath(t *testing.T) {
 	assert.True(t, strings.HasSuffix(raw, "</svg>"))
 }
 
+func TestVectorRendererSaveTwice(t *testing.T) {
+	t.Parallel()
+
+	vr := SVG(100, 100).(*vectorRenderer)
+	vr.SetFont(GetDefaultFont())
+	vr.SetFontSize(10)
+	vr.MoveTo(0, 0)
+	vr.LineTo(50, 60)
+	vr.Close()
+	vr.FillStroke()
+	vr.Text("hello", 5, 20)
+
+	first := bytes.Buffer{}
+	require.NoError(t, vr.Save(&first))
+	assert.Equal(t, 1, strings.Count(first.String(), "</svg>"))
+
+	second := bytes.Buffer{}
+	require.NoError(t, vr.Save(&second))
+	assert.Equal(t, first.Bytes(), second.Bytes())
+	assert.Equal(t, 1, strings.Count(second.String(), "</svg>"))
+
+	dec := xml.NewDecoder(&second)
+	for {
+		if _, err := dec.Token(); errors.Is(err, io.EOF) {
+			break
+		} else if err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func TestVectorRendererSaveReflectsModifications(t *testing.T) {
+	t.Parallel()
+
+	vr := SVG(100, 50).(*vectorRenderer)
+	vr.SetFont(GetDefaultFont())
+	vr.SetFontSize(10)
+
+	first := bytes.Buffer{}
+	require.NoError(t, vr.Save(&first))
+	assert.NotContains(t, first.String(), "<text")
+
+	// draw after the first save; must appear in later snapshots
+	vr.Text("late", 5, 20)
+	second := bytes.Buffer{}
+	require.NoError(t, vr.Save(&second))
+
+	out := second.String()
+	assert.Contains(t, out, "<text")
+	assert.Equal(t, 1, strings.Count(out, "</svg>"))
+
+	dec := xml.NewDecoder(&second)
+	for {
+		if _, err := dec.Token(); errors.Is(err, io.EOF) {
+			break
+		} else if err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
 func TestVectorRendererMeasureText(t *testing.T) {
 	t.Parallel()
 
@@ -166,13 +227,11 @@ func TestCanvasBasicElements(t *testing.T) {
 	c.Path([]string{"M 0 0", "L 10 10"}, Style{StrokeDashArray: []float64{1, 2}, StrokeWidth: 2, StrokeColor: drawing.ColorBlack})
 	c.Text(5, 5, "hi", Style{FontStyle: FontStyle{Font: GetDefaultFont(), FontSize: 10}})
 	c.Circle(5, 5, 3, Style{FillColor: drawing.ColorRed})
-	c.End()
 
 	out := b.String()
 	assert.Contains(t, out, "stroke-dasharray=\"1, 2\"")
 	assert.Contains(t, out, "<text")
 	assert.Contains(t, out, "<circle")
-	assert.True(t, strings.HasSuffix(out, "</svg>"))
 }
 
 func TestCanvasPathDashArray(t *testing.T) {
