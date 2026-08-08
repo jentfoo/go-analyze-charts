@@ -89,4 +89,102 @@ func TestDashVertexConverterLineTo(t *testing.T) {
 		assert.Contains(t, rec.moves, "M20.0,0.0")
 		assert.Contains(t, rec.moves, "E")
 	})
+
+	t.Run("zero_gap_exact_landing", func(t *testing.T) {
+		rec := &recordFlattenerEnd{}
+		d := NewDashVertexConverter([]float64{5, 0}, 0, rec)
+		d.MoveTo(0, 0)
+		d.LineTo(5, 0) // lands exactly on the zero length gap
+		d.LineTo(10, 0)
+		d.End()
+
+		expect := []string{"M0.0,0.0", "L5.0,0.0", "E", "M5.0,0.0", "L10.0,0.0", "E", "M10.0,0.0", "E"}
+		assert.Equal(t, expect, rec.moves)
+	})
+
+	t.Run("zero_length_dash_entry", func(t *testing.T) {
+		rec := &recordFlattenerEnd{}
+		d := NewDashVertexConverter([]float64{0, 5}, 0, rec)
+		d.MoveTo(0, 0)
+		d.LineTo(0, 0) // zero length segment on a zero length dash entry
+		d.LineTo(10, 0)
+		d.End()
+
+		expect := []string{"M0.0,0.0", "L0.0,0.0", "E", "M5.0,0.0", "L5.0,0.0", "E", "M10.0,0.0", "L10.0,0.0", "E"}
+		assert.Equal(t, expect, rec.moves)
+	})
+
+	t.Run("repeated_point_keeps_phase", func(t *testing.T) {
+		rec := &recordFlattenerEnd{}
+		d := NewDashVertexConverter([]float64{4, 4}, 0, rec)
+		d.MoveTo(0, 0)
+		d.LineTo(2, 0)
+		d.LineTo(2, 0) // duplicate point only repeats the vertex, the dash phase is unchanged
+		d.LineTo(8, 0)
+		d.End()
+
+		expect := []string{"M0.0,0.0", "L2.0,0.0", "L2.0,0.0", "L4.0,0.0", "E", "M8.0,0.0", "L8.0,0.0", "E"}
+		assert.Equal(t, expect, rec.moves)
+	})
+
+	t.Run("no_nan_vertices", func(t *testing.T) {
+		for _, dash := range [][]float64{{5, 0}, {0, 5}, {5}, {0, 5, 0}, {5, 0, 5}} {
+			rec := &recordFlattenerEnd{}
+			d := NewDashVertexConverter(dash, 0, rec)
+			d.MoveTo(0, 0)
+			d.LineTo(5, 0)
+			d.LineTo(5, 0)
+			d.LineTo(10, 5)
+			d.End()
+
+			for _, m := range rec.moves {
+				assert.NotContains(t, m, "NaN", dash)
+			}
+		}
+	})
+}
+
+func TestDashVertexConverterPattern(t *testing.T) {
+	t.Parallel()
+
+	run := func(dash []float64, dashOffset float64) []string {
+		rec := &recordFlattenerEnd{}
+		d := NewDashVertexConverter(dash, dashOffset, rec)
+		d.MoveTo(0, 0)
+		d.LineTo(20, 0)
+		d.End()
+		return rec.moves
+	}
+
+	t.Run("odd_single_entry", func(t *testing.T) {
+		expect := []string{"M0.0,0.0", "L5.0,0.0", "E", "M10.0,0.0", "L15.0,0.0", "E", "M20.0,0.0", "L20.0,0.0", "E"}
+		assert.Equal(t, expect, run([]float64{5}, 0))
+		assert.Equal(t, run([]float64{5, 5}, 0), run([]float64{5}, 0))
+	})
+
+	t.Run("odd_three_entries", func(t *testing.T) {
+		// {4,2,1} alternates as on 4, off 2, on 1, off 4, on 2, off 1
+		expect := []string{"M0.0,0.0", "L4.0,0.0", "E", "M6.0,0.0", "L7.0,0.0", "E", "M11.0,0.0",
+			"L13.0,0.0", "E", "M14.0,0.0", "L18.0,0.0", "E", "M20.0,0.0", "L20.0,0.0", "E"}
+		assert.Equal(t, expect, run([]float64{4, 2, 1}, 0))
+		assert.Equal(t, run([]float64{4, 2, 1, 4, 2, 1}, 0), run([]float64{4, 2, 1}, 0))
+	})
+
+	t.Run("even_pattern_unchanged", func(t *testing.T) {
+		expect := []string{"M0.0,0.0", "L2.0,0.0", "E", "M4.0,0.0", "L6.0,0.0", "E", "M8.0,0.0",
+			"L10.0,0.0", "E", "M12.0,0.0", "L14.0,0.0", "E", "M16.0,0.0", "L18.0,0.0", "E", "M20.0,0.0", "L20.0,0.0", "E"}
+		assert.Equal(t, expect, run([]float64{2, 2}, 0))
+	})
+
+	t.Run("offset_wraps_cycle", func(t *testing.T) {
+		assert.Equal(t, run([]float64{2, 2}, 2), run([]float64{2, 2}, 1e12+2))
+	})
+
+	t.Run("offset_wraps_doubled_cycle", func(t *testing.T) {
+		assert.Equal(t, run([]float64{5}, 3), run([]float64{5}, 13))
+	})
+
+	t.Run("negative_offset", func(t *testing.T) {
+		assert.Equal(t, run([]float64{2, 2}, 3), run([]float64{2, 2}, -1))
+	})
 }

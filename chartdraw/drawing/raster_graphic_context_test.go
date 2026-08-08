@@ -511,6 +511,21 @@ func TestStroke(t *testing.T) {
 		assert.Equal(t, solid.Pix, strokeDashed([]float64{5, 5}, math.Inf(1)).Pix)
 		assert.Equal(t, solid.Pix, strokeDashed([]float64{5, 5}, math.NaN()).Pix)
 	})
+
+	t.Run("odd_dash_doubled", func(t *testing.T) {
+		img := strokeDashed([]float64{6}, 0)
+
+		assert.NotZero(t, img.RGBAAt(3, 20).A) // within first dash
+		assert.Zero(t, img.RGBAAt(11, 20).A)   // within first gap
+	})
+
+	t.Run("zero_gap_dash_solid", func(t *testing.T) {
+		img := strokeDashed([]float64{6, 0}, 0) // zero length gaps draw a solid line
+
+		for x := 3; x < 37; x++ {
+			assert.NotZero(t, img.RGBAAt(x, 20).A, x)
+		}
+	})
 }
 
 func TestFill(t *testing.T) {
