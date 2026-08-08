@@ -255,7 +255,7 @@ func TestCandlestickChart(t *testing.T) {
 					SeriesList: CandlestickSeriesList{series},
 				}
 			},
-			pngCRC: 0x25e415cb,
+			pngCRC: 0x7e9bab7b,
 		},
 		{
 			name: "large_dataset",
@@ -361,7 +361,7 @@ func TestCandlestickChart(t *testing.T) {
 					Padding: NewBoxEqual(10),
 				}
 			},
-			pngCRC: 0x7d55e3da,
+			pngCRC: 0x34ba49f4,
 		},
 		{
 			name: "aggregation",
@@ -440,7 +440,7 @@ func TestCandlestickChart(t *testing.T) {
 					Padding: NewBoxEqual(10),
 				}
 			},
-			pngCRC: 0x3f36c2df,
+			pngCRC: 0xab3365ee,
 		},
 		{
 			name: "series_styles",

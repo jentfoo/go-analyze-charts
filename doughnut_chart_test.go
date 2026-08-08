@@ -182,7 +182,7 @@ func TestDoughnutChart(t *testing.T) {
 					},
 				}
 			},
-			pngCRC: 0xc9f5c160,
+			pngCRC: 0x854b1678,
 		},
 		{
 			name: "styled_custom_labels",

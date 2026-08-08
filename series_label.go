@@ -1,6 +1,7 @@
 package charts
 
 import (
+	"math"
 	"slices"
 	"strings"
 )
@@ -182,7 +183,7 @@ func interpolateColor(color1, color2 Color, factor float64) Color {
 		factor = 1
 	}
 	lerp := func(a, b uint8) uint8 {
-		return uint8(float64(a) + factor*(float64(b)-float64(a)))
+		return uint8(math.Round(float64(a) + factor*(float64(b)-float64(a))))
 	}
 	return Color{
 		R: lerp(color1.R, color2.R),

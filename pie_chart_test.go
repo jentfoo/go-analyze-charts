@@ -137,7 +137,7 @@ func TestPieChart(t *testing.T) {
 					},
 				}
 			},
-			pngCRC: 0x9f041cd1,
+			pngCRC: 0x977e117a,
 		},
 		{
 			name:   "lots_labels-unsorted",
@@ -199,7 +199,7 @@ func TestPieChart(t *testing.T) {
 					},
 				}
 			},
-			pngCRC: 0x8c43e64b,
+			pngCRC: 0x1a1b3bf6,
 		},
 		{
 			name:   "100labels-sorted",
@@ -223,7 +223,7 @@ func TestPieChart(t *testing.T) {
 					},
 				}
 			},
-			pngCRC: 0xb6fe3351,
+			pngCRC: 0xcc3a9090,
 		},
 		{
 			name:   "fix_label_pos",
@@ -267,7 +267,7 @@ func TestPieChart(t *testing.T) {
 					},
 				}
 			},
-			pngCRC: 0xf9b66f91,
+			pngCRC: 0xc580a953,
 		},
 		{
 			name: "pie_chart_with_value_formatter",

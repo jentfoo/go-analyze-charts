@@ -8,6 +8,8 @@ import (
 
 	"github.com/go-analyze/bulk"
 	"github.com/golang/freetype/truetype"
+
+	"github.com/go-analyze/charts/chartdraw/drawing"
 )
 
 func convertToArray(data []byte) []byte {
@@ -570,7 +572,7 @@ func (eo *EChartsOption) ToOption() ChartOption {
 		axisLineColor := ParseColor(xAxisData.AxisLine.LineStyle.Color)
 		if !axisLineColor.IsZero() {
 			if xAxisData.AxisLine.LineStyle.Opacity != nil {
-				axisLineColor = axisLineColor.WithAlpha(uint8(255 * *xAxisData.AxisLine.LineStyle.Opacity))
+				axisLineColor = axisLineColor.WithAlpha(drawing.ColorChannelFromFloat(*xAxisData.AxisLine.LineStyle.Opacity))
 			}
 			axisTheme = o.Theme.WithXAxisColor(axisLineColor)
 		}
@@ -596,7 +598,7 @@ func (eo *EChartsOption) ToOption() ChartOption {
 		axisTheme := o.Theme
 		if axisLineColor := ParseColor(item.AxisLine.LineStyle.Color); !axisLineColor.IsZero() {
 			if item.AxisLine.LineStyle.Opacity != nil {
-				axisLineColor = axisLineColor.WithAlpha(uint8(255 * *item.AxisLine.LineStyle.Opacity))
+				axisLineColor = axisLineColor.WithAlpha(drawing.ColorChannelFromFloat(*item.AxisLine.LineStyle.Opacity))
 			}
 			axisTheme = axisTheme.WithYAxisColor(axisLineColor).WithYAxisTextColor(axisLineColor)
 		}

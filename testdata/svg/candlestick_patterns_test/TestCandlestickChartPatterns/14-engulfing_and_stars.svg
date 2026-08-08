@@ -79,7 +79,7 @@ A 4 4 0 0 1 312 246
 L 312 233
 L 312 233
 A 4 4 0 0 1 316 229
-Z" style="stroke-width:1.2;stroke:rgb(34,197,94);fill:rgba(255,255,255,0.7)"/><text x="316" y="246" style="stroke:none;fill:rgb(12,75,35);font-size:12.8px;font-family:'Roboto Medium',sans-serif">Λ Bull Engulfing</text><path d="M 422 316
+Z" style="stroke-width:1.2;stroke:rgb(34,197,94);fill:rgba(255,255,255,0.706)"/><text x="316" y="246" style="stroke:none;fill:rgb(13,75,36);font-size:12.8px;font-family:'Roboto Medium',sans-serif">Λ Bull Engulfing</text><path d="M 422 316
 L 496 316
 L 496 316
 A 4 4 0 0 1 500 320
@@ -92,7 +92,7 @@ A 4 4 0 0 1 418 333
 L 418 320
 L 418 320
 A 4 4 0 0 1 422 316
-Z" style="stroke-width:1.2;stroke:rgb(239,68,68);fill:rgba(255,255,255,0.7)"/><text x="422" y="333" style="stroke:none;fill:rgb(151,12,12);font-size:12.8px;font-family:'Roboto Medium',sans-serif">Ξ Dark Cloud</text><path d="M 635 113
+Z" style="stroke-width:1.2;stroke:rgb(239,68,68);fill:rgba(255,255,255,0.706)"/><text x="422" y="333" style="stroke:none;fill:rgb(151,13,13);font-size:12.8px;font-family:'Roboto Medium',sans-serif">Ξ Dark Cloud</text><path d="M 635 113
 L 725 113
 L 725 113
 A 4 4 0 0 1 729 117
@@ -105,4 +105,4 @@ A 4 4 0 0 1 631 130
 L 631 117
 L 631 117
 A 4 4 0 0 1 635 113
-Z" style="stroke-width:1.2;stroke:rgb(34,197,94);fill:rgba(255,255,255,0.7)"/><text x="635" y="130" style="stroke:none;fill:rgb(12,75,35);font-size:12.8px;font-family:'Roboto Medium',sans-serif">✫ Morning Star</text></svg>
+Z" style="stroke-width:1.2;stroke:rgb(34,197,94);fill:rgba(255,255,255,0.706)"/><text x="635" y="130" style="stroke:none;fill:rgb(13,75,36);font-size:12.8px;font-family:'Roboto Medium',sans-serif">✫ Morning Star</text></svg>

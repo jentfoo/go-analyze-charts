@@ -1079,7 +1079,7 @@ func TestInterpolateColor(t *testing.T) {
 			color1:   ColorWhite.WithAlpha(0),
 			color2:   ColorWhite.WithAlpha(255),
 			factor:   0.5,
-			expected: ColorWhite.WithAlpha(127),
+			expected: ColorWhite.WithAlpha(128),
 		},
 	}
 

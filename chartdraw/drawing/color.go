@@ -1,7 +1,6 @@
 package drawing
 
 import (
-	"fmt"
 	"math"
 	"regexp"
 	"strconv"
@@ -110,7 +109,8 @@ func ParseColor(rawColor string) Color {
 
 var rgbReg = regexp.MustCompile(`\(([^)]+)\)`)
 
-// ColorFromRGBA returns a color from a `rgb(i,i,i)` or `rgba(i,i,i,f)` css function.
+// ColorFromRGBA returns a color from a `rgb(i,i,i)` or `rgba(i,i,i,f)` css function. Components
+// outside the valid range are clamped.
 func ColorFromRGBA(color string) Color {
 	var c Color
 
@@ -124,26 +124,35 @@ func ColorFromRGBA(color string) Color {
 		return c
 	}
 
-	rVal, _ := strconv.ParseInt(strings.TrimSpace(arr[0]), 10, 16)
-	c.R = uint8(rVal) // nolint:gosec // bitSize 16 bounds to 0-255
-	gVal, _ := strconv.ParseInt(strings.TrimSpace(arr[1]), 10, 16)
-	c.G = uint8(gVal) // nolint:gosec // bitSize 16 bounds to 0-255
-	bVal, _ := strconv.ParseInt(strings.TrimSpace(arr[2]), 10, 16)
-	c.B = uint8(bVal) // nolint:gosec // bitSize 16 bounds to 0-255
+	c.R = parseColorChannel(arr[0])
+	c.G = parseColorChannel(arr[1])
+	c.B = parseColorChannel(arr[2])
 	if len(arr) > 3 { // if an alpha channel is specified
 		aVal, _ := strconv.ParseFloat(strings.TrimSpace(arr[3]), 64)
-		if aVal < 0 {
-			aVal = 0
-		} else if aVal <= 1 {
+		if aVal <= 1 {
 			// correctly specified decimal, convert it to an integer scale
 			aVal *= 255
 		} // else, incorrectly specified value over 1, accept the value directly
-		c.A = uint8(aVal)
+		c.A = colorChannel(aVal)
 	} else {
 		c.A = 255 // default alpha channel to 255
 	}
 
 	return c
+}
+
+// parseColorChannel returns the 0-255 channel value for a css component string.
+func parseColorChannel(s string) uint8 {
+	v, _ := strconv.ParseInt(strings.TrimSpace(s), 10, 64)
+	return colorChannel(float64(v))
+}
+
+// colorChannel returns the nearest channel byte for a value on the 0-255 scale.
+func colorChannel(v float64) uint8 {
+	if math.IsNaN(v) {
+		return 0
+	}
+	return uint8(clamp(math.Round(v), 0, 255))
 }
 
 func parseHex(hex string) uint8 {
@@ -255,20 +264,28 @@ func ColorFromKnown(known string) Color {
 	}
 }
 
-// ColorFromAlphaMixedRGBA returns the system alpha mixed rgba values.
+// ColorFromAlphaMixedRGBA returns a Color for the premultiplied 16-bit values returned by the
+// standard library color.Color RGBA method.
 func ColorFromAlphaMixedRGBA(r, g, b, a uint32) Color {
-	fa := float64(a) / 255.0
-	return Color{
-		R: uint8(float64(r) / fa),
-		G: uint8(float64(g) / fa),
-		B: uint8(float64(b) / fa),
-		A: uint8(a | (a >> 8)), // nolint:gosec // alpha already normalized to uint8 range
+	if a == 0 {
+		return Color{}
 	}
+	return Color{
+		R: unmixColorChannel(r, a),
+		G: unmixColorChannel(g, a),
+		B: unmixColorChannel(b, a),
+		A: uint8(min(a>>8, 255)), // nolint:gosec // min bounds to the uint8 range
+	}
+}
+
+// unmixColorChannel returns the non-premultiplied 8-bit value for a premultiplied 16-bit channel.
+func unmixColorChannel(v, a uint32) uint8 {
+	return colorChannel(float64(v) * 255 / float64(a))
 }
 
 // ColorChannelFromFloat returns a normalized byte from a given float value.
 func ColorChannelFromFloat(v float64) uint8 {
-	return uint8(clamp(v, 0, 1) * 255)
+	return colorChannel(v * 255)
 }
 
 // Color is our internal color type because color.Color is bullshit.
@@ -276,15 +293,20 @@ type Color struct {
 	R, G, B, A uint8
 }
 
-// RGBA returns the color as a pre-alpha mixed color set.
+// RGBA returns the color as a pre-alpha mixed color set, matching image/color.NRGBA.
 func (c Color) RGBA() (r, g, b, a uint32) {
-	fa := float64(c.A) / 255.0
-	r = uint32(float64(c.R) * fa)
+	r = uint32(c.R)
 	r |= r << 8
-	g = uint32(float64(c.G) * fa)
+	r *= uint32(c.A)
+	r /= 0xff
+	g = uint32(c.G)
 	g |= g << 8
-	b = uint32(float64(c.B) * fa)
+	g *= uint32(c.A)
+	g /= 0xff
+	b = uint32(c.B)
 	b |= b << 8
+	b *= uint32(c.A)
+	b /= 0xff
 	a = uint32(c.A)
 	a |= a << 8
 	return
@@ -477,5 +499,15 @@ func (c Color) StringRGB() string {
 
 // StringRGBA returns a CSS RGBA string representation of the color.
 func (c Color) StringRGBA() string {
-	return fmt.Sprintf("rgba(%v,%v,%v,%.1f)", c.R, c.G, c.B, float64(c.A)/255.0)
+	return "rgba(" + strconv.Itoa(int(c.R)) + "," +
+		strconv.Itoa(int(c.G)) + "," +
+		strconv.Itoa(int(c.B)) + "," +
+		formatAlpha(c.A) + ")"
+}
+
+// formatAlpha returns the alpha byte as a CSS alpha fraction.
+func formatAlpha(a uint8) string {
+	s := strconv.FormatFloat(float64(a)/255.0, 'f', 3, 64)
+	s = strings.TrimRight(s, "0")
+	return strings.TrimSuffix(s, ".")
 }

@@ -125,7 +125,7 @@ A 4 4 0 0 1 246 285
 L 246 272
 L 246 272
 A 4 4 0 0 1 250 268
-Z" style="stroke-width:1.2;stroke:rgb(34,197,94);fill:rgba(255,255,255,0.7)"/><text x="250" y="285" style="stroke:none;fill:rgb(12,75,35);font-size:12.8px;font-family:'Roboto Medium',sans-serif">✫ Morning Star</text><path d="M 594 307
+Z" style="stroke-width:1.2;stroke:rgb(34,197,94);fill:rgba(255,255,255,0.706)"/><text x="250" y="285" style="stroke:none;fill:rgb(13,75,36);font-size:12.8px;font-family:'Roboto Medium',sans-serif">✫ Morning Star</text><path d="M 594 307
 L 676 307
 L 676 307
 A 4 4 0 0 1 680 311
@@ -138,4 +138,4 @@ A 4 4 0 0 1 590 324
 L 590 311
 L 590 311
 A 4 4 0 0 1 594 307
-Z" style="stroke-width:1.2;stroke:rgb(239,68,68);fill:rgba(255,255,255,0.7)"/><text x="594" y="324" style="stroke:none;fill:rgb(151,12,12);font-size:12.8px;font-family:'Roboto Medium',sans-serif">⁎ Evening Star</text></svg>
+Z" style="stroke-width:1.2;stroke:rgb(239,68,68);fill:rgba(255,255,255,0.706)"/><text x="594" y="324" style="stroke:none;fill:rgb(151,13,13);font-size:12.8px;font-family:'Roboto Medium',sans-serif">⁎ Evening Star</text></svg>

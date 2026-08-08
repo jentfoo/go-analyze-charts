@@ -477,7 +477,7 @@ func TestScatterChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x14a64221,
+			pngCRC: 0x4e1e5f11,
 		},
 		{
 			name: "with_conditional_labels",
@@ -545,7 +545,7 @@ func TestScatterChart(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x3ccb43d4,
+			pngCRC: 0xf7ae3c81,
 		},
 		{
 			name: "rsi",
@@ -557,7 +557,7 @@ func TestScatterChart(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x2d1bf6cb,
+			pngCRC: 0xd0c84d04,
 		},
 		{
 			name: "empty_series",

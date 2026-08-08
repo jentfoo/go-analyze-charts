@@ -250,7 +250,7 @@ func TestViolinChart(t *testing.T) {
 				)
 				return opt
 			},
-			pngCRC: 0x5fb61b23,
+			pngCRC: 0x6fcb5acd,
 		},
 		{
 			name: "mark_line_horizontal",
@@ -267,7 +267,7 @@ func TestViolinChart(t *testing.T) {
 				opt.SeriesList[0].MarkLine = NewMarkLine(SeriesMarkTypeAverage, SeriesMarkTypeMedian)
 				return opt
 			},
-			pngCRC: 0xb4e26ec0,
+			pngCRC: 0x89a10af,
 		},
 		{
 			name: "nil_data",
