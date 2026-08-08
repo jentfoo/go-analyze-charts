@@ -31,14 +31,14 @@ L 461 319
 L 461 146" style="stroke:none;fill:rgb(145,204,117)"/><path d="M 246 429
 L 284 429
 L 284 429
-A 4 4 90.00 0 1 288 433
+A 4 4 0 0 1 288 433
 L 288 446
 L 288 446
-A 4 4 90.00 0 1 284 450
+A 4 4 0 0 1 284 450
 L 246 450
 L 246 450
-A 4 4 90.00 0 1 242 446
+A 4 4 0 0 1 242 446
 L 242 433
 L 242 433
-A 4 4 90.00 0 1 246 429
+A 4 4 0 0 1 246 429
 Z" style="stroke-width:1.2;stroke:rgb(200,200,200);fill:rgba(255,255,255,0.7)"/><text x="246" y="446" style="stroke:none;fill:rgb(128,128,128);font-size:12.8px;font-family:'Roboto Medium',sans-serif">↔ Doji</text><text x="612" y="150" style="stroke:none;fill:rgb(70,70,70);font-size:12.8px;font-family:'Roboto Medium',sans-serif">User Label</text></svg>

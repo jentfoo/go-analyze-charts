@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/dustin/go-humanize"
@@ -579,6 +580,30 @@ func validatePieChartRender(t *testing.T, svgP, pngP *Painter, opt PieChartOptio
 	rasterData, err := pngP.Bytes()
 	require.NoError(t, err)
 	assertEqualPNGCRC(t, expectedCRC, rasterData)
+}
+
+func TestPieChartSingleSeries(t *testing.T) {
+	t.Parallel()
+
+	p := NewPainter(PainterOptions{OutputFormat: ChartOutputSVG, Width: 600, Height: 400})
+	require.NoError(t, p.PieChart(PieChartOption{SeriesList: NewSeriesListPie([]float64{100})}))
+	data, err := p.Bytes()
+	require.NoError(t, err)
+
+	// a full circle sweep must render as two arc segments, a single one has coincident endpoints
+	assert.Equal(t, 2, strings.Count(string(data), "A "))
+}
+
+func TestPieChartDominantSeries(t *testing.T) {
+	t.Parallel()
+
+	p := NewPainter(PainterOptions{OutputFormat: ChartOutputSVG, Width: 600, Height: 400})
+	require.NoError(t, p.PieChart(PieChartOption{SeriesList: NewSeriesListPie([]float64{1e9, 1})}))
+	data, err := p.Bytes()
+	require.NoError(t, err)
+
+	// the near-full sweep rounds to coincident endpoints, so it must also split into two segments
+	assert.Equal(t, 3, strings.Count(string(data), "A "))
 }
 
 func TestPieChartError(t *testing.T) {

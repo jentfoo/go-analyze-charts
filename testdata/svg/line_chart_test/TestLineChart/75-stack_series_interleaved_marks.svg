@@ -16,7 +16,7 @@ L 375 355" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><path d="M 
 L 544 355" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><text x="37" y="378" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">a</text><text x="205" y="378" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">b</text><text x="374" y="378" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">c</text><text x="535" y="378" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">d</text><path d="M 38 324
 L 206 45
 L 375 324
-L 544 45" style="stroke-width:2;stroke:rgb(84,112,198);fill:none"/><circle cx="38" cy="324" r="2" style="stroke-width:1;stroke:rgb(84,112,198);fill:white"/><circle cx="206" cy="45" r="2" style="stroke-width:1;stroke:rgb(84,112,198);fill:white"/><circle cx="375" cy="324" r="2" style="stroke-width:1;stroke:rgb(84,112,198);fill:white"/><circle cx="544" cy="45" r="2" style="stroke-width:1;stroke:rgb(84,112,198);fill:white"/><path d="M 38 300
+L 544 45" style="stroke-width:2;stroke:rgb(84,112,198);fill:none"/><circle cx="38" cy="324" r="2.4" style="stroke-width:1;stroke:rgb(84,112,198);fill:white"/><circle cx="206" cy="45" r="2.4" style="stroke-width:1;stroke:rgb(84,112,198);fill:white"/><circle cx="375" cy="324" r="2.4" style="stroke-width:1;stroke:rgb(84,112,198);fill:white"/><circle cx="544" cy="45" r="2.4" style="stroke-width:1;stroke:rgb(84,112,198);fill:white"/><path d="M 38 300
 L 206 244
 L 375 188
 L 544 132
@@ -25,7 +25,7 @@ L 38 355
 L 38 300" style="stroke:none;fill:rgba(145,204,117,0.8)"/><path d="M 38 300
 L 206 244
 L 375 188
-L 544 132" style="stroke-width:2;stroke:rgb(145,204,117);fill:none"/><circle cx="38" cy="300" r="2" style="stroke-width:1;stroke:rgb(145,204,117);fill:white"/><circle cx="206" cy="244" r="2" style="stroke-width:1;stroke:rgb(145,204,117);fill:white"/><circle cx="375" cy="188" r="2" style="stroke-width:1;stroke:rgb(145,204,117);fill:white"/><circle cx="544" cy="132" r="2" style="stroke-width:1;stroke:rgb(145,204,117);fill:white"/><path d="M 38 76
+L 544 132" style="stroke-width:2;stroke:rgb(145,204,117);fill:none"/><circle cx="38" cy="300" r="2.4" style="stroke-width:1;stroke:rgb(145,204,117);fill:white"/><circle cx="206" cy="244" r="2.4" style="stroke-width:1;stroke:rgb(145,204,117);fill:white"/><circle cx="375" cy="188" r="2.4" style="stroke-width:1;stroke:rgb(145,204,117);fill:white"/><circle cx="544" cy="132" r="2.4" style="stroke-width:1;stroke:rgb(145,204,117);fill:white"/><path d="M 38 76
 L 206 76
 L 375 76
 L 544 76
@@ -36,16 +36,16 @@ L 38 300
 L 38 76" style="stroke:none;fill:rgba(250,200,88,0.8)"/><path d="M 38 76
 L 206 76
 L 375 76
-L 544 76" style="stroke-width:2;stroke:rgb(250,200,88);fill:none"/><circle cx="38" cy="76" r="2" style="stroke-width:1;stroke:rgb(250,200,88);fill:white"/><circle cx="206" cy="76" r="2" style="stroke-width:1;stroke:rgb(250,200,88);fill:white"/><circle cx="375" cy="76" r="2" style="stroke-width:1;stroke:rgb(250,200,88);fill:white"/><circle cx="544" cy="76" r="2" style="stroke-width:1;stroke:rgb(250,200,88);fill:white"/><path d="M 38 45
+L 544 76" style="stroke-width:2;stroke:rgb(250,200,88);fill:none"/><circle cx="38" cy="76" r="2.4" style="stroke-width:1;stroke:rgb(250,200,88);fill:white"/><circle cx="206" cy="76" r="2.4" style="stroke-width:1;stroke:rgb(250,200,88);fill:white"/><circle cx="375" cy="76" r="2.4" style="stroke-width:1;stroke:rgb(250,200,88);fill:white"/><circle cx="544" cy="76" r="2.4" style="stroke-width:1;stroke:rgb(250,200,88);fill:white"/><path d="M 38 45
 L 206 324
 L 375 45
-L 544 324" style="stroke-width:2;stroke:rgb(238,102,102);fill:none"/><circle cx="38" cy="45" r="2" style="stroke-width:1;stroke:rgb(238,102,102);fill:white"/><circle cx="206" cy="324" r="2" style="stroke-width:1;stroke:rgb(238,102,102);fill:white"/><circle cx="375" cy="45" r="2" style="stroke-width:1;stroke:rgb(238,102,102);fill:white"/><circle cx="544" cy="324" r="2" style="stroke-width:1;stroke:rgb(238,102,102);fill:white"/><circle cx="41" cy="132" r="3" style="stroke-width:1;stroke:rgb(145,204,117);fill:rgb(145,204,117)"/><path stroke-dasharray="4.0, 2.0" d="M 47 132
-L 526 132" style="stroke-width:1;stroke:rgb(145,204,117);fill:rgb(145,204,117)"/><path stroke-dasharray="4.0, 2.0" d="M 526 127
+L 544 324" style="stroke-width:2;stroke:rgb(238,102,102);fill:none"/><circle cx="38" cy="45" r="2.4" style="stroke-width:1;stroke:rgb(238,102,102);fill:white"/><circle cx="206" cy="324" r="2.4" style="stroke-width:1;stroke:rgb(238,102,102);fill:white"/><circle cx="375" cy="45" r="2.4" style="stroke-width:1;stroke:rgb(238,102,102);fill:white"/><circle cx="544" cy="324" r="2.4" style="stroke-width:1;stroke:rgb(238,102,102);fill:white"/><circle cx="41" cy="132" r="3" style="stroke-width:1;stroke:rgb(145,204,117);fill:rgb(145,204,117)"/><path stroke-dasharray="4, 2" d="M 47 132
+L 526 132" style="stroke-width:1;stroke:rgb(145,204,117);fill:rgb(145,204,117)"/><path stroke-dasharray="4, 2" d="M 526 127
 L 542 132
 L 526 137
 L 531 132
-L 526 127" style="stroke-width:1;stroke:rgb(145,204,117);fill:rgb(145,204,117)"/><text x="544" y="136" style="stroke:none;fill:rgb(70,70,70);font-size:12.8px;font-family:'Roboto Medium',sans-serif">4</text><circle cx="41" cy="76" r="3" style="stroke-width:1;stroke:rgb(211,211,211);fill:rgb(211,211,211)"/><path stroke-dasharray="4.0, 2.0" d="M 47 76
-L 526 76" style="stroke-width:1;stroke:rgb(211,211,211);fill:rgb(211,211,211)"/><path stroke-dasharray="4.0, 2.0" d="M 526 71
+L 526 127" style="stroke-width:1;stroke:rgb(145,204,117);fill:rgb(145,204,117)"/><text x="544" y="136" style="stroke:none;fill:rgb(70,70,70);font-size:12.8px;font-family:'Roboto Medium',sans-serif">4</text><circle cx="41" cy="76" r="3" style="stroke-width:1;stroke:rgb(211,211,211);fill:rgb(211,211,211)"/><path stroke-dasharray="4, 2" d="M 47 76
+L 526 76" style="stroke-width:1;stroke:rgb(211,211,211);fill:rgb(211,211,211)"/><path stroke-dasharray="4, 2" d="M 526 71
 L 542 76
 L 526 81
 L 531 76

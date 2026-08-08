@@ -52,14 +52,14 @@ L 625 393
 L 625 343" style="stroke:none;fill:rgb(239,68,68)"/><path d="M 520 330
 L 615 330
 L 615 330
-A 4 4 90.00 0 1 619 334
+A 4 4 0 0 1 619 334
 L 619 347
 L 619 347
-A 4 4 90.00 0 1 615 351
+A 4 4 0 0 1 615 351
 L 520 351
 L 520 351
-A 4 4 90.00 0 1 516 347
+A 4 4 0 0 1 516 347
 L 516 334
 L 516 334
-A 4 4 90.00 0 1 520 330
+A 4 4 0 0 1 520 330
 Z" style="stroke-width:1.2;stroke:rgb(239,68,68);fill:rgba(255,255,255,0.7)"/><text x="520" y="347" style="stroke:none;fill:rgb(151,12,12);font-size:12.8px;font-family:'Roboto Medium',sans-serif">V Bear Engulfing</text></svg>

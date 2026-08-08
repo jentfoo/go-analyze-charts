@@ -3,6 +3,7 @@ package charts
 import (
 	"math"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -315,6 +316,18 @@ func validateDoughnutChartRender(t *testing.T, svgP, pngP *Painter, opt Doughnut
 	rasterData, err := pngP.Bytes()
 	require.NoError(t, err)
 	assertEqualPNGCRC(t, expectedCRC, rasterData)
+}
+
+func TestDoughnutChartSingleSeries(t *testing.T) {
+	t.Parallel()
+
+	p := NewPainter(PainterOptions{OutputFormat: ChartOutputSVG, Width: 600, Height: 400})
+	require.NoError(t, p.DoughnutChart(DoughnutChartOption{SeriesList: NewSeriesListDoughnut([]float64{100})}))
+	data, err := p.Bytes()
+	require.NoError(t, err)
+
+	// a full circle sweep must render as two arc segments, a single one has coincident endpoints
+	assert.Equal(t, 2, strings.Count(string(data), "A "))
 }
 
 func TestDoughnutChartError(t *testing.T) {

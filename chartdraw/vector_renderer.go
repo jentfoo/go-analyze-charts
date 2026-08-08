@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -15,6 +16,14 @@ import (
 
 	"github.com/go-analyze/charts/chartdraw/drawing"
 )
+
+// svgPrecision is the decimal precision used for geometry and stroke values. Sub-pixel accuracy
+// matters because SVG derives the arc center from the endpoints and radii.
+const svgPrecision = 2
+
+// arcSplitGap is the sweep left uncovered below which an arc is emitted as two segments. Shorter
+// remainders serialize to a chord too short to fix the arc center against svgPrecision rounding.
+const arcSplitGap = 0.02
 
 // escapes XML-special chars in SVG text content
 var svgTextEscaper = strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;")
@@ -239,31 +248,52 @@ func (vr *vectorRenderer) QuadCurveTo(cx, cy, x, y int) {
 	vr.p = append(vr.p, "Q"+strconv.Itoa(cx)+","+strconv.Itoa(cy)+" "+strconv.Itoa(x)+","+strconv.Itoa(y))
 }
 
+// ArcTo appends an elliptical arc to the current path (for PathBuilder interface).
+// A negative delta sweeps counter-clockwise, and the sweep is limited to a single revolution.
+// Parameters which are not finite leave the path unchanged.
 func (vr *vectorRenderer) ArcTo(cx, cy int, rx, ry, startAngle, delta float64) {
-	startAngle = RadianAdd(startAngle, _pi2)
-	endAngle := RadianAdd(startAngle, delta)
-
-	startx := cx + int(math.Round(rx*math.Sin(startAngle)))
-	starty := cy - int(math.Round(ry*math.Cos(startAngle)))
-
-	if len(vr.p) > 0 {
-		vr.LineTo(startx, starty)
-	} else {
-		vr.MoveTo(startx, starty)
+	if hasNonFinite(rx, ry, startAngle, delta) {
+		return // checked before the clamp, which would fold ±Inf into a full revolution
 	}
+	delta = min(max(delta, -_2pi), _2pi)
+	cxf, cyf := float64(cx), float64(cy)
 
-	endx := cx + int(math.Round(rx*math.Sin(endAngle)))
-	endy := cy - int(math.Round(ry*math.Cos(endAngle)))
+	startX := formatFloatMinimized(cxf+rx*math.Cos(startAngle), svgPrecision)
+	startY := formatFloatMinimized(cyf+ry*math.Sin(startAngle), svgPrecision)
+	endX := formatFloatMinimized(cxf+rx*math.Cos(startAngle+delta), svgPrecision)
+	endY := formatFloatMinimized(cyf+ry*math.Sin(startAngle+delta), svgPrecision)
 
-	dd := RadiansToDegrees(delta)
+	startCmd := "M "
+	if len(vr.p) > 0 {
+		startCmd = "L "
+	}
+	vr.p = append(vr.p, startCmd+startX+" "+startY)
 
-	largeArcFlag := 0
-	if delta > _pi {
+	absDelta := math.Abs(delta)
+	segments := 1
+	// a near-full sweep leaves the arc center ill-conditioned, and coincident serialized
+	// endpoints are omitted by SVG entirely
+	if _2pi-absDelta < arcSplitGap || (absDelta > _pi && startX == endX && startY == endY) {
+		segments = 2
+	}
+	segDelta := delta / float64(segments)
+
+	var sweepFlag int
+	if delta > 0 {
+		sweepFlag = 1 // sweep towards increasing angle, clockwise on screen
+	}
+	var largeArcFlag int
+	if absDelta/float64(segments) > _pi {
 		largeArcFlag = 1
 	}
 
-	vr.p = append(vr.p, fmt.Sprintf("A %d %d %0.2f %d 1 %d %d",
-		int(math.Round(rx)), int(math.Round(ry)), dd, largeArcFlag, endx, endy))
+	rxStr, ryStr := formatFloatMinimized(rx, svgPrecision), formatFloatMinimized(ry, svgPrecision)
+	for i := 1; i <= segments; i++ {
+		angle := startAngle + segDelta*float64(i)
+		vr.p = append(vr.p, fmt.Sprintf("A %s %s 0 %d %d %s %s", rxStr, ryStr, largeArcFlag, sweepFlag,
+			formatFloatMinimized(cxf+rx*math.Cos(angle), svgPrecision),
+			formatFloatMinimized(cyf+ry*math.Sin(angle), svgPrecision)))
+	}
 }
 
 // Close closes a shape.
@@ -294,7 +324,7 @@ func (vr *vectorRenderer) drawPath() {
 
 // Circle draws a circle with the current style (for PathBuilder interface).
 func (vr *vectorRenderer) Circle(radius float64, x, y int) {
-	vr.c.Circle(x, y, int(math.Round(radius)), vr.s.GetFillAndStrokeOptions())
+	vr.c.Circle(x, y, radius, vr.s.GetFillAndStrokeOptions())
 }
 
 // SetFont specifies the font used for text operations (for Renderer interface).
@@ -408,7 +438,7 @@ func (c *canvas) Path(parts []string, style Style) {
 			if i > 0 {
 				bb.WriteString(", ")
 			}
-			_, _ = fmt.Fprintf(bb, "%0.1f", v)
+			bb.WriteString(formatFloatMinimized(v, svgPrecision))
 		}
 		bb.WriteString("\"")
 	}
@@ -449,7 +479,7 @@ func (c *canvas) Text(x, y int, body string, style Style) {
 	_, _ = c.w.Write(bb.Bytes())
 }
 
-func (c *canvas) Circle(x, y, r int, style Style) {
+func (c *canvas) Circle(x, y int, r float64, style Style) {
 	bb := c.bb
 	defer c.bb.Reset()
 
@@ -458,7 +488,7 @@ func (c *canvas) Circle(x, y, r int, style Style) {
 	bb.WriteString(`" cy="`)
 	bb.WriteString(strconv.Itoa(y))
 	bb.WriteString(`" r="`)
-	bb.WriteString(strconv.Itoa(r))
+	bb.WriteString(formatFloatMinimized(r, svgPrecision))
 	bb.WriteString(`" `)
 	styleAsSVG(bb, style, c.dpi, true)
 	bb.WriteString(`/>`)
@@ -468,6 +498,16 @@ func (c *canvas) Circle(x, y, r int, style Style) {
 
 func (c *canvas) End() {
 	_, _ = c.w.Write([]byte("</svg>"))
+}
+
+// nonFinite reports whether v is NaN or infinite.
+func nonFinite(v float64) bool {
+	return math.IsNaN(v) || math.IsInf(v, 0)
+}
+
+// hasNonFinite reports whether any value is NaN or infinite.
+func hasNonFinite(vals ...float64) bool {
+	return slices.ContainsFunc(vals, nonFinite)
 }
 
 // styleAsSVG returns the style as a svg style or class string.
@@ -499,7 +539,7 @@ func styleAsSVG(bb *bytes.Buffer, s Style, dpi float64, applyText bool) {
 
 	if sw != 0 && !sc.IsTransparent() {
 		bb.WriteString("stroke-width:")
-		bb.WriteString(formatFloatMinimized(sw))
+		bb.WriteString(formatFloatMinimized(sw, svgPrecision))
 		bb.WriteString(";stroke:")
 		bb.WriteString(sc.String())
 	} else {
@@ -519,7 +559,7 @@ func styleAsSVG(bb *bytes.Buffer, s Style, dpi float64, applyText bool) {
 	if applyText {
 		if fs != 0 {
 			bb.WriteString(";font-size:")
-			bb.WriteString(formatFloatMinimized(drawing.PointsToPixels(dpi, fs)))
+			bb.WriteString(formatFloatMinimized(drawing.PointsToPixels(dpi, fs), 1))
 			bb.WriteString("px")
 		}
 		if f != nil {
@@ -536,12 +576,19 @@ func styleAsSVG(bb *bytes.Buffer, s Style, dpi float64, applyText bool) {
 	bb.WriteRune('"')
 }
 
-// formatFloatMinimized formats a float without trailing zeros, so it is as small as possible.
-func formatFloatMinimized(val float64) string {
-	if val == float64(int(val)) {
-		return strconv.Itoa(int(val))
+// formatFloatMinimized formats a float to at most precision decimal places, trimming trailing
+// zeros so the result is as short as possible.
+func formatFloatMinimized(val float64, precision int) string {
+	if nonFinite(val) {
+		return "0" // non-finite values would serialize as invalid attribute text
 	}
-	str := strconv.FormatFloat(val, 'f', 1, 64) // e.g. "1.20"
-	str = strings.TrimRight(str, "0")           // e.g. "1.2"
-	return strings.TrimRight(str, ".")          // finally, handle a rounding condition where an int is acceptable
+	str := strconv.FormatFloat(val, 'f', precision, 64)
+	if precision > 0 {
+		str = strings.TrimRight(str, "0") // e.g. "1.20" -> "1.2", "20.00" -> "20."
+		str = strings.TrimRight(str, ".")
+	}
+	if str == "-0" {
+		return "0" // trig residue near zero must not serialize as negative zero
+	}
+	return str
 }

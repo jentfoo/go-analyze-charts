@@ -58,14 +58,14 @@ L 656 306
 L 656 288" style="stroke:none;fill:rgb(34,197,94)"/><path d="M 571 293
 L 653 293
 L 653 293
-A 4 4 90.00 0 1 657 297
+A 4 4 0 0 1 657 297
 L 657 310
 L 657 310
-A 4 4 90.00 0 1 653 314
+A 4 4 0 0 1 653 314
 L 571 314
 L 571 314
-A 4 4 90.00 0 1 567 310
+A 4 4 0 0 1 567 310
 L 567 297
 L 567 297
-A 4 4 90.00 0 1 571 293
+A 4 4 0 0 1 571 293
 Z" style="stroke-width:1.2;stroke:rgb(239,68,68);fill:rgba(255,255,255,0.7)"/><text x="571" y="310" style="stroke:none;fill:rgb(151,12,12);font-size:12.8px;font-family:'Roboto Medium',sans-serif">⁎ Evening Star</text></svg>

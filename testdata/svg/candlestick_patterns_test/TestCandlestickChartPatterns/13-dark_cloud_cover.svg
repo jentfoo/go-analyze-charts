@@ -50,14 +50,14 @@ L 623 149
 L 623 135" style="stroke:none;fill:rgb(239,68,68)"/><path d="M 516 122
 L 590 122
 L 590 122
-A 4 4 90.00 0 1 594 126
+A 4 4 0 0 1 594 126
 L 594 139
 L 594 139
-A 4 4 90.00 0 1 590 143
+A 4 4 0 0 1 590 143
 L 516 143
 L 516 143
-A 4 4 90.00 0 1 512 139
+A 4 4 0 0 1 512 139
 L 512 126
 L 512 126
-A 4 4 90.00 0 1 516 122
+A 4 4 0 0 1 516 122
 Z" style="stroke-width:1.2;stroke:rgb(239,68,68);fill:rgba(255,255,255,0.7)"/><text x="516" y="139" style="stroke:none;fill:rgb(151,12,12);font-size:12.8px;font-family:'Roboto Medium',sans-serif">Ξ Dark Cloud</text></svg>

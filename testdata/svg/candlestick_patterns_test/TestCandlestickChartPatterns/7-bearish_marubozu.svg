@@ -39,14 +39,14 @@ L 567 407
 L 567 375" style="stroke:none;fill:rgb(34,197,94)"/><path d="M 423 394
 L 525 394
 L 525 394
-A 4 4 90.00 0 1 529 398
+A 4 4 0 0 1 529 398
 L 529 411
 L 529 411
-A 4 4 90.00 0 1 525 415
+A 4 4 0 0 1 525 415
 L 423 415
 L 423 415
-A 4 4 90.00 0 1 419 411
+A 4 4 0 0 1 419 411
 L 419 398
 L 419 398
-A 4 4 90.00 0 1 423 394
+A 4 4 0 0 1 423 394
 Z" style="stroke-width:1.2;stroke:rgb(239,68,68);fill:rgba(255,255,255,0.7)"/><text x="423" y="411" style="stroke:none;fill:rgb(151,12,12);font-size:12.8px;font-family:'Roboto Medium',sans-serif">▼ Bear Marubozu</text></svg>

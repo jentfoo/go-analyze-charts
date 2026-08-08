@@ -9,16 +9,16 @@ L 60 78
 L 0 0" style="stroke:none;fill:rgb(84,112,198)"/><path d="M 279 17
 L 322 17
 L 322 17
-A 5 5 90.00 0 1 327 22
+A 5 5 0 0 1 327 22
 L 327 38
 L 327 38
-A 5 5 90.00 0 1 322 43
+A 5 5 0 0 1 322 43
 L 279 43
 L 279 43
-A 5 5 90.00 0 1 274 38
+A 5 5 0 0 1 274 38
 L 274 22
 L 274 22
-A 5 5 90.00 0 1 279 17
+A 5 5 0 0 1 279 17
 Z" style="stroke:none;fill:red"/><text x="278" y="39" style="stroke:none;fill:white;font-size:17.9px;font-family:'Roboto Medium',sans-serif">Show</text><path d="M 60 80
 L 540 80
 L 480 158
@@ -26,16 +26,16 @@ L 120 158
 L 60 80" style="stroke:none;fill:rgb(145,204,117)"/><path d="M 276 94
 L 324 94
 L 324 94
-A 3 3 90.00 0 1 327 97
+A 3 3 0 0 1 327 97
 L 327 120
 L 327 120
-A 3 3 90.00 0 1 324 123
+A 3 3 0 0 1 324 123
 L 276 123
 L 276 123
-A 3 3 90.00 0 1 273 120
+A 3 3 0 0 1 273 120
 L 273 97
 L 273 97
-A 3 3 90.00 0 1 276 94
+A 3 3 0 0 1 276 94
 Z" style="stroke-width:2;stroke:purple;fill:blue"/><text x="277" y="119" style="stroke:none;fill:white;font-size:20.4px;font-family:'Roboto Medium',sans-serif">Click</text><path d="M 120 160
 L 480 160
 L 420 238

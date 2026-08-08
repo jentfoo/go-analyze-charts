@@ -40,14 +40,14 @@ L 567 257
 L 567 165" style="stroke:none;fill:rgb(34,197,94)"/><path d="M 423 244
 L 461 244
 L 461 244
-A 4 4 90.00 0 1 465 248
+A 4 4 0 0 1 465 248
 L 465 261
 L 465 261
-A 4 4 90.00 0 1 461 265
+A 4 4 0 0 1 461 265
 L 423 265
 L 423 265
-A 4 4 90.00 0 1 419 261
+A 4 4 0 0 1 419 261
 L 419 248
 L 419 248
-A 4 4 90.00 0 1 423 244
+A 4 4 0 0 1 423 244
 Z" style="stroke-width:1.2;stroke:rgb(200,200,200);fill:rgba(255,255,255,0.7)"/><text x="423" y="261" style="stroke:none;fill:rgb(128,128,128);font-size:12.8px;font-family:'Roboto Medium',sans-serif">↔ Doji</text></svg>

@@ -19,53 +19,53 @@ L 454 365" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><path d="M 
 L 590 365" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><text x="45" y="388" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">A</text><text x="181" y="388" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">B</text><text x="317" y="388" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">C</text><text x="453" y="388" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">D</text><text x="581" y="388" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">E</text><circle cx="46" cy="365" r="2" style="stroke-width:1;stroke:rgb(84,112,198);fill:rgb(84,112,198)"/><circle cx="182" cy="144" r="2" style="stroke-width:1;stroke:rgb(84,112,198);fill:rgb(84,112,198)"/><circle cx="318" cy="255" r="2" style="stroke-width:1;stroke:rgb(84,112,198);fill:rgb(84,112,198)"/><circle cx="454" cy="33" r="2" style="stroke-width:1;stroke:rgb(84,112,198);fill:rgb(84,112,198)"/><circle cx="590" cy="88" r="2" style="stroke-width:1;stroke:rgb(84,112,198);fill:rgb(84,112,198)"/><circle cx="46" cy="310" r="2" style="stroke-width:1;stroke:rgb(145,204,117);fill:rgb(145,204,117)"/><circle cx="182" cy="199" r="2" style="stroke-width:1;stroke:rgb(145,204,117);fill:rgb(145,204,117)"/><circle cx="318" cy="277" r="2" style="stroke-width:1;stroke:rgb(145,204,117);fill:rgb(145,204,117)"/><circle cx="454" cy="121" r="2" style="stroke-width:1;stroke:rgb(145,204,117);fill:rgb(145,204,117)"/><circle cx="590" cy="166" r="2" style="stroke-width:1;stroke:rgb(145,204,117);fill:rgb(145,204,117)"/><path d="M 187 130
 L 233 130
 L 233 130
-A 4 4 90.00 0 1 237 134
+A 4 4 0 0 1 237 134
 L 237 150
 L 237 150
-A 4 4 90.00 0 1 233 154
+A 4 4 0 0 1 233 154
 L 187 154
 L 187 154
-A 4 4 90.00 0 1 183 150
+A 4 4 0 0 1 183 150
 L 183 134
 L 183 134
-A 4 4 90.00 0 1 187 130
+A 4 4 0 0 1 187 130
 Z" style="stroke:none;fill:silver"/><text x="187" y="150" style="stroke:none;fill:black;font-size:15.3px;font-family:'Roboto Medium',sans-serif">📊 150</text><path d="M 461 18
 L 506 18
 L 506 18
-A 6 6 90.00 0 1 512 24
+A 6 6 0 0 1 512 24
 L 512 38
 L 512 38
-A 6 6 90.00 0 1 506 44
+A 6 6 0 0 1 506 44
 L 461 44
 L 461 44
-A 6 6 90.00 0 1 455 38
+A 6 6 0 0 1 455 38
 L 455 24
 L 455 24
-A 6 6 90.00 0 1 461 18
+A 6 6 0 0 1 461 18
 Z" style="stroke:none;fill:rgb(255,215,0)"/><text x="459" y="40" style="stroke:none;fill:black;font-size:17.9px;font-family:'Roboto Medium',sans-serif">⭐ 200</text><path d="M 554 74
 L 600 74
 L 600 74
-A 4 4 90.00 0 1 604 78
+A 4 4 0 0 1 604 78
 L 604 94
 L 604 94
-A 4 4 90.00 0 1 600 98
+A 4 4 0 0 1 600 98
 L 554 98
 L 554 98
-A 4 4 90.00 0 1 550 94
+A 4 4 0 0 1 550 94
 L 550 78
 L 550 78
-A 4 4 90.00 0 1 554 74
+A 4 4 0 0 1 554 74
 Z" style="stroke:none;fill:silver"/><text x="554" y="94" style="stroke:none;fill:black;font-size:15.3px;font-family:'Roboto Medium',sans-serif">📊 175</text><text x="187" y="203" style="stroke:none;fill:blue;font-size:12.8px;font-family:'Roboto Medium',sans-serif">125</text><path d="M 459 107
 L 505 107
 L 505 107
-A 4 4 90.00 0 1 509 111
+A 4 4 0 0 1 509 111
 L 509 127
 L 509 127
-A 4 4 90.00 0 1 505 131
+A 4 4 0 0 1 505 131
 L 459 131
 L 459 131
-A 4 4 90.00 0 1 455 127
+A 4 4 0 0 1 455 127
 L 455 111
 L 455 111
-A 4 4 90.00 0 1 459 107
+A 4 4 0 0 1 459 107
 Z" style="stroke:none;fill:silver"/><text x="459" y="127" style="stroke:none;fill:black;font-size:15.3px;font-family:'Roboto Medium',sans-serif">📊 160</text><text x="578" y="170" style="stroke:none;fill:blue;font-size:12.8px;font-family:'Roboto Medium',sans-serif">140</text></svg>

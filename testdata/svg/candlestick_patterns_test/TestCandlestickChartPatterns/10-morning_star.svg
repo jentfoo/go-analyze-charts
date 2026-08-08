@@ -60,14 +60,14 @@ L 656 121
 L 656 80" style="stroke:none;fill:rgb(34,197,94)"/><path d="M 571 108
 L 661 108
 L 661 108
-A 4 4 90.00 0 1 665 112
+A 4 4 0 0 1 665 112
 L 665 125
 L 665 125
-A 4 4 90.00 0 1 661 129
+A 4 4 0 0 1 661 129
 L 571 129
 L 571 129
-A 4 4 90.00 0 1 567 125
+A 4 4 0 0 1 567 125
 L 567 112
 L 567 112
-A 4 4 90.00 0 1 571 108
+A 4 4 0 0 1 571 108
 Z" style="stroke-width:1.2;stroke:rgb(34,197,94);fill:rgba(255,255,255,0.7)"/><text x="571" y="125" style="stroke:none;fill:rgb(12,75,35);font-size:12.8px;font-family:'Roboto Medium',sans-serif">✫ Morning Star</text></svg>

@@ -11,15 +11,15 @@ L 343 43
 L 343 56
 L 313 56
 L 313 43" style="stroke:none;fill:rgb(145,204,117)"/><text x="345" y="55" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">Free</text><path d="M 300 225
-L 300 101
-A 124 124 230.40 1 1 205 304
+L 300 101.4
+A 123.6 123.6 0 1 1 204.76 303.79
 L 300 225
 Z" style="stroke:none;fill:rgb(84,112,198)"/><path d="M 411 277
 L 425 284
 M 425 284
 L 440 284" style="stroke-width:1;stroke:rgb(84,112,198);fill:none"/><text x="443" y="289" style="stroke:none;fill:rgb(70,70,70);font-size:12.8px;font-family:'Roboto Medium',sans-serif">Used: 64%</text><path d="M 300 225
-L 205 304
-A 124 124 129.60 0 1 300 101
+L 204.76 303.79
+A 123.6 123.6 0 0 1 300 101.4
 L 300 225
 Z" style="stroke:none;fill:rgb(145,204,117)"/><path d="M 189 173
 L 175 166

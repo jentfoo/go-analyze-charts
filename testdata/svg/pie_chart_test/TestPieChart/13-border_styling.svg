@@ -4,7 +4,7 @@ L 580 380
 L 20 380
 L 20 20" style="stroke:none;fill:white"/><path d="M 300 200
 L 300 72
-A 128 128 80.00 0 1 426 178
+A 128 128 0 0 1 426.06 177.77
 L 300 200
 Z" style="stroke:none;fill:rgb(84,112,198)"/><path d="M 382 102
 L 391 91
@@ -12,19 +12,19 @@ M 391 91
 L 406 91" style="stroke-width:1;stroke:rgb(84,112,198);fill:none"/><path d="M 410 79
 L 476 79
 L 476 79
-A 5 5 90.00 0 1 481 84
+A 5 5 0 0 1 481 84
 L 481 95
 L 481 95
-A 5 5 90.00 0 1 476 100
+A 5 5 0 0 1 476 100
 L 410 100
 L 410 100
-A 5 5 90.00 0 1 405 95
+A 5 5 0 0 1 405 95
 L 405 84
 L 405 84
-A 5 5 90.00 0 1 410 79
+A 5 5 0 0 1 410 79
 Z" style="stroke-width:2;stroke:red;fill:blue"/><text x="409" y="96" style="stroke:none;fill:rgb(70,70,70);font-size:12.8px;font-family:'Roboto Medium',sans-serif">background</text><path d="M 300 200
-L 426 178
-A 128 128 160.00 0 1 189 264
+L 426.06 177.77
+A 128 128 0 0 1 189.15 264
 L 300 200
 Z" style="stroke:none;fill:rgb(145,204,117)"/><path d="M 343 320
 L 348 334
@@ -34,8 +34,8 @@ L 437 322
 L 437 343
 L 362 343
 L 362 322" style="stroke-width:1.5;stroke:green;fill:none"/><text x="366" y="339" style="stroke:none;fill:rgb(70,70,70);font-size:12.8px;font-family:'Roboto Medium',sans-serif">transparent</text><path d="M 300 200
-L 189 264
-A 128 128 120.00 0 1 300 72
+L 189.15 264
+A 128 128 0 0 1 300 72
 L 300 200
 Z" style="stroke:none;fill:rgb(250,200,88)"/><path d="M 190 137
 L 177 75

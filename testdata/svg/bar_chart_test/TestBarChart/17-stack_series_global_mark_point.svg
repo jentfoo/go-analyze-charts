@@ -108,13 +108,13 @@ L 450 280" style="stroke:none;fill:rgb(250,200,88)"/><path d="M 520 273
 L 570 273
 L 570 350
 L 520 350
-L 520 273" style="stroke:none;fill:rgb(250,200,88)"/><path d="M 541 266
-A 14 14 330.00 1 1 549 266
+L 520 273" style="stroke:none;fill:rgb(250,200,88)"/><path d="M 541.38 265.52
+A 14 14 0 1 1 548.62 265.52
 L 545 252
 Z" style="stroke:none;fill:rgb(250,200,88)"/><path d="M 531 252
 Q545,287 559,252
-Z" style="stroke:none;fill:rgb(250,200,88)"/><text x="538" y="257" style="stroke:none;fill:rgb(70,70,70);font-size:12.8px;font-family:'Roboto Medium',sans-serif">80</text><path d="M 331 73
-A 14 14 330.00 1 1 339 73
+Z" style="stroke:none;fill:rgb(250,200,88)"/><text x="538" y="257" style="stroke:none;fill:rgb(70,70,70);font-size:12.8px;font-family:'Roboto Medium',sans-serif">80</text><path d="M 331.38 72.52
+A 14 14 0 1 1 338.62 72.52
 L 335 59
 Z" style="stroke:none;fill:rgb(211,211,211)"/><path d="M 321 59
 Q335,94 349,59

@@ -73,40 +73,40 @@ L 706 253
 L 706 190" style="stroke:none;fill:rgb(34,197,94)"/><path d="M 283 314
 L 385 314
 L 385 314
-A 4 4 90.00 0 1 389 318
+A 4 4 0 0 1 389 318
 L 389 331
 L 389 331
-A 4 4 90.00 0 1 385 335
+A 4 4 0 0 1 385 335
 L 283 335
 L 283 335
-A 4 4 90.00 0 1 279 331
+A 4 4 0 0 1 279 331
 L 279 318
 L 279 318
-A 4 4 90.00 0 1 283 314
+A 4 4 0 0 1 283 314
 Z" style="stroke-width:1.2;stroke:rgb(239,68,68);fill:rgba(255,255,255,0.7)"/><text x="283" y="331" style="stroke:none;fill:rgb(151,12,12);font-size:12.8px;font-family:'Roboto Medium',sans-serif">▼ Bear Marubozu</text><path d="M 469 50
 L 567 50
 L 567 50
-A 4 4 90.00 0 1 571 54
+A 4 4 0 0 1 571 54
 L 571 67
 L 571 67
-A 4 4 90.00 0 1 567 71
+A 4 4 0 0 1 567 71
 L 469 71
 L 469 71
-A 4 4 90.00 0 1 465 67
+A 4 4 0 0 1 465 67
 L 465 54
 L 465 54
-A 4 4 90.00 0 1 469 50
+A 4 4 0 0 1 469 50
 Z" style="stroke-width:1.2;stroke:rgb(34,197,94);fill:rgba(255,255,255,0.7)"/><text x="469" y="67" style="stroke:none;fill:rgb(12,75,35);font-size:12.8px;font-family:'Roboto Medium',sans-serif">▲ Bull Marubozu</text><path d="M 562 314
 L 664 314
 L 664 314
-A 4 4 90.00 0 1 668 318
+A 4 4 0 0 1 668 318
 L 668 331
 L 668 331
-A 4 4 90.00 0 1 664 335
+A 4 4 0 0 1 664 335
 L 562 335
 L 562 335
-A 4 4 90.00 0 1 558 331
+A 4 4 0 0 1 558 331
 L 558 318
 L 558 318
-A 4 4 90.00 0 1 562 314
+A 4 4 0 0 1 562 314
 Z" style="stroke-width:1.2;stroke:rgb(239,68,68);fill:rgba(255,255,255,0.7)"/><text x="562" y="331" style="stroke:none;fill:rgb(151,12,12);font-size:12.8px;font-family:'Roboto Medium',sans-serif">▼ Bear Marubozu</text></svg>

@@ -50,14 +50,14 @@ L 623 185
 L 623 121" style="stroke:none;fill:rgb(34,197,94)"/><path d="M 516 172
 L 607 172
 L 607 172
-A 4 4 90.00 0 1 611 176
+A 4 4 0 0 1 611 176
 L 611 189
 L 611 189
-A 4 4 90.00 0 1 607 193
+A 4 4 0 0 1 607 193
 L 516 193
 L 516 193
-A 4 4 90.00 0 1 512 189
+A 4 4 0 0 1 512 189
 L 512 176
 L 512 176
-A 4 4 90.00 0 1 516 172
+A 4 4 0 0 1 516 172
 Z" style="stroke-width:1.2;stroke:rgb(34,197,94);fill:rgba(255,255,255,0.7)"/><text x="516" y="189" style="stroke:none;fill:rgb(12,75,35);font-size:12.8px;font-family:'Roboto Medium',sans-serif">Λ Bull Engulfing</text></svg>
