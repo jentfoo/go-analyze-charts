@@ -28,7 +28,7 @@ const arcSplitGap = 0.02
 // escapes XML-special chars in SVG text content
 var svgTextEscaper = strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;")
 
-// SVG returns a new png/raster renderer.
+// SVG returns a new svg vector renderer.
 func SVG(width, height int) Renderer {
 	buffer := bytes.NewBuffer([]byte{})
 	canvas := newCanvas(buffer)
@@ -41,7 +41,7 @@ func SVG(width, height int) Renderer {
 	}
 }
 
-// SVGWithCSS returns a new png/raster renderer with attached custom CSS
+// SVGWithCSS returns a svg vector renderer constructor with the attached custom CSS.
 // The optional nonce argument sets a CSP nonce.
 func SVGWithCSS(css string, nonce string) func(width, height int) Renderer {
 	return func(width, height int) Renderer {
