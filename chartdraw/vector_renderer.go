@@ -8,6 +8,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 
 	"golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
@@ -27,6 +28,63 @@ const arcSplitGap = 0.02
 
 // escapes XML-special chars in SVG text content
 var svgTextEscaper = strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;")
+
+// escapes XML-special chars in SVG attribute values
+var svgAttrEscaper = strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", `"`, "&quot;")
+
+// reports runes XML 1.0 forbids in character data
+func invalidXMLChar(r rune) bool {
+	switch r {
+	case '\t', '\n', '\r':
+		return false
+	case 0xFFFE, 0xFFFF:
+		return true
+	default:
+		return r < 0x20
+	}
+}
+
+// reports chars which could terminate the quoted CSS font name or its attribute
+func unsafeFontFamilyChar(r rune) bool {
+	switch r {
+	case '\'', '"', '\\', ';', '<', '>', '&', '\t', '\n', '\r':
+		return true
+	default:
+		return invalidXMLChar(r)
+	}
+}
+
+// stripRunes returns s without the runes matching drop, replacing invalid UTF-8 with U+FFFD.
+func stripRunes(s string, drop func(rune) bool) string {
+	if utf8.ValidString(s) && !strings.ContainsFunc(s, drop) {
+		return s
+	}
+	var sb strings.Builder
+	sb.Grow(len(s))
+	for _, r := range s { // range decoding yields RuneError for invalid bytes
+		if !drop(r) {
+			sb.WriteRune(r)
+		}
+	}
+	return sb.String()
+}
+
+// stripInvalidXMLChars returns s with characters XML 1.0 forbids removed.
+func stripInvalidXMLChars(s string) string {
+	return stripRunes(s, invalidXMLChar)
+}
+
+// sanitizeFontFamily returns name reduced to characters safe inside a quoted CSS font name,
+// which may be empty if nothing usable remains.
+func sanitizeFontFamily(name string) string {
+	return stripRunes(name, unsafeFontFamilyChar)
+}
+
+// escapeCDATA returns css safe to embed in a CDATA section.
+func escapeCDATA(css string) string {
+	// split any "]]>" so it can not terminate the section early
+	return strings.ReplaceAll(stripInvalidXMLChars(css), "]]>", "]]]]><![CDATA[>")
+}
 
 // SVG returns a new svg vector renderer.
 func SVG(width, height int) Renderer {
@@ -414,10 +472,12 @@ func (c *canvas) Start(width, height int) {
 		_, _ = c.w.Write([]byte(`<style type="text/css"`))
 		if c.nonce != "" {
 			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
-			_, _ = c.w.Write([]byte(` nonce="` + c.nonce + `"`))
+			_, _ = c.w.Write([]byte(` nonce="`))
+			_, _ = svgAttrEscaper.WriteString(c.w, stripInvalidXMLChars(c.nonce))
+			_, _ = c.w.Write([]byte(`"`))
 		}
 		// To avoid compatibility issues between XML and CSS (f.e. with child selectors) we should encapsulate the CSS with CDATA.
-		_, _ = c.w.Write([]byte(`><![CDATA[` + c.css + `]]></style>`))
+		_, _ = c.w.Write([]byte(`><![CDATA[` + escapeCDATA(c.css) + `]]></style>`))
 	}
 }
 
@@ -470,7 +530,7 @@ func (c *canvas) Text(x, y int, body string, style Style) {
 		_, _ = fmt.Fprintf(bb, ` transform="rotate(%0.2f,%d,%d)"`, RadiansToDegrees(*c.textTheta), x, y)
 	}
 	bb.WriteRune('>')
-	_, _ = svgTextEscaper.WriteString(bb, body)
+	_, _ = svgTextEscaper.WriteString(bb, stripInvalidXMLChars(body))
 	bb.WriteString("</text>")
 
 	_, _ = c.w.Write(bb.Bytes())
@@ -514,7 +574,7 @@ func styleAsSVG(bb *bytes.Buffer, s Style, dpi float64, applyText bool) {
 
 	if s.ClassName != "" {
 		bb.WriteString("class=\"")
-		bb.WriteString(s.ClassName)
+		_, _ = svgAttrEscaper.WriteString(bb, stripInvalidXMLChars(s.ClassName))
 		if !sc.IsZero() {
 			bb.WriteString(" stroke")
 		}
@@ -556,7 +616,7 @@ func styleAsSVG(bb *bytes.Buffer, s Style, dpi float64, applyText bool) {
 			bb.WriteString("px")
 		}
 		if f != nil {
-			if name := f.Name(truetype.NameIDFontFamily); name != "" {
+			if name := sanitizeFontFamily(f.Name(truetype.NameIDFontFamily)); name != "" {
 				bb.WriteString(";font-family:'")
 				bb.WriteString(name)
 				bb.WriteString(`',sans-serif`)

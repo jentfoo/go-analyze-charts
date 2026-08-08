@@ -3,7 +3,6 @@ package chartdraw
 import (
 	"bytes"
 	"encoding/xml"
-	"errors"
 	"fmt"
 	"io"
 	"math"
@@ -15,6 +14,20 @@ import (
 
 	"github.com/go-analyze/charts/chartdraw/drawing"
 )
+
+func requireValidXML(t *testing.T, svg string) {
+	t.Helper()
+
+	dec := xml.NewDecoder(strings.NewReader(svg))
+	for {
+		_, err := dec.Token()
+		if err != nil {
+			// EOF only reported once every element is closed
+			require.ErrorIs(t, err, io.EOF)
+			return
+		}
+	}
+}
 
 func TestVectorRendererPath(t *testing.T) {
 	t.Parallel()
@@ -59,14 +72,7 @@ func TestVectorRendererSaveTwice(t *testing.T) {
 	assert.Equal(t, first.Bytes(), second.Bytes())
 	assert.Equal(t, 1, strings.Count(second.String(), "</svg>"))
 
-	dec := xml.NewDecoder(&second)
-	for {
-		if _, err := dec.Token(); errors.Is(err, io.EOF) {
-			break
-		} else if err != nil {
-			t.Fatal(err)
-		}
-	}
+	requireValidXML(t, second.String())
 }
 
 func TestVectorRendererSaveReflectsModifications(t *testing.T) {
@@ -89,14 +95,7 @@ func TestVectorRendererSaveReflectsModifications(t *testing.T) {
 	assert.Contains(t, out, "<text")
 	assert.Equal(t, 1, strings.Count(out, "</svg>"))
 
-	dec := xml.NewDecoder(&second)
-	for {
-		if _, err := dec.Token(); errors.Is(err, io.EOF) {
-			break
-		} else if err != nil {
-			t.Fatal(err)
-		}
-	}
+	requireValidXML(t, out)
 }
 
 func TestVectorRendererMeasureText(t *testing.T) {
@@ -167,6 +166,11 @@ func TestCanvasClassSVG(t *testing.T) {
 	var bb bytes.Buffer
 	styleAsSVG(&bb, set, defaultDPI, false)
 	assert.Equal(t, "class=\"test-class\"", bb.String())
+
+	set.ClassName = `a"b&c<d`
+	bb.Reset()
+	styleAsSVG(&bb, set, defaultDPI, false)
+	assert.Equal(t, `class="a&quot;b&amp;c&lt;d"`, bb.String())
 }
 
 func TestCanvasCustomInlineStylesheet(t *testing.T) {
@@ -200,6 +204,66 @@ func TestCanvasCustomInlineStylesheetWithNonce(t *testing.T) {
 	canvas.Start(200, 200)
 
 	assert.Contains(t, b.String(), fmt.Sprintf(`<style type="text/css" nonce="%s"><![CDATA[%s]]></style>`, canvas.nonce, canvas.css))
+}
+
+func TestCanvasStylesheetEscaping(t *testing.T) {
+	t.Parallel()
+
+	startSVG := func(t *testing.T, css, nonce string) string {
+		t.Helper()
+
+		b := strings.Builder{}
+		c := &canvas{w: &b, bb: bytes.NewBuffer(make([]byte, 0, 80)), css: css, nonce: nonce}
+		c.Start(200, 200)
+		b.WriteString("</svg>")
+
+		requireValidXML(t, b.String())
+		return b.String()
+	}
+
+	// css recovered from the parsed document, spanning any split CDATA sections
+	styleText := func(t *testing.T, svg string) string {
+		t.Helper()
+
+		var sb strings.Builder
+		var inStyle bool
+		dec := xml.NewDecoder(strings.NewReader(svg))
+		for {
+			token, err := dec.Token()
+			if err != nil {
+				require.ErrorIs(t, err, io.EOF)
+				return sb.String()
+			}
+			switch v := token.(type) {
+			case xml.StartElement:
+				inStyle = v.Name.Local == "style"
+			case xml.CharData:
+				if inStyle {
+					sb.Write(v)
+				}
+			}
+		}
+	}
+
+	t.Run("css_cdata_breakout", func(t *testing.T) {
+		css := `.a{content:"]]><script>x</script>"}`
+		out := startSVG(t, css, "")
+
+		assert.Contains(t, out, `<![CDATA[.a{content:"]]]]><![CDATA[><script>x</script>"}]]></style>`)
+		assert.Equal(t, css, styleText(t, out))
+	})
+
+	t.Run("css_control_chars_stripped", func(t *testing.T) {
+		out := startSVG(t, ".a{fill:\x00red\x1f}", "")
+
+		assert.Equal(t, ".a{fill:red}", styleText(t, out))
+	})
+
+	t.Run("nonce_escaped", func(t *testing.T) {
+		out := startSVG(t, ".a{fill:red}", `x" onload="alert(1)`)
+
+		assert.Contains(t, out, `nonce="x&quot; onload=&quot;alert(1)"`)
+	})
 }
 
 func TestSVGWithCSS(t *testing.T) {
@@ -262,6 +326,21 @@ func TestCanvasPathDashArray(t *testing.T) {
 func TestCanvasTextEscaping(t *testing.T) {
 	t.Parallel()
 
+	// renders body as a full document, asserting it stays parseable
+	textSVG := func(t *testing.T, body string) string {
+		t.Helper()
+
+		vr := SVG(100, 100).(*vectorRenderer)
+		vr.SetFont(GetDefaultFont())
+		vr.SetFontSize(10)
+		vr.Text(body, 5, 5)
+
+		buf := bytes.Buffer{}
+		require.NoError(t, vr.Save(&buf))
+		requireValidXML(t, buf.String())
+		return buf.String()
+	}
+
 	t.Run("escapes_special_chars", func(t *testing.T) {
 		b := strings.Builder{}
 		c := &canvas{w: &b, bb: bytes.NewBuffer(make([]byte, 0, 80))}
@@ -273,23 +352,74 @@ func TestCanvasTextEscaping(t *testing.T) {
 	})
 
 	t.Run("valid_xml", func(t *testing.T) {
-		vr := SVG(100, 100).(*vectorRenderer)
-		vr.SetFont(GetDefaultFont())
-		vr.SetFontSize(10)
-		vr.Text("P&G x<10 A>B", 5, 5)
-
-		buf := bytes.Buffer{}
-		require.NoError(t, vr.Save(&buf))
-
-		dec := xml.NewDecoder(&buf)
-		for {
-			_, err := dec.Token()
-			if errors.Is(err, io.EOF) {
-				break
-			}
-			require.NoError(t, err)
-		}
+		assert.NotEmpty(t, textSVG(t, "P&G x<10 A>B"))
 	})
+
+	t.Run("control_chars_stripped", func(t *testing.T) {
+		out := textSVG(t, "a\x00b\x08c\x1fd")
+
+		assert.Contains(t, out, ">abcd<")
+	})
+
+	t.Run("whitespace_preserved", func(t *testing.T) {
+		out := textSVG(t, "a\tb\nc\rd")
+
+		assert.Contains(t, out, ">a\tb\nc\rd<")
+	})
+
+	t.Run("invalid_utf8_normalized", func(t *testing.T) {
+		out := textSVG(t, "a\xffb")
+
+		assert.Contains(t, out, ">a�b<")
+	})
+}
+
+func TestStripInvalidXMLChars(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{name: "clean_unchanged", input: "Hello, World! 123", expected: "Hello, World! 123"},
+		{name: "whitespace_kept", input: "a\tb\nc\rd", expected: "a\tb\nc\rd"},
+		{name: "control_chars_dropped", input: "a\x00b\x08c\x0bd\x0ce\x1ff", expected: "abcdef"},
+		{name: "invalid_utf8_replaced", input: "a\xffb", expected: "a�b"},
+		{name: "valid_replacement_kept", input: "a�b", expected: "a�b"},
+		{name: "multibyte_kept", input: "日本語 émoji 🎉", expected: "日本語 émoji 🎉"},
+		{name: "all_dropped", input: "\x00\x01", expected: ""},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.expected, stripInvalidXMLChars(tt.input))
+		})
+	}
+}
+
+func TestSanitizeFontFamily(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{name: "clean_unchanged", input: "Roboto Medium", expected: "Roboto Medium"},
+		{name: "quotes_dropped", input: `Ro'bo"to`, expected: "Roboto"},
+		{name: "backslash_dropped", input: `Rob\oto`, expected: "Roboto"},
+		{name: "semicolon_dropped", input: "Roboto;fill:red", expected: "Robotofill:red"},
+		{name: "markup_dropped", input: "Rob<o>t&o", expected: "Roboto"},
+		{name: "newline_dropped", input: "Rob\noto", expected: "Roboto"},
+		{name: "all_dropped", input: `';<>`, expected: ""},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.expected, sanitizeFontFamily(tt.input))
+		})
+	}
 }
 
 func TestFormatFloatMinimized(t *testing.T) {
