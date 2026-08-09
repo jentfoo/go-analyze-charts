@@ -117,6 +117,45 @@ func TestNonFiniteChecks(t *testing.T) {
 	})
 }
 
+func TestOutOfIntRangeChecks(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		in   float64
+		want bool
+	}{
+		{"nan", math.NaN(), true},
+		{"positive_inf", math.Inf(1), true},
+		{"negative_inf", math.Inf(-1), true},
+		{"max_float", math.MaxFloat64, true},
+		{"min_int", math.MinInt, true},
+		{"zero", 0, false},
+		{"negative", -1.5, false},
+		{"large_pixel_coord", 1e6, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, outOfIntRange(tt.in))
+			vals := [3]float64{1, tt.in, 2}
+			assert.Equal(t, tt.want, hasOutOfIntRange(vals[:]))
+		})
+	}
+
+	t.Run("empty_slice", func(t *testing.T) {
+		assert.False(t, hasOutOfIntRange(nil))
+	})
+
+	t.Run("accepted_values_convert", func(t *testing.T) {
+		// values which pass must round into an int rather than the implementation defined MinInt
+		for _, v := range []float64{1e6, -1e6, 1e9, -1e9} {
+			assert.False(t, outOfIntRange(v))
+			assert.NotEqual(t, math.MinInt, int(math.Round(v)))
+		}
+	})
+}
+
 func TestAbsInt(t *testing.T) {
 	t.Parallel()
 
@@ -126,6 +165,7 @@ func TestAbsInt(t *testing.T) {
 		{5, 5},
 		{-5, 5},
 		{0, 0},
+		{math.MinInt, math.MaxInt}, // negating would overflow back to MinInt
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {

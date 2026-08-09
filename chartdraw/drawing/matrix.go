@@ -54,7 +54,8 @@ func (tr *Matrix) TransformRectangle(x0, y0, x2, y2 float64) (nx0, ny0, nx2, ny2
 }
 
 // InverseTransform applies the transformation inverse matrix to points. It modifies the points
-// passed in parameter, leaving them unchanged if the matrix is singular or holds non-finite terms.
+// passed in parameter, leaving a point unchanged if the matrix is singular or the result would not
+// be finite.
 func (tr *Matrix) InverseTransform(points []float64) {
 	d, ok := tr.inverseDeterminant()
 	if !ok {
@@ -63,13 +64,17 @@ func (tr *Matrix) InverseTransform(points []float64) {
 	for i, j := 0, 1; j < len(points); i, j = i+2, j+2 {
 		x := points[i]
 		y := points[j]
-		points[i] = ((x-tr[4])*tr[3] - (y-tr[5])*tr[2]) / d
-		points[j] = ((y-tr[5])*tr[0] - (x-tr[4])*tr[1]) / d
+		xres := ((x-tr[4])*tr[3] - (y-tr[5])*tr[2]) / d
+		yres := ((y-tr[5])*tr[0] - (x-tr[4])*tr[1]) / d
+		if !isNonFinite(xres) && !isNonFinite(yres) {
+			points[i], points[j] = xres, yres
+		}
 	}
 }
 
 // InverseTransformPoint applies the transformation inverse matrix to point. It returns the
-// transformed point, or the input point unchanged if the matrix is singular or holds non-finite terms.
+// transformed point, or the input point unchanged if the matrix is singular or the result would not
+// be finite.
 func (tr *Matrix) InverseTransformPoint(x, y float64) (xres, yres float64) {
 	d, ok := tr.inverseDeterminant()
 	if !ok {
@@ -77,6 +82,9 @@ func (tr *Matrix) InverseTransformPoint(x, y float64) (xres, yres float64) {
 	}
 	xres = ((x-tr[4])*tr[3] - (y-tr[5])*tr[2]) / d
 	yres = ((y-tr[5])*tr[0] - (x-tr[4])*tr[1]) / d
+	if isNonFinite(xres) || isNonFinite(yres) {
+		return x, y // a tiny determinant overflowed the result
+	}
 	return xres, yres
 }
 
@@ -114,27 +122,33 @@ func NewRotationMatrix(angle float64) Matrix {
 }
 
 // NewMatrixFromRects creates a transformation matrix, combining a scale and a translation, that transform rectangle1 into rectangle2.
+// A degenerate or non-finite rectangle returns the identity matrix.
 func NewMatrixFromRects(rectangle1, rectangle2 [4]float64) Matrix {
 	xScale := (rectangle2[2] - rectangle2[0]) / (rectangle1[2] - rectangle1[0])
 	yScale := (rectangle2[3] - rectangle2[1]) / (rectangle1[3] - rectangle1[1])
 	xOffset := rectangle2[0] - (rectangle1[0] * xScale)
 	yOffset := rectangle2[1] - (rectangle1[1] * yScale)
-	return Matrix{xScale, 0, 0, yScale, xOffset, yOffset}
+	m := Matrix{xScale, 0, 0, yScale, xOffset, yOffset}
+	if hasNonFinite(m[:]) {
+		return NewIdentityMatrix() // degenerate or non-finite source rectangle
+	}
+	return m
 }
 
-// Inverse computes the inverse matrix, a singular matrix or one holding non-finite terms is left unchanged.
+// Inverse computes the inverse matrix, a singular matrix or one which would invert to non-finite
+// terms is left unchanged.
 func (tr *Matrix) Inverse() {
 	d, ok := tr.inverseDeterminant()
 	if !ok {
 		return // inverting would produce non-finite terms
 	}
 	tr0, tr1, tr2, tr3, tr4, tr5 := tr[0], tr[1], tr[2], tr[3], tr[4], tr[5]
-	tr[0] = tr3 / d
-	tr[1] = -tr1 / d
-	tr[2] = -tr2 / d
-	tr[3] = tr0 / d
-	tr[4] = (tr2*tr5 - tr3*tr4) / d
-	tr[5] = (tr1*tr4 - tr0*tr5) / d
+	inv := Matrix{tr3 / d, -tr1 / d, -tr2 / d, tr0 / d,
+		(tr2*tr5 - tr3*tr4) / d, (tr1*tr4 - tr0*tr5) / d}
+	if hasNonFinite(inv[:]) {
+		return // a tiny determinant overflowed the terms
+	}
+	*tr = inv
 }
 
 // Copy copies the matrix.

@@ -24,8 +24,20 @@ func hasNonFinite(vals []float64) bool {
 	return slices.ContainsFunc(vals, isNonFinite)
 }
 
+// outOfIntRange reports whether v can not be rounded into an int, true for non-finite values.
+func outOfIntRange(v float64) bool {
+	return !(v > math.MinInt && v < math.MaxInt) // negated so NaN is out of range
+}
+
+// hasOutOfIntRange reports whether any value can not be rounded into an int.
+func hasOutOfIntRange(vals []float64) bool {
+	return slices.ContainsFunc(vals, outOfIntRange)
+}
+
 func absInt(i int) int {
-	if i < 0 {
+	if i == math.MinInt {
+		return math.MaxInt // negating would overflow back to MinInt
+	} else if i < 0 {
 		return -i
 	}
 	return i

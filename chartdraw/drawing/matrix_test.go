@@ -121,6 +121,27 @@ func TestNewMatrixFromRects(t *testing.T) {
 	assert.InDelta(t, r2[1], y0, matrix.DefaultEpsilon)
 	assert.InDelta(t, r2[2], x1, matrix.DefaultEpsilon)
 	assert.InDelta(t, r2[3], y1, matrix.DefaultEpsilon)
+
+	degenerate := []struct {
+		name string
+		r1   [4]float64
+	}{
+		{"zero_width_source", [4]float64{1, -1, 1, 1}},
+		{"zero_height_source", [4]float64{-1, 1, 1, 1}},
+		{"non_finite_source", [4]float64{math.NaN(), -1, 1, 1}},
+	}
+
+	for _, tt := range degenerate {
+		t.Run(tt.name, func(t *testing.T) {
+			m := NewMatrixFromRects(tt.r1, r2)
+			assert.Equal(t, matrixBits(NewIdentityMatrix()), matrixBits(m))
+		})
+	}
+
+	t.Run("non_finite_destination", func(t *testing.T) {
+		m := NewMatrixFromRects(r1, [4]float64{math.Inf(1), 3, 6, 7})
+		assert.Equal(t, matrixBits(NewIdentityMatrix()), matrixBits(m))
+	})
 }
 
 func TestMatrixDeterminant(t *testing.T) {
@@ -235,6 +256,25 @@ func TestMatrixEquals(t *testing.T) {
 
 	m2[5] += matrix.DefaultEpsilon * 2
 	assert.False(t, m1.Equals(m2))
+}
+
+func TestMatrixInverseOverflow(t *testing.T) {
+	t.Parallel()
+
+	// determinant 1e-320 is subnormal, non-zero and finite, but dividing by it overflows the terms
+	m := Matrix{1e-160, 0, 0, 1e-160, 1e200, 0}
+
+	inv := m
+	inv.Inverse()
+	assert.Equal(t, matrixBits(m), matrixBits(inv))
+
+	x, y := m.InverseTransformPoint(7, 11)
+	assert.InDelta(t, 7.0, x, 0)
+	assert.InDelta(t, 11.0, y, 0)
+
+	points := []float64{7, 11, -3, 4}
+	m.InverseTransform(points)
+	assert.InDeltaSlice(t, []float64{7, 11, -3, 4}, points, 0)
 }
 
 func TestMatrixInverseNonFiniteTranslation(t *testing.T) {
