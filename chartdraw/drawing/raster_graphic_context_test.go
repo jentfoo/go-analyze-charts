@@ -9,6 +9,7 @@ import (
 	"github.com/golang/freetype/raster"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/image/draw"
 	"golang.org/x/image/math/fixed"
 )
 
@@ -183,6 +184,43 @@ func TestRasterGraphicContext(t *testing.T) {
 		rgc.Clear()
 		_, _, _, a = img.At(11, 11).RGBA()
 		assert.Equal(t, uint32(0), a)
+	})
+
+	t.Run("text_offset_bounds", func(t *testing.T) {
+		t.Parallel()
+
+		img := image.NewRGBA(image.Rect(20, 20, 80, 80))
+		rgc := NewRasterGraphicContext(img)
+		rgc.SetFont(getTestFont(t))
+		rgc.SetFontSize(10)
+		rgc.SetFillColor(color.White)
+
+		// placed past the image width and height so only absolute span coordinates reach it
+		_, err := rgc.CreateStringPath("A", 60, 75)
+		require.NoError(t, err)
+		rgc.Fill()
+
+		var found bool
+		for y := 20; y < 80 && !found; y++ {
+			for x := 20; x < 80 && !found; x++ {
+				found = img.RGBAAt(x, y).A != 0
+			}
+		}
+		assert.True(t, found)
+	})
+
+	t.Run("draw_image_offset_bounds", func(t *testing.T) {
+		t.Parallel()
+
+		src := image.NewRGBA(image.Rect(0, 0, 2, 2))
+		draw.Draw(src, src.Bounds(), image.NewUniform(color.White), image.Point{}, draw.Src)
+		dst := image.NewRGBA(image.Rect(10, 10, 30, 30))
+		rgc := NewRasterGraphicContext(dst)
+		rgc.Translate(15, 15)
+		rgc.DrawImage(src)
+
+		assert.NotZero(t, dst.RGBAAt(15, 15).A)
+		assert.Zero(t, dst.RGBAAt(10, 10).A)
 	})
 
 	t.Run("fill_after_clear", func(t *testing.T) {
@@ -538,6 +576,90 @@ func TestIsRectanglePath(t *testing.T) {
 	}
 }
 
+func TestRectFastPathBounds(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		build    func(p *Path)
+		expected [4]int
+		ok       bool
+	}{
+		{
+			name: "integer_rectangle",
+			build: func(p *Path) {
+				p.MoveTo(0, 0)
+				p.LineTo(2, 0)
+				p.LineTo(2, 2)
+				p.LineTo(0, 2)
+				p.LineTo(0, 0)
+			},
+			expected: [4]int{0, 0, 2, 2},
+			ok:       true,
+		},
+		{
+			name: "reversed_corners",
+			build: func(p *Path) {
+				p.MoveTo(12, 8)
+				p.LineTo(12, 3)
+				p.LineTo(4, 3)
+				p.LineTo(4, 8)
+				p.Close()
+			},
+			expected: [4]int{4, 3, 12, 8},
+			ok:       true,
+		},
+		{
+			name: "fractional_edges",
+			build: func(p *Path) {
+				p.MoveTo(0.5, 0)
+				p.LineTo(2.5, 0)
+				p.LineTo(2.5, 2)
+				p.LineTo(0.5, 2)
+				p.Close()
+			},
+		},
+		{
+			name: "infinite_edge",
+			build: func(p *Path) {
+				p.MoveTo(0, 0)
+				p.LineTo(math.Inf(1), 0)
+				p.LineTo(math.Inf(1), 2)
+				p.LineTo(0, 2)
+				p.Close()
+			},
+		},
+		{
+			name: "nan_edge",
+			build: func(p *Path) {
+				p.MoveTo(0, 0)
+				p.LineTo(math.NaN(), 0)
+				p.LineTo(math.NaN(), 2)
+				p.LineTo(0, 2)
+				p.Close()
+			},
+		},
+		{
+			name: "non_rectangle",
+			build: func(p *Path) {
+				p.MoveTo(0, 0)
+				p.LineTo(1, 1)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := &Path{}
+			tt.build(p)
+			x1, y1, x2, y2, ok := rectFastPathBounds(p)
+			assert.Equal(t, tt.ok, ok)
+			if tt.ok {
+				assert.Equal(t, tt.expected, [4]int{x1, y1, x2, y2})
+			}
+		})
+	}
+}
+
 func TestStroke(t *testing.T) {
 	t.Parallel()
 
@@ -577,6 +699,19 @@ func TestStroke(t *testing.T) {
 
 		assert.NotZero(t, img.RGBAAt(3, 20).A) // within first dash
 		assert.Zero(t, img.RGBAAt(11, 20).A)   // within first gap
+	})
+
+	t.Run("offset_bounds", func(t *testing.T) {
+		img := image.NewRGBA(image.Rect(10, 10, 30, 30))
+		rgc := NewRasterGraphicContext(img)
+		rgc.SetStrokeColor(color.RGBA{R: 255, A: 255})
+		rgc.SetLineWidth(2)
+		rgc.MoveTo(12, 12)
+		rgc.LineTo(28, 28)
+		rgc.Stroke()
+
+		assert.NotZero(t, img.RGBAAt(26, 26).A) // unreachable when rasterizers are sized by width/height
+		assert.NotZero(t, img.RGBAAt(14, 14).A)
 	})
 
 	t.Run("zero_gap_dash_solid", func(t *testing.T) {
@@ -659,6 +794,99 @@ func TestFill(t *testing.T) {
 
 		assert.NotZero(t, img.RGBAAt(15, 20).A) // dropped diagonal region outside the 10x10 rect
 	})
+
+	t.Run("integer_rect_fast_path", func(t *testing.T) {
+		img := image.NewRGBA(image.Rect(0, 0, 40, 40))
+		rgc := NewRasterGraphicContext(img)
+		rgc.SetFillColor(color.RGBA{R: 255, A: 255})
+		rgc.MoveTo(10, 10)
+		rgc.LineTo(20, 10)
+		rgc.LineTo(20, 20)
+		rgc.LineTo(10, 20)
+		rgc.Close()
+		rgc.Fill()
+
+		for _, x := range []int{10, 15, 19} {
+			assert.Equal(t, uint8(255), img.RGBAAt(x, 15).A, x)
+			assert.Equal(t, uint8(255), img.RGBAAt(15, x).A, x)
+		}
+		for _, x := range []int{9, 20} { // no antialiased fringe outside the exact bounds
+			assert.Zero(t, img.RGBAAt(x, 15).A, x)
+			assert.Zero(t, img.RGBAAt(15, x).A, x)
+		}
+	})
+
+	t.Run("fractional_rect_antialiased", func(t *testing.T) {
+		img := image.NewRGBA(image.Rect(0, 0, 40, 40))
+		rgc := NewRasterGraphicContext(img)
+		rgc.SetFillColor(color.RGBA{R: 255, A: 255})
+		rgc.MoveTo(10.25, 10.25)
+		rgc.LineTo(20.75, 10.25)
+		rgc.LineTo(20.75, 20.75)
+		rgc.LineTo(10.25, 20.75)
+		rgc.Close()
+		rgc.Fill()
+
+		assert.Equal(t, uint8(255), img.RGBAAt(15, 15).A) // interior fully covered
+		for _, edge := range [][2]int{{10, 15}, {20, 15}, {15, 10}, {15, 20}} {
+			a := img.RGBAAt(edge[0], edge[1]).A
+			assert.Positive(t, a, edge)
+			assert.Less(t, a, uint8(255), edge)
+		}
+	})
+
+	t.Run("fractional_rect_translation_stable", func(t *testing.T) {
+		fillFractionalRect := func(offset float64) *image.RGBA {
+			img := image.NewRGBA(image.Rect(0, 0, 40, 40))
+			rgc := NewRasterGraphicContext(img)
+			rgc.SetFillColor(color.RGBA{R: 255, A: 255})
+			rgc.Translate(offset, offset)
+			rgc.MoveTo(10.25, 10.25)
+			rgc.LineTo(20.75, 10.25)
+			rgc.LineTo(20.75, 20.75)
+			rgc.LineTo(10.25, 20.75)
+			rgc.Close()
+			rgc.Fill()
+			return img
+		}
+		identity, translated := fillFractionalRect(0), fillFractionalRect(5)
+
+		for y := 9; y <= 21; y++ {
+			for x := 9; x <= 21; x++ {
+				assert.Equal(t, identity.RGBAAt(x, y).A, translated.RGBAAt(x+5, y+5).A, [2]int{x, y})
+			}
+		}
+	})
+
+	t.Run("offset_bounds", func(t *testing.T) {
+		img := image.NewRGBA(image.Rect(10, 10, 30, 30))
+		fillTriangle(NewRasterGraphicContext(img), 12, 28)
+
+		assert.NotZero(t, img.RGBAAt(27, 25).A) // unreachable when rasterizers are sized by width/height
+		assert.NotZero(t, img.RGBAAt(20, 14).A)
+		assert.Zero(t, img.RGBAAt(14, 26).A) // outside the triangle
+	})
+
+	t.Run("subimage_bounds", func(t *testing.T) {
+		base := image.NewRGBA(image.Rect(0, 0, 40, 40))
+		sub, ok := base.SubImage(image.Rect(20, 20, 40, 40)).(*image.RGBA)
+		require.True(t, ok)
+		fillTriangle(NewRasterGraphicContext(sub), 22, 38)
+
+		assert.NotZero(t, sub.RGBAAt(37, 35).A)
+		assert.NotZero(t, base.RGBAAt(37, 35).A)
+		assert.Zero(t, base.RGBAAt(10, 10).A) // outside the sub-image
+	})
+}
+
+// fillTriangle fills a right triangle with corners at (lo, lo), (hi, lo) and (hi, hi).
+func fillTriangle(rgc *RasterGraphicContext, lo, hi float64) {
+	rgc.SetFillColor(color.RGBA{R: 255, A: 255})
+	rgc.MoveTo(lo, lo)
+	rgc.LineTo(hi, lo)
+	rgc.LineTo(hi, hi)
+	rgc.Close()
+	rgc.Fill()
 }
 
 func TestFillStroke(t *testing.T) {

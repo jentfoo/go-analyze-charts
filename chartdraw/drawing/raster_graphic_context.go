@@ -22,15 +22,17 @@ func NewRasterGraphicContext(img *image.RGBA) *RasterGraphicContext {
 	return NewRasterGraphicContextWithPainter(img, painter)
 }
 
-// NewRasterGraphicContextWithPainter creates a new Graphic context from an image and a Painter (see Freetype-go).
+// NewRasterGraphicContextWithPainter creates a new Graphic context from an image and a Painter (see
+// Freetype-go). Path rendering requires the image bounds maximum to be positive.
 func NewRasterGraphicContextWithPainter(img draw.Image, painter Painter) *RasterGraphicContext {
-	width, height := img.Bounds().Dx(), img.Bounds().Dy()
+	// rasterizers clip spans in absolute image coordinates, so they must reach the bounds maximum
+	bounds := img.Bounds()
 	return &RasterGraphicContext{
 		NewStackGraphicContext(),
 		img,
 		painter,
-		raster.NewRasterizer(width, height),
-		raster.NewRasterizer(width, height),
+		raster.NewRasterizer(bounds.Max.X, bounds.Max.Y),
+		raster.NewRasterizer(bounds.Max.X, bounds.Max.Y),
 		&truetype.GlyphBuf{},
 		DefaultDPI,
 	}
@@ -296,7 +298,12 @@ func isRectanglePath(path *Path) bool {
 	return (x1 == x4 && x2 == x3 && y1 == y2 && y3 == y4) || (x1 == x2 && x3 == x4 && y1 == y4 && y2 == y3)
 }
 
-func getRectangleBounds(path *Path) (int, int, int, int) {
+// rectFastPathBounds returns the pixel bounds of an axis-aligned rectangle path, and false when the
+// path is not such a rectangle or any edge is not on a representable pixel boundary.
+func rectFastPathBounds(path *Path) (int, int, int, int, bool) {
+	if !isRectanglePath(path) {
+		return 0, 0, 0, 0, false
+	}
 	x1, y1 := path.Points[0], path.Points[1]
 	x2, y2 := path.Points[4], path.Points[5]
 	if x2 < x1 {
@@ -305,21 +312,25 @@ func getRectangleBounds(path *Path) (int, int, int, int) {
 	if y2 < y1 {
 		y1, y2 = y2, y1
 	}
-	return int(math.Floor(x1)), int(math.Floor(y1)), int(math.Ceil(x2)), int(math.Ceil(y2))
+	for _, v := range [...]float64{x1, y1, x2, y2} {
+		// NaN fails the equality, infinities fail the range
+		if v != math.Trunc(v) || v < math.MinInt32 || v > math.MaxInt32 {
+			return 0, 0, 0, 0, false
+		}
+	}
+	return int(x1), int(y1), int(x2), int(y2), true
 }
 
 // Fill fills the paths with the color specified by SetFillColor.
 func (rgc *RasterGraphicContext) Fill(paths ...*Path) {
 	paths = append(paths, rgc.current.Path)
-	pathCount := len(paths)
-	if pathCount == 0 {
-		return
-	} else if pathCount == 1 && rgc.current.Tr.IsIdentity() && isRectanglePath(paths[0]) {
-		// we can draw rectangles of a uniform color using a more efficient method
-		x1, y1, x2, y2 := getRectangleBounds(paths[0])
-		rgc.FillRect(x1, y1, x2, y2)
-		rgc.current.Path.Clear() // draw complete
-		return
+	if len(paths) == 1 && rgc.current.Tr.IsIdentity() {
+		if x1, y1, x2, y2, ok := rectFastPathBounds(paths[0]); ok {
+			// pixel aligned rectangles of a uniform color draw more efficiently
+			rgc.FillRect(x1, y1, x2, y2)
+			rgc.current.Path.Clear() // draw complete
+			return
+		}
 	}
 
 	rgc.fillRasterizer.UseNonZeroWinding = rgc.current.FillRule == FillRuleWinding
@@ -335,15 +346,13 @@ func (rgc *RasterGraphicContext) Fill(paths ...*Path) {
 // FillStroke first fills the paths and then strokes them.
 func (rgc *RasterGraphicContext) FillStroke(paths ...*Path) {
 	paths = append(paths, rgc.current.Path)
-	pathCount := len(paths)
-	if pathCount == 0 {
-		return
-	} else if pathCount == 1 && rgc.current.Tr.IsIdentity() && isRectanglePath(paths[0]) {
-		// we can draw rectangles of a uniform color using a more efficient method, then stroke the line after
-		x1, y1, x2, y2 := getRectangleBounds(paths[0])
-		rgc.FillRect(x1, y1, x2, y2)
-		rgc.Stroke() // draw path for stroke
-		return
+	if len(paths) == 1 && rgc.current.Tr.IsIdentity() {
+		if x1, y1, x2, y2, ok := rectFastPathBounds(paths[0]); ok {
+			// pixel aligned rectangles of a uniform color draw more efficiently, stroke the line after
+			rgc.FillRect(x1, y1, x2, y2)
+			rgc.Stroke() // draw path for stroke
+			return
+		}
 	}
 
 	rgc.fillRasterizer.UseNonZeroWinding = rgc.current.FillRule == FillRuleWinding
