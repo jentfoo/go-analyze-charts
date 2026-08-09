@@ -66,17 +66,17 @@ L 335 100
 L 405 278
 L 475 303
 L 545 297" style="stroke-width:2;stroke:rgb(250,200,88);fill:none"/><circle cx="55" cy="289" r="2.4" style="stroke-width:1;stroke:rgb(250,200,88);fill:white"/><circle cx="125" cy="293" r="2.4" style="stroke-width:1;stroke:rgb(250,200,88);fill:white"/><circle cx="195" cy="300" r="2.4" style="stroke-width:1;stroke:rgb(250,200,88);fill:white"/><circle cx="265" cy="112" r="2.4" style="stroke-width:1;stroke:rgb(250,200,88);fill:white"/><circle cx="335" cy="100" r="2.4" style="stroke-width:1;stroke:rgb(250,200,88);fill:white"/><circle cx="405" cy="278" r="2.4" style="stroke-width:1;stroke:rgb(250,200,88);fill:white"/><circle cx="475" cy="303" r="2.4" style="stroke-width:1;stroke:rgb(250,200,88);fill:white"/><circle cx="545" cy="297" r="2.4" style="stroke-width:1;stroke:rgb(250,200,88);fill:white"/><circle cx="23" cy="247" r="3" style="stroke-width:1;stroke:rgb(211,211,211);fill:rgb(211,211,211)"/><path stroke-dasharray="4, 2" d="M 29 247
-L 562 247" style="stroke-width:1;stroke:rgb(211,211,211);fill:rgb(211,211,211)"/><path stroke-dasharray="4, 2" d="M 562 242
+L 562 247" style="stroke-width:1;stroke:rgb(211,211,211);fill:none"/><path stroke-dasharray="4, 2" d="M 562 242
 L 578 247
 L 562 252
 L 567 247
 L 562 242" style="stroke-width:1;stroke:rgb(211,211,211);fill:rgb(211,211,211)"/><text x="580" y="251" style="stroke:none;fill:rgb(70,70,70);font-size:12.8px;font-family:'Roboto Medium',sans-serif">137.86</text><circle cx="23" cy="303" r="3" style="stroke-width:1;stroke:rgb(211,211,211);fill:rgb(211,211,211)"/><path stroke-dasharray="4, 2" d="M 29 303
-L 562 303" style="stroke-width:1;stroke:rgb(211,211,211);fill:rgb(211,211,211)"/><path stroke-dasharray="4, 2" d="M 562 298
+L 562 303" style="stroke-width:1;stroke:rgb(211,211,211);fill:none"/><path stroke-dasharray="4, 2" d="M 562 298
 L 578 303
 L 562 308
 L 567 303
 L 562 298" style="stroke-width:1;stroke:rgb(211,211,211);fill:rgb(211,211,211)"/><text x="580" y="307" style="stroke:none;fill:rgb(70,70,70);font-size:12.8px;font-family:'Roboto Medium',sans-serif">79.6</text><circle cx="23" cy="100" r="3" style="stroke-width:1;stroke:rgb(211,211,211);fill:rgb(211,211,211)"/><path stroke-dasharray="4, 2" d="M 29 100
-L 562 100" style="stroke-width:1;stroke:rgb(211,211,211);fill:rgb(211,211,211)"/><path stroke-dasharray="4, 2" d="M 562 95
+L 562 100" style="stroke-width:1;stroke:rgb(211,211,211);fill:none"/><path stroke-dasharray="4, 2" d="M 562 95
 L 578 100
 L 562 105
 L 567 100

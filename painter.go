@@ -274,8 +274,6 @@ func (p *Painter) measureTextMaxWidthHeight(textList []string, textRotation floa
 
 // Circle draws a circle at the given coords with a given radius.
 func (p *Painter) Circle(radius float64, x, y int, fillColor, strokeColor Color, strokeWidth float64) {
-	// This function has a slight behavior difference between png and svg.
-	// We need to set the style attributes before the `Circle` call for SVG.
 	defer p.render.ResetStyle()
 	p.render.SetFillColor(fillColor)
 	p.render.SetStrokeColor(strokeColor)
@@ -475,14 +473,14 @@ func (p *Painter) HorizontalMarkLine(x, y, width int, fillColor, strokeColor Col
 	defer p.render.ResetStyle()
 	p.render.SetStrokeColor(strokeColor)
 	p.render.SetStrokeWidth(strokeWidth)
-	p.render.SetStrokeDashArray(strokeDashArray)
 	p.render.SetFillColor(fillColor)
 
-	// Draw the circle at the starting point
+	// Draw the circle at the starting point, solid so the dash array is set after
 	p.render.Circle(float64(radius), x+radius+p.box.Left, y+p.box.Top)
-	p.render.Fill() // only fill the circle, do not stroke
+	p.render.FillStroke()
 
 	// Draw the line from the end of the circle to near the arrow start
+	p.render.SetStrokeDashArray(strokeDashArray)
 	p.moveTo(x+radius*3, y)
 	p.lineTo(endX-arrowWidth, y)
 	p.render.Stroke() // apply stroke with the dash array
@@ -501,14 +499,14 @@ func (p *Painter) VerticalMarkLine(x, y, height int, fillColor, strokeColor Colo
 	defer p.render.ResetStyle()
 	p.render.SetStrokeColor(strokeColor)
 	p.render.SetStrokeWidth(strokeWidth)
-	p.render.SetStrokeDashArray(strokeDashArray)
 	p.render.SetFillColor(fillColor)
 
-	// Draw the dot at the bottom of the line
+	// Draw the dot at the bottom of the line, solid so the dash array is set after
 	p.render.Circle(float64(radius), x+p.box.Left, endY-radius+p.box.Top)
-	p.render.Fill() // fill the circle
+	p.render.FillStroke()
 
 	// Draw the vertical line
+	p.render.SetStrokeDashArray(strokeDashArray)
 	p.moveTo(x, y)
 	p.lineTo(x, endY)
 	p.render.Stroke() // apply stroke with the dash array

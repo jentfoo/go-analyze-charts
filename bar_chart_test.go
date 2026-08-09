@@ -239,7 +239,7 @@ func TestBarChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x825725a1,
+			pngCRC: 0x3d33d057,
 		},
 		{
 			name: "mark_point",
@@ -331,7 +331,7 @@ func TestBarChart(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0xa7c8dbb8,
+			pngCRC: 0x6a4b7425,
 		},
 		{
 			name: "empty_series",
@@ -811,7 +811,7 @@ func TestBarChartHorizontal(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0xb04ecd33,
+			pngCRC: 0xff92e379,
 		},
 		{
 			name: "bar_size_thin",
@@ -888,7 +888,7 @@ func TestBarChartHorizontal(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x9425c0a7,
+			pngCRC: 0x4b74aa79,
 		},
 		{
 			name: "empty_series",
@@ -956,7 +956,7 @@ func TestBarChartHorizontal(t *testing.T) {
 				opt.SeriesList[0].MarkLine = NewMarkLine(SeriesMarkTypeMax, SeriesMarkTypeAverage)
 				return opt
 			},
-			pngCRC: 0x6f4575e6,
+			pngCRC: 0x9012c235,
 		},
 		{
 			name: "null_values",

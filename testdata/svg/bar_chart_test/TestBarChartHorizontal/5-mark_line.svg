@@ -55,12 +55,12 @@ L 504 70
 L 504 84
 L 10 84
 L 10 70" style="stroke:none;fill:rgb(145,204,117)"/><circle cx="466" cy="363" r="3" style="stroke-width:1;stroke:rgb(84,112,198);fill:rgb(84,112,198)"/><path stroke-dasharray="4, 2" d="M 466 43
-L 466 366" style="stroke-width:1;stroke:rgb(84,112,198);fill:rgb(84,112,198)"/><path stroke-dasharray="4, 2" d="M 461 59
+L 466 366" style="stroke-width:1;stroke:rgb(84,112,198);fill:none"/><path stroke-dasharray="4, 2" d="M 461 59
 L 466 43
 L 471 59
 L 466 54
 L 461 59" style="stroke-width:1;stroke:rgb(84,112,198);fill:rgb(84,112,198)"/><text x="442" y="41" style="stroke:none;fill:rgb(70,70,70);font-size:12.8px;font-family:'Roboto Medium',sans-serif">630.23k</text><circle cx="123" cy="363" r="3" style="stroke-width:1;stroke:rgb(84,112,198);fill:rgb(84,112,198)"/><path stroke-dasharray="4, 2" d="M 123 43
-L 123 366" style="stroke-width:1;stroke:rgb(84,112,198);fill:rgb(84,112,198)"/><path stroke-dasharray="4, 2" d="M 118 59
+L 123 366" style="stroke-width:1;stroke:rgb(84,112,198);fill:none"/><path stroke-dasharray="4, 2" d="M 118 59
 L 123 43
 L 128 59
 L 123 54

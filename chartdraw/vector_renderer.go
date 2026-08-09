@@ -124,12 +124,19 @@ type fontFaceKey struct {
 	size float64
 }
 
+// svgCircle is a circle awaiting the path completion call which paints it.
+type svgCircle struct {
+	x, y int
+	r    float64
+}
+
 // vectorRenderer renders chart commands to a bitmap.
 type vectorRenderer struct {
 	b         *bytes.Buffer
 	c         *canvas
 	s         *Style
 	p         []string
+	circles   []svgCircle
 	faceCache map[fontFaceKey]font.Face
 }
 
@@ -361,28 +368,33 @@ func (vr *vectorRenderer) Close() {
 
 // Stroke draws the path with no fill.
 func (vr *vectorRenderer) Stroke() {
-	vr.drawPath()
+	vr.drawPath(vr.s.GetStrokeOptions())
 }
 
 // Fill draws the path with no stroke.
 func (vr *vectorRenderer) Fill() {
-	vr.drawPath()
+	vr.drawPath(vr.s.GetFillOptions())
 }
 
 // FillStroke draws the path with both fill and stroke.
 func (vr *vectorRenderer) FillStroke() {
-	vr.drawPath()
+	vr.drawPath(vr.s.GetFillAndStrokeOptions())
 }
 
-// drawPath draws the path set into the p slice.
-func (vr *vectorRenderer) drawPath() {
-	vr.c.Path(vr.p, vr.s.GetFillAndStrokeOptions())
-	vr.p = vr.p[:0] // clear the path
+// drawPath draws the pending circles and path with the given style.
+func (vr *vectorRenderer) drawPath(style Style) {
+	for _, c := range vr.circles {
+		vr.c.Circle(c.x, c.y, c.r, style)
+	}
+	vr.circles = vr.circles[:0]
+	vr.c.Path(vr.p, style)
+	vr.p = vr.p[:0]
 }
 
-// Circle draws a circle with the current style (for PathBuilder interface).
+// Circle adds a circle to the pending set; it is only painted by a completion call
+// (Stroke/Fill/FillStroke), and renders nothing without one.
 func (vr *vectorRenderer) Circle(radius float64, x, y int) {
-	vr.c.Circle(x, y, radius, vr.s.GetFillAndStrokeOptions())
+	vr.circles = append(vr.circles, svgCircle{x: x, y: y, r: radius})
 }
 
 // SetFont specifies the font used for text operations (for Renderer interface).
@@ -489,16 +501,7 @@ func (c *canvas) Path(parts []string, style Style) {
 	defer c.bb.Reset()
 
 	bb.WriteString(`<path`)
-	if drawing.ValidDash(style.StrokeDashArray) {
-		bb.WriteString(" stroke-dasharray=\"")
-		for i, v := range style.StrokeDashArray {
-			if i > 0 {
-				bb.WriteString(", ")
-			}
-			bb.WriteString(formatFloatMinimized(v, svgPrecision))
-		}
-		bb.WriteString("\"")
-	}
+	writeDashArray(bb, style.StrokeDashArray)
 	bb.WriteString(` d="`)
 	for i, p := range parts {
 		if i > 0 {
@@ -537,17 +540,22 @@ func (c *canvas) Text(x, y int, body string, style Style) {
 }
 
 func (c *canvas) Circle(x, y int, r float64, style Style) {
+	if !finitePositive(r) {
+		return
+	}
 	bb := c.bb
 	defer c.bb.Reset()
 
-	bb.WriteString(`<circle cx="`)
+	bb.WriteString(`<circle`)
+	writeDashArray(bb, style.StrokeDashArray)
+	bb.WriteString(` cx="`)
 	bb.WriteString(strconv.Itoa(x))
 	bb.WriteString(`" cy="`)
 	bb.WriteString(strconv.Itoa(y))
 	bb.WriteString(`" r="`)
 	bb.WriteString(formatFloatMinimized(r, svgPrecision))
 	bb.WriteString(`" `)
-	styleAsSVG(bb, style, c.dpi, true)
+	styleAsSVG(bb, style, c.dpi, false)
 	bb.WriteString(`/>`)
 
 	_, _ = c.w.Write(bb.Bytes())
@@ -561,6 +569,27 @@ func nonFinite(v float64) bool {
 // hasNonFinite reports whether any value is NaN or infinite.
 func hasNonFinite(vals ...float64) bool {
 	return slices.ContainsFunc(vals, nonFinite)
+}
+
+// writeDashArray writes the stroke-dasharray attribute when the pattern can be rendered.
+func writeDashArray(bb *bytes.Buffer, dash []float64) {
+	if !drawing.ValidDash(dash) {
+		return
+	}
+	bb.WriteString(` stroke-dasharray="`)
+	for i, v := range dash {
+		if i > 0 {
+			bb.WriteString(", ")
+		}
+		bb.WriteString(formatFloatMinimized(v, svgPrecision))
+	}
+	bb.WriteString(`"`)
+}
+
+// finitePositive reports whether v is a usable positive dimension, excluding zero, negatives,
+// NaN and ±Inf.
+func finitePositive(v float64) bool {
+	return v > 0 && !math.IsInf(v, 1)
 }
 
 // styleAsSVG returns the style as a svg style or class string.
@@ -590,7 +619,7 @@ func styleAsSVG(bb *bytes.Buffer, s Style, dpi float64, applyText bool) {
 
 	bb.WriteString("style=\"")
 
-	if sw != 0 && !sc.IsTransparent() {
+	if finitePositive(sw) && !sc.IsTransparent() {
 		bb.WriteString("stroke-width:")
 		bb.WriteString(formatFloatMinimized(sw, svgPrecision))
 		bb.WriteString(";stroke:")
@@ -610,9 +639,9 @@ func styleAsSVG(bb *bytes.Buffer, s Style, dpi float64, applyText bool) {
 	}
 
 	if applyText {
-		if fs != 0 {
+		if px := drawing.PointsToPixels(dpi, fs); finitePositive(px) {
 			bb.WriteString(";font-size:")
-			bb.WriteString(formatFloatMinimized(drawing.PointsToPixels(dpi, fs), 1))
+			bb.WriteString(formatFloatMinimized(px, 1))
 			bb.WriteString("px")
 		}
 		if f != nil {

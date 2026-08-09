@@ -156,6 +156,59 @@ func TestCanvasStyleSVG(t *testing.T) {
 	assert.Contains(t, bb.String(), "stroke-width:0.25")
 }
 
+func TestCanvasStyleSVGNonFinite(t *testing.T) {
+	t.Parallel()
+
+	styleSVG := func(strokeWidth, fontSize float64) string {
+		var bb bytes.Buffer
+		styleAsSVG(&bb, Style{
+			StrokeColor: drawing.ColorWhite,
+			StrokeWidth: strokeWidth,
+			FillColor:   drawing.ColorWhite,
+			FontStyle: FontStyle{
+				FontColor: drawing.ColorWhite,
+				Font:      GetDefaultFont(),
+				FontSize:  fontSize,
+			},
+		}, defaultDPI, true)
+		return bb.String()
+	}
+
+	for name, strokeWidth := range map[string]float64{
+		"nan_stroke_width":      math.NaN(),
+		"inf_stroke_width":      math.Inf(1),
+		"neg_inf_stroke_width":  math.Inf(-1),
+		"negative_stroke_width": -5,
+	} {
+		t.Run(name, func(t *testing.T) {
+			out := styleSVG(strokeWidth, 12)
+			assert.Contains(t, out, "stroke:none")
+			assert.NotContains(t, out, "stroke-width")
+			assert.NotContains(t, out, "NaN")
+			assert.NotContains(t, out, "Inf")
+		})
+	}
+
+	for name, fontSize := range map[string]float64{
+		"nan_font_size":      math.NaN(),
+		"inf_font_size":      math.Inf(1),
+		"negative_font_size": -12,
+	} {
+		t.Run(name, func(t *testing.T) {
+			out := styleSVG(5, fontSize)
+			assert.NotContains(t, out, "font-size")
+			assert.NotContains(t, out, "NaN")
+			assert.NotContains(t, out, "Inf")
+		})
+	}
+
+	t.Run("finite_unchanged", func(t *testing.T) {
+		out := styleSVG(5, 12)
+		assert.Contains(t, out, "stroke-width:5")
+		assert.Contains(t, out, "font-size:")
+	})
+}
+
 func TestCanvasClassSVG(t *testing.T) {
 	t.Parallel()
 
@@ -438,6 +491,12 @@ func TestFormatFloatMinimized(t *testing.T) {
 		assert.Equal(t, "0", formatFloatMinimized(0.25, 0))
 	})
 
+	t.Run("non_finite", func(t *testing.T) {
+		assert.Equal(t, "0", formatFloatMinimized(math.NaN(), 2))
+		assert.Equal(t, "0", formatFloatMinimized(math.Inf(1), 2))
+		assert.Equal(t, "0", formatFloatMinimized(math.Inf(-1), 2))
+	})
+
 	t.Run("negative_zero", func(t *testing.T) {
 		assert.Equal(t, "0", formatFloatMinimized(-1.2e-14, 2))
 		assert.Equal(t, "0", formatFloatMinimized(-1.2e-14, 0))
@@ -575,6 +634,7 @@ func TestVectorRendererCircle(t *testing.T) {
 		vr := SVG(20, 20).(*vectorRenderer)
 		vr.SetFillColor(drawing.ColorRed)
 		vr.Circle(radius, 10, 10)
+		vr.Fill()
 
 		buf := bytes.Buffer{}
 		require.NoError(t, vr.Save(&buf))
@@ -593,6 +653,121 @@ func TestVectorRendererCircle(t *testing.T) {
 		out := circleSVG(0.4)
 		assert.Contains(t, out, `r="0.4"`)
 		assert.NotContains(t, out, `r="0"`)
+	})
+
+	for name, radius := range map[string]float64{
+		"zero_radius":     0,
+		"negative_radius": -3,
+		"nan_radius":      math.NaN(),
+		"inf_radius":      math.Inf(1),
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert.NotContains(t, circleSVG(radius), "<circle")
+		})
+	}
+}
+
+func TestVectorRendererCircleCompletion(t *testing.T) {
+	t.Parallel()
+
+	circleSVG := func(complete func(vr *vectorRenderer)) string {
+		vr := SVG(20, 20).(*vectorRenderer)
+		vr.SetFillColor(drawing.ColorRed)
+		vr.SetStrokeColor(drawing.ColorBlue)
+		vr.SetStrokeWidth(2)
+		vr.Circle(3, 10, 10)
+		if complete != nil {
+			complete(vr)
+		}
+
+		buf := bytes.Buffer{}
+		require.NoError(t, vr.Save(&buf))
+		return buf.String()
+	}
+
+	t.Run("circle_fill_only", func(t *testing.T) {
+		out := circleSVG((*vectorRenderer).Fill)
+		assert.Contains(t, out, `<circle cx="10" cy="10" r="3" style="stroke:none;fill:red"/>`)
+	})
+
+	t.Run("circle_stroke_only", func(t *testing.T) {
+		out := circleSVG((*vectorRenderer).Stroke)
+		assert.Contains(t, out, `<circle cx="10" cy="10" r="3" style="stroke-width:2;stroke:blue;fill:none"/>`)
+	})
+
+	t.Run("circle_fill_stroke", func(t *testing.T) {
+		out := circleSVG((*vectorRenderer).FillStroke)
+		assert.Contains(t, out, `<circle cx="10" cy="10" r="3" style="stroke-width:2;stroke:blue;fill:red"/>`)
+	})
+
+	t.Run("circle_without_completion", func(t *testing.T) {
+		assert.NotContains(t, circleSVG(nil), "<circle")
+	})
+
+	t.Run("multiple_circles_one_completion", func(t *testing.T) {
+		out := circleSVG(func(vr *vectorRenderer) {
+			vr.Circle(4, 15, 15)
+			vr.FillStroke()
+		})
+		assert.Contains(t, out, `cx="10" cy="10" r="3"`)
+		assert.Contains(t, out, `cx="15" cy="15" r="4"`)
+	})
+
+	t.Run("circle_and_path_share_style", func(t *testing.T) {
+		out := circleSVG(func(vr *vectorRenderer) {
+			vr.MoveTo(0, 0)
+			vr.LineTo(5, 5)
+			vr.Stroke()
+		})
+		assert.Contains(t, out, `<circle cx="10" cy="10" r="3" style="stroke-width:2;stroke:blue;fill:none"/>`)
+		assert.Contains(t, out, `<path d="M 0 0`)
+	})
+
+	t.Run("completion_clears_circles", func(t *testing.T) {
+		out := circleSVG(func(vr *vectorRenderer) {
+			vr.FillStroke()
+			vr.MoveTo(0, 0)
+			vr.LineTo(5, 5)
+			vr.Stroke()
+		})
+		assert.Equal(t, 1, strings.Count(out, "<circle"))
+	})
+}
+
+func TestCanvasCircleDashArray(t *testing.T) {
+	t.Parallel()
+
+	circleDash := func(dash []float64) string {
+		b := strings.Builder{}
+		c := &canvas{w: &b, bb: bytes.NewBuffer(make([]byte, 0, 80))}
+		c.Circle(5, 5, 3, Style{StrokeDashArray: dash, StrokeWidth: 2, StrokeColor: drawing.ColorBlack})
+		return b.String()
+	}
+
+	t.Run("valid_dash", func(t *testing.T) {
+		assert.Contains(t, circleDash([]float64{1, 2}), "stroke-dasharray=\"1, 2\"")
+	})
+
+	t.Run("fractional_dash", func(t *testing.T) {
+		assert.Contains(t, circleDash([]float64{0.25, 2}), "stroke-dasharray=\"0.25, 2\"")
+	})
+
+	t.Run("degenerate_dash_omitted", func(t *testing.T) {
+		for _, dash := range [][]float64{nil, {0, 0}, {-5, 5}, {5, -5}} {
+			assert.NotContains(t, circleDash(dash), "stroke-dasharray", dash)
+		}
+	})
+
+	t.Run("fill_omits_dash", func(t *testing.T) {
+		vr := SVG(20, 20).(*vectorRenderer)
+		vr.SetFillColor(drawing.ColorRed)
+		vr.SetStrokeDashArray([]float64{1, 2})
+		vr.Circle(3, 10, 10)
+		vr.Fill()
+
+		buf := bytes.Buffer{}
+		require.NoError(t, vr.Save(&buf))
+		assert.NotContains(t, buf.String(), "stroke-dasharray")
 	})
 }
 

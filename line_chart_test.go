@@ -732,7 +732,7 @@ func TestLineChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x150eb948,
+			pngCRC: 0xe935827c,
 		},
 		{
 			name: "mark_point",
@@ -809,7 +809,7 @@ func TestLineChart(t *testing.T) {
 				opt.XAxis.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0xa311c0f4,
+			pngCRC: 0xbd301fdb,
 		},
 		{
 			name: "stack_series_dual_yaxis",
@@ -844,7 +844,7 @@ func TestLineChart(t *testing.T) {
 				opt.XAxis.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0xed840231,
+			pngCRC: 0xf54c5661,
 		},
 		{
 			name: "symbol_dot",
@@ -937,7 +937,7 @@ func TestLineChart(t *testing.T) {
 				opt.Legend.SeriesNames = opt.Legend.SeriesNames[:2]
 				return opt
 			},
-			pngCRC: 0xf1a7f880,
+			pngCRC: 0xfe33109d,
 		},
 		{
 			name: "axis_titles",
@@ -1222,7 +1222,7 @@ func TestLineChart(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0xc6d67916,
+			pngCRC: 0x54831921,
 		},
 		{
 			name: "stack_series_global_mark_point_null_last",

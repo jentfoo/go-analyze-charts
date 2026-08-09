@@ -300,7 +300,7 @@ func TestScatterChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x1cfae600,
+			pngCRC: 0x470c7d55,
 		},
 		{
 			name: "series_label",

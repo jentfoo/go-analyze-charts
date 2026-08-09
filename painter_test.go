@@ -317,7 +317,7 @@ func TestPainterExternal(t *testing.T) {
 				c := Color{R: 84, G: 112, B: 198, A: 255}
 				p.HorizontalMarkLine(0, 20, 300, c, c, 1, []float64{4, 2})
 			},
-			pngCRC: 0xa4ca1cb8,
+			pngCRC: 0x6efc927a,
 		},
 		{
 			name: "vertical_mark_line",
@@ -325,7 +325,7 @@ func TestPainterExternal(t *testing.T) {
 				c := Color{R: 84, G: 112, B: 198, A: 255}
 				p.VerticalMarkLine(200, 100, 100, c, c, 1, []float64{4, 2})
 			},
-			pngCRC: 0x681c0b4e,
+			pngCRC: 0xf2f902ee,
 		},
 		{
 			name: "polygon",

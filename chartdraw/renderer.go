@@ -61,7 +61,9 @@ type Renderer interface {
 	// FillStroke fills and strokes a path.
 	FillStroke()
 
-	// Circle draws a circle at the given coords with a given radius.
+	// Circle adds a circle at the given coords with a given radius to the
+	// current path/pending set. It is only painted by a subsequent completion
+	// call (Stroke/Fill/FillStroke); a circle without one renders nothing.
 	Circle(radius float64, x, y int)
 
 	// SetFont sets a font for a text field.

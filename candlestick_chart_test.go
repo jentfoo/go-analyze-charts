@@ -185,7 +185,7 @@ func TestCandlestickChart(t *testing.T) {
 					SeriesList: CandlestickSeriesList{series},
 				}
 			},
-			pngCRC: 0xbc192418,
+			pngCRC: 0xb44745f5,
 		},
 		{
 			name: "mark_point",

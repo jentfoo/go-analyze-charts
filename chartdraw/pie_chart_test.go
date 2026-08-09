@@ -49,6 +49,27 @@ func TestPieChartDropsZeroValues(t *testing.T) {
 	require.NoError(t, pie.Render(PNG, b))
 }
 
+func TestPieChartSingleValue(t *testing.T) {
+	t.Parallel()
+
+	pie := PieChart{
+		Canvas: Style{
+			FillColor: ColorLightGray,
+		},
+		Values: []Value{
+			{Value: 10, Label: "Blue"},
+		},
+	}
+
+	b := bytes.NewBuffer([]byte{})
+	require.NoError(t, pie.Render(SVG, b))
+	assert.Contains(t, b.String(), "<circle")
+
+	b.Reset()
+	require.NoError(t, pie.Render(PNG, b))
+	assert.NotZero(t, b.Len())
+}
+
 func TestPieChartAllZeroValues(t *testing.T) {
 	t.Parallel()
 
