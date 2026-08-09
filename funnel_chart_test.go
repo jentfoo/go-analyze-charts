@@ -139,7 +139,7 @@ func TestFunnelChart(t *testing.T) {
 					},
 				}
 			},
-			pngCRC: 0x3580f3e2,
+			pngCRC: 0x58d2b5a6,
 		},
 		{
 			name: "border_without_background",
@@ -157,7 +157,7 @@ func TestFunnelChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0xfca8d76f,
+			pngCRC: 0xfaef52c9,
 		},
 		{
 			name: "unsorted",
@@ -177,7 +177,7 @@ func TestFunnelChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0xc0c4bd5f,
+			pngCRC: 0x83721fd3,
 		},
 	}
 

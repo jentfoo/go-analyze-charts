@@ -239,7 +239,7 @@ func TestBarChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0xe36ea930,
+			pngCRC: 0xe76d53af,
 		},
 		{
 			name: "mark_point",
@@ -331,7 +331,7 @@ func TestBarChart(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x8eea66ba,
+			pngCRC: 0x613f9db0,
 		},
 		{
 			name: "empty_series",
@@ -346,7 +346,7 @@ func TestBarChart(t *testing.T) {
 				opt.ValueAxis = []ValueAxisOption{{Show: Ptr(true)}, {Show: Ptr(true)}}
 				return opt
 			},
-			pngCRC: 0x99a18ee9,
+			pngCRC: 0x64942b1c,
 		},
 		{
 			name: "null_values",
@@ -811,7 +811,7 @@ func TestBarChartHorizontal(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0xc1294083,
+			pngCRC: 0x215df3b,
 		},
 		{
 			name: "bar_size_thin",
@@ -888,7 +888,7 @@ func TestBarChartHorizontal(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0xdb29c31e,
+			pngCRC: 0xcf7742ad,
 		},
 		{
 			name: "empty_series",
@@ -907,7 +907,7 @@ func TestBarChartHorizontal(t *testing.T) {
 				opt.ValueAxis = []ValueAxisOption{{Show: Ptr(true)}}
 				return opt
 			},
-			pngCRC: 0x94f1f2d4,
+			pngCRC: 0x61fb849b,
 		},
 		{
 			name: "rounded_caps",
@@ -956,7 +956,7 @@ func TestBarChartHorizontal(t *testing.T) {
 				opt.SeriesList[0].MarkLine = NewMarkLine(SeriesMarkTypeMax, SeriesMarkTypeAverage)
 				return opt
 			},
-			pngCRC: 0xa0ae2a72,
+			pngCRC: 0xc4904ff6,
 		},
 		{
 			name: "null_values",

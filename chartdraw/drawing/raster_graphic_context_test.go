@@ -745,6 +745,26 @@ func TestStroke(t *testing.T) {
 		assert.NotZero(t, dashTo(1e200).RGBAAt(21, 20).A) // a squared length would overflow here
 		assert.NotZero(t, dashTo(-1e200).RGBAAt(19, 20).A)
 	})
+
+	t.Run("closed_square_corner", func(t *testing.T) {
+		img := image.NewRGBA(image.Rect(0, 0, 40, 40))
+		rgc := NewRasterGraphicContext(img)
+		rgc.SetStrokeColor(color.RGBA{R: 255, A: 255})
+		rgc.SetLineWidth(6)
+		rgc.MoveTo(10, 10)
+		rgc.LineTo(30, 10)
+		rgc.LineTo(30, 30)
+		rgc.LineTo(10, 30)
+		rgc.Close()
+		rgc.Stroke()
+
+		// probes sit inside each corner bevel, outside both stroke arms
+		// start corner (9,9) was notched before close seam join
+		assert.NotZero(t, img.RGBAAt(9, 9).A)
+		assert.NotZero(t, img.RGBAAt(30, 9).A)
+		assert.NotZero(t, img.RGBAAt(30, 30).A)
+		assert.NotZero(t, img.RGBAAt(9, 30).A)
+	})
 }
 
 func TestFill(t *testing.T) {

@@ -149,7 +149,7 @@ func TestHeatMapChart(t *testing.T) {
 					YAxis:   HeatMapAxis{Title: "Y-Axis", Labels: []string{"Row1", "Row2"}},
 				}
 			},
-			pngCRC: 0xfeee5d53,
+			pngCRC: 0x8548d55a,
 		},
 		{
 			name: "no_columns",
@@ -161,7 +161,7 @@ func TestHeatMapChart(t *testing.T) {
 					YAxis:   HeatMapAxis{Title: "Y-Axis", Labels: []string{"Row1", "Row2"}},
 				}
 			},
-			pngCRC: 0xfeee5d53,
+			pngCRC: 0x8548d55a,
 		},
 		{
 			name: "non_square",

@@ -29,15 +29,28 @@ func TestBresenhamDiagonal(t *testing.T) {
 func TestPolylineBresenham(t *testing.T) {
 	t.Parallel()
 
-	img := image.NewRGBA(image.Rect(0, 0, 5, 5))
-	PolylineBresenham(img, color.White, 0, 0, 2, 0, 2, 2)
+	t.Run("positive_coords", func(t *testing.T) {
+		img := image.NewRGBA(image.Rect(0, 0, 5, 5))
+		PolylineBresenham(img, color.White, 0, 0, 2, 0, 2, 2)
 
-	expected := [][2]int{{0, 0}, {1, 0}, {2, 0}, {2, 1}, {2, 2}}
-	for _, p := range expected {
-		_, _, _, a := img.At(p[0], p[1]).RGBA()
+		expected := [][2]int{{0, 0}, {1, 0}, {2, 0}, {2, 1}, {2, 2}}
+		for _, p := range expected {
+			_, _, _, a := img.At(p[0], p[1]).RGBA()
+			assert.Equal(t, uint32(0xffff), a)
+		}
+
+		_, _, _, a := img.At(1, 1).RGBA()
+		assert.Equal(t, uint32(0), a)
+	})
+
+	t.Run("negative_fractional_start", func(t *testing.T) {
+		img := image.NewRGBA(image.Rect(0, 0, 6, 6))
+		PolylineBresenham(img, color.White, -1.6, 0.4, 4, 2)
+
+		// -1.6 rounds to -2, truncation toward zero would paint (0,0) instead of (0,1)
+		_, _, _, a := img.At(0, 1).RGBA()
 		assert.Equal(t, uint32(0xffff), a)
-	}
-
-	_, _, _, a := img.At(1, 1).RGBA()
-	assert.Equal(t, uint32(0), a)
+		_, _, _, a = img.At(0, 0).RGBA()
+		assert.Equal(t, uint32(0), a)
+	})
 }

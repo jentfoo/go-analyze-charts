@@ -127,6 +127,12 @@ func TestParseColor(t *testing.T) {
 
 	c = ParseColor("rgba(50,51,52,250)")
 	assert.Equal(t, Color{R: 50, G: 51, B: 52, A: 250}, c)
+
+	c = ParseColor("#ab")
+	assert.True(t, c.IsZero())
+
+	c = ParseColor("#31323380")
+	assert.Equal(t, Color{R: 49, G: 50, B: 51, A: 128}, c)
 }
 
 func TestColorConvertGo(t *testing.T) {

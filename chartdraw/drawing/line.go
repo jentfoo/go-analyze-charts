@@ -3,12 +3,14 @@ package drawing
 import (
 	"image/color"
 	"image/draw"
+	"math"
 )
 
 // PolylineBresenham draws a polyline to an image
 func PolylineBresenham(img draw.Image, c color.Color, s ...float64) {
 	for i := 2; i+1 < len(s); i += 2 {
-		Bresenham(img, c, int(s[i-2]+0.5), int(s[i-1]+0.5), int(s[i]+0.5), int(s[i+1]+0.5))
+		Bresenham(img, c, int(math.Round(s[i-2])), int(math.Round(s[i-1])),
+			int(math.Round(s[i])), int(math.Round(s[i+1])))
 	}
 }
 

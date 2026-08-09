@@ -185,7 +185,7 @@ func TestCandlestickChart(t *testing.T) {
 					SeriesList: CandlestickSeriesList{series},
 				}
 			},
-			pngCRC: 0x7f38eda5,
+			pngCRC: 0x66f6b972,
 		},
 		{
 			name: "mark_point",
@@ -255,7 +255,7 @@ func TestCandlestickChart(t *testing.T) {
 					SeriesList: CandlestickSeriesList{series},
 				}
 			},
-			pngCRC: 0x6d610dae,
+			pngCRC: 0xaa3b1cda,
 		},
 		{
 			name: "large_dataset",
@@ -477,7 +477,7 @@ func TestCandlestickChart(t *testing.T) {
 					Padding: NewBoxEqual(10),
 				}
 			},
-			pngCRC: 0x4243c296,
+			pngCRC: 0x96c32d4e,
 		},
 		{
 			name: "candle_margin_zero",
@@ -538,7 +538,7 @@ func TestCandlestickChart(t *testing.T) {
 				opt.YAxis = []YAxisOption{{Show: Ptr(true)}, {Show: Ptr(true)}}
 				return opt
 			},
-			pngCRC: 0x010d7534,
+			pngCRC: 0xbacfa6b1,
 		},
 		{
 			name: "empty_series",
@@ -553,7 +553,7 @@ func TestCandlestickChart(t *testing.T) {
 				opt.YAxis = []YAxisOption{{Show: Ptr(true)}, {Show: Ptr(true)}}
 				return opt
 			},
-			pngCRC: 0x010d7534,
+			pngCRC: 0xbacfa6b1,
 		},
 	}
 

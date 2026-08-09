@@ -234,7 +234,7 @@ func TestDoughnutChart(t *testing.T) {
 					},
 				}
 			},
-			pngCRC: 0xc7046d0d,
+			pngCRC: 0x38412948,
 		},
 		{
 			name: "empty_series",
@@ -247,7 +247,7 @@ func TestDoughnutChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x76deb821,
+			pngCRC: 0xdabda93b,
 		},
 		{
 			name: "zero_sum",
@@ -260,7 +260,7 @@ func TestDoughnutChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x76deb821,
+			pngCRC: 0xdabda93b,
 		},
 	}
 

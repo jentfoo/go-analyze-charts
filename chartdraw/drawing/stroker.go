@@ -3,6 +3,11 @@
 
 package drawing
 
+import "math"
+
+// closeSeamEpsilon is the tolerance for treating a subpath end as returned to its start.
+const closeSeamEpsilon = 1e-9
+
 // NewLineStroker creates a new line stroker.
 func NewLineStroker(flattener Flattener) *LineStroker {
 	l := new(LineStroker)
@@ -13,11 +18,12 @@ func NewLineStroker(flattener Flattener) *LineStroker {
 
 // LineStroker draws the stroke portion of a line.
 type LineStroker struct {
-	Flattener     Flattener
-	HalfLineWidth float64
-	vertices      []float64
-	rewind        []float64
-	x, y, nx, ny  float64
+	Flattener      Flattener
+	HalfLineWidth  float64
+	vertices       []float64
+	rewind         []float64
+	x, y           float64
+	startX, startY float64
 }
 
 // MoveTo records the starting point for a stroked segment (for PathBuilder interface).
@@ -25,6 +31,7 @@ type LineStroker struct {
 // subpath; dropping the point instead would splice the subpath onto the previous one.
 func (l *LineStroker) MoveTo(x, y float64) {
 	l.x, l.y = x, y
+	l.startX, l.startY = x, y
 }
 
 // LineTo adds a stroked line to the path (for PathBuilder interface).
@@ -40,13 +47,18 @@ func (l *LineStroker) line(x1, y1, x2, y2 float64) {
 		nx := dy * l.HalfLineWidth / d
 		ny := -(dx * l.HalfLineWidth / d)
 		l.appendVertex(x1+nx, y1+ny, x2+nx, y2+ny, x1-nx, y1-ny, x2-nx, y2-ny)
-		l.x, l.y, l.nx, l.ny = x2, y2, nx, ny
+		l.x, l.y = x2, y2
 	}
 }
 
 // End emits the completed stroked path to the next flattener (for PathBuilder interface).
 func (l *LineStroker) End() {
 	if len(l.vertices) > 1 {
+		if math.Abs(l.x-l.startX) < closeSeamEpsilon && math.Abs(l.y-l.startY) < closeSeamEpsilon &&
+			(l.vertices[0] != l.rewind[0] || l.vertices[1] != l.rewind[1]) {
+			// join close seam like interior vertices
+			l.appendVertex(l.vertices[0], l.vertices[1], l.rewind[0], l.rewind[1])
+		}
 		l.Flattener.MoveTo(l.vertices[0], l.vertices[1])
 		for i, j := 2, 3; j < len(l.vertices); i, j = i+2, j+2 {
 			l.Flattener.LineTo(l.vertices[i], l.vertices[j])
@@ -62,7 +74,7 @@ func (l *LineStroker) End() {
 	// reinit vertices
 	l.vertices = l.vertices[0:0]
 	l.rewind = l.rewind[0:0]
-	l.x, l.y, l.nx, l.ny = 0, 0, 0, 0
+	l.x, l.y, l.startX, l.startY = 0, 0, 0, 0
 }
 
 func (l *LineStroker) appendVertex(vertices ...float64) {

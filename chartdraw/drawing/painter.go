@@ -21,11 +21,11 @@ func DrawImage(src image.Image, dest draw.Image, tr Matrix, op draw.Op, filter I
 	var transformer draw.Transformer
 	switch filter {
 	case LinearFilter:
-		transformer = draw.NearestNeighbor
-	case BilinearFilter:
-		transformer = draw.BiLinear
+		transformer = draw.NearestNeighbor // mapping retained for compatibility
 	case BicubicFilter:
 		transformer = draw.CatmullRom
+	default: // BilinearFilter and unrecognized values
+		transformer = draw.BiLinear
 	}
-	transformer.Transform(dest, f64.Aff3{tr[0], tr[1], tr[4], tr[2], tr[3], tr[5]}, src, src.Bounds(), op, nil)
+	transformer.Transform(dest, f64.Aff3{tr[0], tr[2], tr[4], tr[1], tr[3], tr[5]}, src, src.Bounds(), op, nil)
 }

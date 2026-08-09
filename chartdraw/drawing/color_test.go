@@ -11,45 +11,36 @@ import (
 func TestColorFromHex(t *testing.T) {
 	t.Parallel()
 
-	white := ColorFromHex("FFFFFF")
-	assert.Equal(t, ColorWhite, white)
-
-	shortWhite := ColorFromHex("FFF")
-	assert.Equal(t, ColorWhite, shortWhite)
-
-	black := ColorFromHex("000000")
-	assert.Equal(t, ColorBlack, black)
-
-	shortBlack := ColorFromHex("000")
-	assert.Equal(t, ColorBlack, shortBlack)
-
-	red := ColorFromHex("FF0000")
-	assert.Equal(t, ColorRed, red)
-
-	shortRed := ColorFromHex("F00")
-	assert.Equal(t, ColorRed, shortRed)
-
-	green := ColorFromHex("008000")
-	assert.Equal(t, ColorGreen, green)
-
-	// shortGreen := ColorFromHex("0F0")
-	// assert.Equal(t, ColorGreen, shortGreen)
-
-	blue := ColorFromHex("0000FF")
-	assert.Equal(t, ColorBlue, blue)
-
-	shortBlue := ColorFromHex("00F")
-	assert.Equal(t, ColorBlue, shortBlue)
-}
-
-func TestColorFromHex_handlesHash(t *testing.T) {
-	t.Parallel()
-
-	withHash := ColorFromHex("#FF0000")
-	assert.Equal(t, ColorRed, withHash)
-
-	withoutHash := ColorFromHex("#FF0000")
-	assert.Equal(t, ColorRed, withoutHash)
+	testCases := []struct {
+		name     string
+		input    string
+		expected Color
+	}{
+		{name: "white", input: "FFFFFF", expected: ColorWhite},
+		{name: "short_white", input: "FFF", expected: ColorWhite},
+		{name: "black", input: "000000", expected: ColorBlack},
+		{name: "short_black", input: "000", expected: ColorBlack},
+		{name: "red", input: "FF0000", expected: ColorRed},
+		{name: "short_red", input: "F00", expected: ColorRed},
+		{name: "green", input: "008000", expected: ColorGreen},
+		{name: "blue", input: "0000FF", expected: ColorBlue},
+		{name: "short_blue", input: "00F", expected: ColorBlue},
+		{name: "with_hash", input: "#FF0000", expected: ColorRed},
+		{name: "empty_string", input: "", expected: Color{}},
+		{name: "hash_only", input: "#", expected: Color{}},
+		{name: "one_digit", input: "F", expected: Color{}},
+		{name: "two_digits", input: "FF", expected: Color{}},
+		{name: "five_digits", input: "FFFFF", expected: Color{}},
+		{name: "seven_digits", input: "FFFFFFF", expected: Color{}},
+		{name: "four_digit_rgba", input: "F00A", expected: Color{R: 255, A: 0xAA}},
+		{name: "four_digit_opaque", input: "F00F", expected: ColorRed},
+		{name: "eight_digit_rgba", input: "#FF000080", expected: Color{R: 255, A: 0x80}},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			assert.Equal(t, tc.expected, ColorFromHex(tc.input))
+		})
+	}
 }
 
 func TestColorFromAlphaMixedRGBA(t *testing.T) {
@@ -149,6 +140,8 @@ func TestParseColor(t *testing.T) {
 		{"#F00", ColorRed},
 		{"#080", Color{0, 136, 0, 255}},
 		{"#00F", ColorBlue},
+		{"#ab", Color{}},
+		{"#FF000080", Color{R: 255, A: 128}},
 	}
 
 	for index, tc := range testCases {

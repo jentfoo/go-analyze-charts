@@ -430,7 +430,7 @@ func TestPieChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x12c875b5,
+			pngCRC: 0x5b51e5fe,
 		},
 		{
 			name: "label_title_collision",
@@ -505,7 +505,7 @@ func TestPieChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x76deb821,
+			pngCRC: 0xdabda93b,
 		},
 		{
 			name: "zero_sum",
@@ -518,7 +518,7 @@ func TestPieChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x76deb821,
+			pngCRC: 0xdabda93b,
 		},
 	}
 

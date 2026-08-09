@@ -167,7 +167,7 @@ func TestPainterInternal(t *testing.T) {
 				p.close()
 				p.fillStroke(ColorBlue, ColorBlack, 1)
 			},
-			pngCRC: 0xf02ed0a2,
+			pngCRC: 0x8aea9ad4,
 		},
 		{
 			name: "draw_background",
@@ -269,7 +269,7 @@ func TestPainterExternal(t *testing.T) {
 			fn: func(p *Painter) {
 				p.FilledRect(100, 100, 200, 150, ColorWhite, ColorBlue, 1.0)
 			},
-			pngCRC: 0xd6c2a417,
+			pngCRC: 0x879562b7,
 		},
 		{
 			name: "pin",
@@ -277,7 +277,7 @@ func TestPainterExternal(t *testing.T) {
 				c := Color{R: 84, G: 112, B: 198, A: 255}
 				p.MarkPin(30, 30, 30, 0, c, c, 1)
 			},
-			pngCRC: 0x05cc758c,
+			pngCRC: 0xda750d9b,
 		},
 		{
 			name: "arrow_left",
@@ -285,7 +285,7 @@ func TestPainterExternal(t *testing.T) {
 				c := Color{R: 84, G: 112, B: 198, A: 255}
 				p.ArrowLeft(30, 30, 16, 10, c, c, 1)
 			},
-			pngCRC: 0xa396a86a,
+			pngCRC: 0x5d3f2a74,
 		},
 		{
 			name: "arrow_right",
@@ -293,7 +293,7 @@ func TestPainterExternal(t *testing.T) {
 				c := Color{R: 84, G: 112, B: 198, A: 255}
 				p.ArrowRight(30, 30, 16, 10, c, c, 1)
 			},
-			pngCRC: 0xa251e901,
+			pngCRC: 0x56e15023,
 		},
 		{
 			name: "arrow_up",
@@ -301,7 +301,7 @@ func TestPainterExternal(t *testing.T) {
 				c := Color{R: 84, G: 112, B: 198, A: 255}
 				p.ArrowUp(30, 30, 10, 16, c, c, 1)
 			},
-			pngCRC: 0xe68ccf5a,
+			pngCRC: 0xcd908d76,
 		},
 		{
 			name: "arrow_down",
@@ -309,7 +309,7 @@ func TestPainterExternal(t *testing.T) {
 				c := Color{R: 84, G: 112, B: 198, A: 255}
 				p.ArrowDown(30, 30, 10, 16, c, c, 1)
 			},
-			pngCRC: 0xb19787e3,
+			pngCRC: 0xb0a481d8,
 		},
 		{
 			name: "horizontal_mark_line",
@@ -317,7 +317,7 @@ func TestPainterExternal(t *testing.T) {
 				c := Color{R: 84, G: 112, B: 198, A: 255}
 				p.HorizontalMarkLine(0, 20, 300, c, c, 1, []float64{4, 2})
 			},
-			pngCRC: 0x7ba91c8a,
+			pngCRC: 0x001353d2,
 		},
 		{
 			name: "vertical_mark_line",
@@ -325,14 +325,14 @@ func TestPainterExternal(t *testing.T) {
 				c := Color{R: 84, G: 112, B: 198, A: 255}
 				p.VerticalMarkLine(200, 100, 100, c, c, 1, []float64{4, 2})
 			},
-			pngCRC: 0x9354892e,
+			pngCRC: 0x8e701eb7,
 		},
 		{
 			name: "polygon",
 			fn: func(p *Painter) {
 				p.Polygon(Point{X: 100, Y: 100}, 50, 6, Color{R: 84, G: 112, B: 198, A: 255}, 1)
 			},
-			pngCRC: 0x82e5dfa5,
+			pngCRC: 0x6227c200,
 		},
 		{
 			name: "fill_area",
@@ -577,7 +577,7 @@ func TestPainterRoundedRect(t *testing.T) {
 					Top:    10,
 				}, 5, roundBottomRight|roundBottomLeft, ColorBlue, ColorBlue, 1)
 			},
-			pngCRC: 0xde79f039,
+			pngCRC: 0x7d464bfe,
 		},
 		{
 			name: "square_bottom",
@@ -893,55 +893,55 @@ func TestPainterMeasureText(t *testing.T) {
 				name:        "basic",
 				input:       "Hello World!",
 				font:        styleLargeNoto,
-				expectedCRC: 0xa0774ae1,
+				expectedCRC: 0x9cd9ba5c,
 			},
 			{
 				name:        "emojis",
 				input:       "⭐❓💰🔥💯🎯🚀⚡🌟🎉🎊",
 				font:        styleLargeNoto,
-				expectedCRC: 0x7bb34191,
+				expectedCRC: 0xa9c2f07e,
 			},
 			{
 				name:        "shapes",
 				input:       "▫●□▲▼◇★○△▪▴▾◆◯⬟⬠⬡⬢⬣⬤⬥",
 				font:        styleLargeNoto,
-				expectedCRC: 0x4985dbfc,
+				expectedCRC: 0x9d690c37,
 			},
 			{
 				name:        "playing_cards",
 				input:       "🂡🂢🂫🃄🃍🃘🃞🃟",
 				font:        styleLargeNoto,
-				expectedCRC: 0xaf691a66,
+				expectedCRC: 0xf192d7c5,
 			},
 			{
 				name:        "faces",
 				input:       "😂😍🤣😊😭😘😎🤔😴😋😉😏😬😐😑😮😯",
 				font:        styleLargeNoto,
-				expectedCRC: 0xa4a1ca28,
+				expectedCRC: 0x4ebddb1e,
 			},
 			{
 				name:        "fallback_notosans_currency",
 				input:       "₠₡₢₥₭₮₯₰₲₳₴₵₶₷₸₻₾₿",
 				font:        styleLargeRoboto,
-				expectedCRC: 0x5e2097ec,
+				expectedCRC: 0xe4c7e52e,
 			},
 			{
 				name:        "fallback_notosans_letterlike",
 				input:       "℀℁ℂ℃℄℆ℇ℈℉ℊℋℌℍℎℏℐℑℒ℔ℕ℗℘ℙℚℛℜℝ℞℟℣ℤ℥℧ℨ℩KÅℬℭℯ",
 				font:        styleLargeRoboto,
-				expectedCRC: 0xfd4c93a9,
+				expectedCRC: 0x7e5a4a8b,
 			},
 			{
 				name:        "fallback_notosans_subscripts",
 				input:       "ⁱₐₑₒₓₔₕₖₗₘₙₚₛₜ",
 				font:        styleLargeRoboto,
-				expectedCRC: 0x690572ea,
+				expectedCRC: 0xc498a0ac,
 			},
 			{
 				name:        "fallback_roboto_mathematical",
 				input:       "∂∆∏∑-√∞∫≈≠≤≥◊",
 				font:        styleLargeNoto,
-				expectedCRC: 0xa1c74648,
+				expectedCRC: 0x59660fa9,
 			},
 		}
 

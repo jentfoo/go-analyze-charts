@@ -160,20 +160,32 @@ func parseHex(hex string) uint8 {
 	return uint8(v) // nolint:gosec // bitSize 16 bounds to uint8
 }
 
-// ColorFromHex returns a color from a css hex code.
-//
-// NOTE: it will trim a leading '#' character if present.
+// ColorFromHex returns a color from a css hex code. Supports 3 (RGB), 4 (RGBA), 6 (RRGGBB),
+// and 8 (RRGGBBAA) digit forms, with an optional '#' prefix. Other lengths return a zero Color.
 func ColorFromHex(hex string) Color {
 	hex = strings.TrimPrefix(hex, "#")
-	c := Color{A: 255}
-	if len(hex) == 3 {
+	var c Color
+	switch len(hex) {
+	case 3:
 		c.R = parseHex(string(hex[0])) * 0x11
 		c.G = parseHex(string(hex[1])) * 0x11
 		c.B = parseHex(string(hex[2])) * 0x11
-	} else {
+		c.A = 255
+	case 4:
+		c.R = parseHex(string(hex[0])) * 0x11
+		c.G = parseHex(string(hex[1])) * 0x11
+		c.B = parseHex(string(hex[2])) * 0x11
+		c.A = parseHex(string(hex[3])) * 0x11
+	case 6:
 		c.R = parseHex(hex[0:2])
 		c.G = parseHex(hex[2:4])
 		c.B = parseHex(hex[4:6])
+		c.A = 255
+	case 8:
+		c.R = parseHex(hex[0:2])
+		c.G = parseHex(hex[2:4])
+		c.B = parseHex(hex[4:6])
+		c.A = parseHex(hex[6:8])
 	}
 	return c
 }

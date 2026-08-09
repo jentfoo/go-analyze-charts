@@ -250,7 +250,7 @@ func TestViolinChart(t *testing.T) {
 				)
 				return opt
 			},
-			pngCRC: 0xfb3f0c81,
+			pngCRC: 0xf214e218,
 		},
 		{
 			name: "mark_line_horizontal",
@@ -267,7 +267,7 @@ func TestViolinChart(t *testing.T) {
 				opt.SeriesList[0].MarkLine = NewMarkLine(SeriesMarkTypeAverage, SeriesMarkTypeMedian)
 				return opt
 			},
-			pngCRC: 0xc121b4b1,
+			pngCRC: 0x3e9e657d,
 		},
 		{
 			name: "nil_data",
@@ -325,7 +325,7 @@ func TestViolinChart(t *testing.T) {
 				opt.ValueAxis = ViolinAxis{Show: Ptr(true), Title: "Value"}
 				return opt
 			},
-			pngCRC: 0x76b36653,
+			pngCRC: 0xcd5669cb,
 		},
 	}
 

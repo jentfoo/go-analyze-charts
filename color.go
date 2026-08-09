@@ -158,8 +158,9 @@ func isLightColor(c Color) bool {
 	return math.Sqrt(r+g+b) > 127.5
 }
 
-// ParseColor parses a color from a string. Supports hex with '#' prefix (e.g. '#313233'),
-// rgb(i,i,i) or rgba(i,i,i,f) format, or common names (e.g. 'red').
+// ParseColor parses a color from a string. Supports hex with '#' prefix in 3, 4, 6, or 8 digit
+// forms (e.g. '#313233', 4 and 8 digits carry alpha), rgb(i,i,i) or rgba(i,i,i,f) format, or
+// common names (e.g. 'red').
 func ParseColor(rawColor string) Color {
 	if strings.HasPrefix(rawColor, "#") {
 		return ColorFromHex(rawColor)
@@ -174,8 +175,8 @@ func ColorFromKnown(known string) Color {
 	return drawing.ColorFromKnown(known)
 }
 
-// ColorFromHex returns a color from a CSS hex code.
-// Trims a leading '#' character if present.
+// ColorFromHex returns a color from a CSS hex code. Supports 3 (RGB), 4 (RGBA), 6 (RRGGBB),
+// and 8 (RRGGBBAA) digit forms, with an optional '#' prefix. Other lengths return a zero Color.
 func ColorFromHex(hex string) Color {
 	return drawing.ColorFromHex(hex)
 }
