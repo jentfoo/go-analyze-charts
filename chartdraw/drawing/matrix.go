@@ -14,6 +14,12 @@ func (tr *Matrix) Determinant() float64 {
 	return tr[0]*tr[3] - tr[1]*tr[2]
 }
 
+// inverseDeterminant returns the determinant and whether the matrix can be inverted.
+func (tr *Matrix) inverseDeterminant() (float64, bool) {
+	d := tr.Determinant()
+	return d, d != 0 && !isNonFinite(d) && !hasNonFinite(tr[:])
+}
+
 // Transform applies the transformation matrix to points. It modifies the points passed in parameter.
 func (tr *Matrix) Transform(points []float64) {
 	for i, j := 0, 1; j < len(points); i, j = i+2, j+2 {
@@ -47,9 +53,13 @@ func (tr *Matrix) TransformRectangle(x0, y0, x2, y2 float64) (nx0, ny0, nx2, ny2
 	return nx0, ny0, nx2, ny2
 }
 
-// InverseTransform applies the transformation inverse matrix to the rectangle represented by the min and the max point of the rectangle.
+// InverseTransform applies the transformation inverse matrix to points. It modifies the points
+// passed in parameter, leaving them unchanged if the matrix is singular or holds non-finite terms.
 func (tr *Matrix) InverseTransform(points []float64) {
-	d := tr.Determinant() // matrix determinant
+	d, ok := tr.inverseDeterminant()
+	if !ok {
+		return // inverting would produce non-finite terms
+	}
 	for i, j := 0, 1; j < len(points); i, j = i+2, j+2 {
 		x := points[i]
 		y := points[j]
@@ -58,9 +68,13 @@ func (tr *Matrix) InverseTransform(points []float64) {
 	}
 }
 
-// InverseTransformPoint applies the transformation inverse matrix to point. It returns the point the transformed point.
+// InverseTransformPoint applies the transformation inverse matrix to point. It returns the
+// transformed point, or the input point unchanged if the matrix is singular or holds non-finite terms.
 func (tr *Matrix) InverseTransformPoint(x, y float64) (xres, yres float64) {
-	d := tr.Determinant() // matrix determinant
+	d, ok := tr.inverseDeterminant()
+	if !ok {
+		return x, y // inverting would produce non-finite terms
+	}
 	xres = ((x-tr[4])*tr[3] - (y-tr[5])*tr[2]) / d
 	yres = ((y-tr[5])*tr[0] - (x-tr[4])*tr[1]) / d
 	return xres, yres
@@ -108,9 +122,12 @@ func NewMatrixFromRects(rectangle1, rectangle2 [4]float64) Matrix {
 	return Matrix{xScale, 0, 0, yScale, xOffset, yOffset}
 }
 
-// Inverse computes the inverse matrix.
+// Inverse computes the inverse matrix, a singular matrix or one holding non-finite terms is left unchanged.
 func (tr *Matrix) Inverse() {
-	d := tr.Determinant() // matrix determinant
+	d, ok := tr.inverseDeterminant()
+	if !ok {
+		return // inverting would produce non-finite terms
+	}
 	tr0, tr1, tr2, tr3, tr4, tr5 := tr[0], tr[1], tr[2], tr[3], tr[4], tr[5]
 	tr[0] = tr3 / d
 	tr[1] = -tr1 / d

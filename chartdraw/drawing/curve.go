@@ -1,23 +1,15 @@
 package drawing
 
-import (
-	"math"
-	"slices"
-)
+import "math"
 
 const (
 	// CurveRecursionLimit represents the maximum recursion that is really necessary to subsivide a curve into straight lines
 	CurveRecursionLimit = 32
-	// maxArcSegments bounds the segments an arc may be tessellated into
-	maxArcSegments = 1 << 14
+	// maxTraceSegments bounds the segments an arc or Bézier curve may be tessellated into
+	maxTraceSegments = 1 << 14
+	// defaultFlatteningThreshold substitutes for a threshold that could never test flat
+	defaultFlatteningThreshold = 0.5
 )
-
-// hasNonFinite reports whether any value is NaN or infinite.
-func hasNonFinite(vals []float64) bool {
-	return slices.ContainsFunc(vals, func(v float64) bool {
-		return math.IsNaN(v) || math.IsInf(v, 0)
-	})
-}
 
 // Cubic
 //	x1, y1, cpx1, cpy1, cpx2, cpy2, x2, y2 float64
@@ -54,11 +46,15 @@ func SubdivideCubic(c, c1, c2 []float64) {
 }
 
 // TraceCubic subdivides the cubic curve into line segments emitted through t.
-// flatteningThreshold sets the flatness tolerance; non-finite control points produce no output.
+// flatteningThreshold sets the flatness tolerance and must be positive, other values use the
+// default. Non-finite control points produce no output.
 func TraceCubic(t Liner, cubic []float64, flatteningThreshold float64) {
 	// skip non-finite control points to avoid unbounded subdivision
 	if hasNonFinite(cubic[:8]) {
 		return
+	}
+	if !(flatteningThreshold > 0) { // also catches NaN, which could never test flat
+		flatteningThreshold = defaultFlatteningThreshold
 	}
 	const lastIteration = CurveRecursionLimit - 1
 
@@ -67,6 +63,7 @@ func TraceCubic(t Liner, cubic []float64, flatteningThreshold float64) {
 	copy(curves[0:8], cubic[0:8])
 
 	// current curve
+	var emitted int
 	for i := 0; i >= 0; {
 		c := curves[i*8:]
 		dx := c[6] - c[0]
@@ -78,9 +75,11 @@ func TraceCubic(t Liner, cubic []float64, flatteningThreshold float64) {
 		// degenerate point can't flatten; emit and pop
 		isPoint := dx == 0 && dy == 0 && c[2] == c[0] && c[3] == c[1] && c[4] == c[0] && c[5] == c[1]
 
-		// if it's flat then trace a line
-		if (d2+d3)*(d2+d3) < flatteningThreshold*(dx*dx+dy*dy) || isPoint || i == lastIteration {
+		// if it's flat then trace a line, extreme control points stop subdividing at the budget
+		if (d2+d3)*(d2+d3) < flatteningThreshold*(dx*dx+dy*dy) || isPoint ||
+			i == lastIteration || emitted >= maxTraceSegments {
 			t.LineTo(c[6], c[7])
+			emitted++
 			i--
 		} else {
 			// second half of bezier go lower onto the stack
@@ -134,11 +133,15 @@ func traceGetWindow(curves []float64, i int) []float64 {
 }
 
 // TraceQuad subdivides the quadratic curve into line segments emitted through t.
-// flatteningThreshold sets the flatness tolerance; non-finite control points produce no output.
+// flatteningThreshold sets the flatness tolerance and must be positive, other values use the
+// default. Non-finite control points produce no output.
 func TraceQuad(t Liner, quad []float64, flatteningThreshold float64) {
 	// skip non-finite control points to avoid unbounded subdivision
 	if hasNonFinite(quad[:6]) {
 		return
+	}
+	if !(flatteningThreshold > 0) { // also catches NaN, which could never test flat
+		flatteningThreshold = defaultFlatteningThreshold
 	}
 	const curveLen = CurveRecursionLimit * 6
 	const lastIteration = CurveRecursionLimit - 1
@@ -149,7 +152,7 @@ func TraceQuad(t Liner, quad []float64, flatteningThreshold float64) {
 	// copy 6 elements from the quad path to the stack
 	copy(curves[0:6], quad[0:6])
 
-	var i int
+	var i, emitted int
 	var c []float64
 	var dx, dy, d float64
 
@@ -160,9 +163,11 @@ func TraceQuad(t Liner, quad []float64, flatteningThreshold float64) {
 		// degenerate point can't flatten; emit and pop
 		isPoint := dx == 0 && dy == 0 && c[2] == c[0] && c[3] == c[1]
 
-		// if it's flat then trace a line
-		if traceIsFlat(dx, dy, d, flatteningThreshold) || isPoint || i == lastIteration {
+		// if it's flat then trace a line, extreme control points stop subdividing at the budget
+		if traceIsFlat(dx, dy, d, flatteningThreshold) || isPoint ||
+			i == lastIteration || emitted >= maxTraceSegments {
 			t.LineTo(c[4], c[5])
+			emitted++
 			i--
 		} else {
 			SubdivideQuad(c, traceGetWindow(curves, i+1), traceGetWindow(curves, i))
@@ -184,7 +189,7 @@ func TraceArc(t Liner, x, y, rx, ry, start, angle, scale float64) (lastX, lastY 
 	ra := (math.Abs(rx) + math.Abs(ry)) / 2
 	da := math.Acos(ra/(ra+0.125/scale)) * 2
 	// floor the step so an underflowed or NaN da still sweeps the arc within the segment bound
-	if minDA := math.Abs(angle) / maxArcSegments; !(da > minDA) {
+	if minDA := math.Abs(angle) / maxTraceSegments; !(da > minDA) {
 		da = minDA
 	}
 	//normalize
@@ -194,7 +199,7 @@ func TraceArc(t Liner, x, y, rx, ry, start, angle, scale float64) (lastX, lastY 
 	angle = start + da
 	var curX, curY float64
 	// bounded as a backstop, a floored da always exits on the condition below first
-	for i := 0; i < maxArcSegments; i++ {
+	for i := 0; i < maxTraceSegments; i++ {
 		if (angle < end-da/4) != clockWise {
 			break
 		}

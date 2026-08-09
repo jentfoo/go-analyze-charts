@@ -22,12 +22,15 @@ func TestLineStrokerLine(t *testing.T) {
 	})
 
 	t.Run("non_finite_point", func(t *testing.T) {
-		rec := &recordFlattenerEnd{}
-		ls := NewLineStroker(rec)
-		ls.MoveTo(0, 0)
-		ls.LineTo(math.NaN(), 0)
-		ls.End()
+		// an infinite length passes a bare d > 0 guard and normalizes to NaN offsets
+		for _, x := range []float64{math.NaN(), math.Inf(1), math.Inf(-1)} {
+			rec := &recordFlattenerEnd{}
+			ls := NewLineStroker(rec)
+			ls.MoveTo(0, 0)
+			ls.LineTo(x, 0)
+			ls.End()
 
-		assert.Equal(t, []string{"E"}, rec.moves)
+			assert.Equal(t, []string{"E"}, rec.moves)
+		}
 	})
 }

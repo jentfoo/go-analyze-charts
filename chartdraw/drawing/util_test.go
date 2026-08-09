@@ -1,6 +1,7 @@
 package drawing
 
 import (
+	"math"
 	"strconv"
 	"testing"
 
@@ -85,6 +86,35 @@ func TestPointToF64Point(t *testing.T) {
 	assert.InDelta(t, 2.0, x, 0.0001)
 	// Y is negated inside function
 	assert.InDelta(t, 1.0, y, 0.0001)
+}
+
+func TestNonFiniteChecks(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		in   float64
+		want bool
+	}{
+		{"nan", math.NaN(), true},
+		{"positive_inf", math.Inf(1), true},
+		{"negative_inf", math.Inf(-1), true},
+		{"zero", 0, false},
+		{"negative", -1.5, false},
+		{"max_float", math.MaxFloat64, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, isNonFinite(tt.in))
+			vals := [3]float64{1, tt.in, 2}
+			assert.Equal(t, tt.want, hasNonFinite(vals[:]))
+		})
+	}
+
+	t.Run("empty_slice", func(t *testing.T) {
+		assert.False(t, hasNonFinite(nil))
+	})
 }
 
 func TestAbsInt(t *testing.T) {

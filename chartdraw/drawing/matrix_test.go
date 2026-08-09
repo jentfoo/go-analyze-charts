@@ -139,6 +139,65 @@ func TestMatrixDeterminant(t *testing.T) {
 	assert.Zero(t, m.Determinant())
 }
 
+// matrixBits allows an exact comparison of matrices which may hold NaN terms.
+func matrixBits(m Matrix) [6]uint64 {
+	var bits [6]uint64
+	for i, v := range m {
+		bits[i] = math.Float64bits(v)
+	}
+	return bits
+}
+
+func TestMatrixInverseSingular(t *testing.T) {
+	t.Parallel()
+
+	singular := []struct {
+		name string
+		m    Matrix
+	}{
+		{"zero_x_scale", NewScaleMatrix(0, 1)},
+		{"zero_y_scale", NewScaleMatrix(1, 0)},
+		{"collinear_rows", Matrix{1, 2, 2, 4, 3, 5}},
+		{"all_zero", Matrix{}},
+		{"nan_term", Matrix{math.NaN(), 0, 0, 1, 0, 0}},
+		{"inf_term", Matrix{math.Inf(1), 0, 0, 1, 0, 0}},
+	}
+
+	for _, tt := range singular {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Run("inverse", func(t *testing.T) {
+				m := tt.m
+				m.Inverse()
+				assert.Equal(t, matrixBits(tt.m), matrixBits(m))
+			})
+
+			t.Run("transform_point", func(t *testing.T) {
+				m := tt.m
+				x, y := m.InverseTransformPoint(7, 11)
+				assert.InDelta(t, 7.0, x, 0)
+				assert.InDelta(t, 11.0, y, 0)
+			})
+
+			t.Run("transform_slice", func(t *testing.T) {
+				m := tt.m
+				points := []float64{7, 11, -3, 4}
+				m.InverseTransform(points)
+				assert.InDeltaSlice(t, []float64{7, 11, -3, 4}, points, 0)
+			})
+		})
+	}
+
+	t.Run("small_scale_still_inverts", func(t *testing.T) {
+		// determinant 1e-8 is legitimately invertible, an epsilon guard would reject it
+		m := NewScaleMatrix(1e-4, 1e-4)
+		x, y := m.TransformPoint(3, 5)
+		ix, iy := m.InverseTransformPoint(x, y)
+
+		assert.InDelta(t, 3.0, ix, 0.0001)
+		assert.InDelta(t, 5.0, iy, 0.0001)
+	})
+}
+
 func TestMinMax(t *testing.T) {
 	t.Parallel()
 
@@ -176,4 +235,35 @@ func TestMatrixEquals(t *testing.T) {
 
 	m2[5] += matrix.DefaultEpsilon * 2
 	assert.False(t, m1.Equals(m2))
+}
+
+func TestMatrixInverseNonFiniteTranslation(t *testing.T) {
+	t.Parallel()
+
+	// the determinant never involves the translation terms, they must be checked separately
+	tests := []struct {
+		name string
+		m    Matrix
+	}{
+		{"nan_x_translation", Matrix{1, 0, 0, 1, math.NaN(), 0}},
+		{"nan_y_translation", Matrix{1, 0, 0, 1, 0, math.NaN()}},
+		{"inf_x_translation", Matrix{1, 0, 0, 1, math.Inf(1), 0}},
+		{"neg_inf_y_translation", Matrix{2, 0, 0, 2, 0, math.Inf(-1)}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			m := tt.m
+			m.Inverse()
+			assert.Equal(t, matrixBits(tt.m), matrixBits(m))
+
+			x, y := tt.m.InverseTransformPoint(7, 11)
+			assert.InDelta(t, 7.0, x, 0)
+			assert.InDelta(t, 11.0, y, 0)
+
+			points := []float64{7, 11, -3, 4}
+			tt.m.InverseTransform(points)
+			assert.InDeltaSlice(t, []float64{7, 11, -3, 4}, points, 0)
+		})
+	}
 }

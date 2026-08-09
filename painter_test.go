@@ -167,7 +167,7 @@ func TestPainterInternal(t *testing.T) {
 				p.close()
 				p.fillStroke(ColorBlue, ColorBlack, 1)
 			},
-			pngCRC: 0x5445e3e7,
+			pngCRC: 0xf02ed0a2,
 		},
 		{
 			name: "draw_background",
@@ -234,7 +234,7 @@ func TestPainterExternal(t *testing.T) {
 					{X: 50, Y: 20},
 				}, ColorBlack, 1)
 			},
-			pngCRC: 0x8cfe7b4b,
+			pngCRC: 0x2e3a0157,
 		},
 		{
 			name: "smooth_line_stroke",
@@ -248,7 +248,7 @@ func TestPainterExternal(t *testing.T) {
 					{X: 60, Y: 80},
 				}, 0.5, ColorBlack, 1)
 			},
-			pngCRC: 0x3056a98,
+			pngCRC: 0x892b6ef0,
 		},
 		{
 			name: "filled_rect",
@@ -277,7 +277,7 @@ func TestPainterExternal(t *testing.T) {
 				c := Color{R: 84, G: 112, B: 198, A: 255}
 				p.MarkPin(30, 30, 30, 0, c, c, 1)
 			},
-			pngCRC: 0x981d8eb5,
+			pngCRC: 0x05cc758c,
 		},
 		{
 			name: "arrow_left",
@@ -285,7 +285,7 @@ func TestPainterExternal(t *testing.T) {
 				c := Color{R: 84, G: 112, B: 198, A: 255}
 				p.ArrowLeft(30, 30, 16, 10, c, c, 1)
 			},
-			pngCRC: 0x3415dab,
+			pngCRC: 0xa396a86a,
 		},
 		{
 			name: "arrow_right",
@@ -293,7 +293,7 @@ func TestPainterExternal(t *testing.T) {
 				c := Color{R: 84, G: 112, B: 198, A: 255}
 				p.ArrowRight(30, 30, 16, 10, c, c, 1)
 			},
-			pngCRC: 0x142dfb03,
+			pngCRC: 0xa251e901,
 		},
 		{
 			name: "arrow_up",
@@ -301,7 +301,7 @@ func TestPainterExternal(t *testing.T) {
 				c := Color{R: 84, G: 112, B: 198, A: 255}
 				p.ArrowUp(30, 30, 10, 16, c, c, 1)
 			},
-			pngCRC: 0xe17c9204,
+			pngCRC: 0xe68ccf5a,
 		},
 		{
 			name: "arrow_down",
@@ -309,7 +309,7 @@ func TestPainterExternal(t *testing.T) {
 				c := Color{R: 84, G: 112, B: 198, A: 255}
 				p.ArrowDown(30, 30, 10, 16, c, c, 1)
 			},
-			pngCRC: 0xd56c309d,
+			pngCRC: 0xb19787e3,
 		},
 		{
 			name: "horizontal_mark_line",
@@ -317,7 +317,7 @@ func TestPainterExternal(t *testing.T) {
 				c := Color{R: 84, G: 112, B: 198, A: 255}
 				p.HorizontalMarkLine(0, 20, 300, c, c, 1, []float64{4, 2})
 			},
-			pngCRC: 0x6efc927a,
+			pngCRC: 0x7ba91c8a,
 		},
 		{
 			name: "vertical_mark_line",
@@ -325,14 +325,14 @@ func TestPainterExternal(t *testing.T) {
 				c := Color{R: 84, G: 112, B: 198, A: 255}
 				p.VerticalMarkLine(200, 100, 100, c, c, 1, []float64{4, 2})
 			},
-			pngCRC: 0xf2f902ee,
+			pngCRC: 0x9354892e,
 		},
 		{
 			name: "polygon",
 			fn: func(p *Painter) {
 				p.Polygon(Point{X: 100, Y: 100}, 50, 6, Color{R: 84, G: 112, B: 198, A: 255}, 1)
 			},
-			pngCRC: 0xdb739c98,
+			pngCRC: 0x82e5dfa5,
 		},
 		{
 			name: "fill_area",
@@ -359,7 +359,7 @@ func TestPainterExternal(t *testing.T) {
 				opt.Theme = GetDefaultTheme().WithBackgroundColor(ColorTransparent)
 				_ = p.LineChart(opt)
 			},
-			pngCRC: 0xb8fe3999,
+			pngCRC: 0xab1bf439,
 		},
 	}
 
@@ -565,7 +565,7 @@ func TestPainterRoundedRect(t *testing.T) {
 					Top:    10,
 				}, 5, roundTopLeft|roundTopRight|roundBottomRight|roundBottomLeft, ColorBlue, ColorBlue, 1)
 			},
-			pngCRC: 0x63ab7f9f,
+			pngCRC: 0xa3abe638,
 		},
 		{
 			name: "square_top",
@@ -577,7 +577,7 @@ func TestPainterRoundedRect(t *testing.T) {
 					Top:    10,
 				}, 5, roundBottomRight|roundBottomLeft, ColorBlue, ColorBlue, 1)
 			},
-			pngCRC: 0x47fb7794,
+			pngCRC: 0xde79f039,
 		},
 		{
 			name: "square_bottom",
@@ -589,7 +589,7 @@ func TestPainterRoundedRect(t *testing.T) {
 					Top:    10,
 				}, 5, roundTopLeft|roundTopRight, ColorBlue, ColorBlue, 1)
 			},
-			pngCRC: 0xe8bb388c,
+			pngCRC: 0xcec10a14,
 		},
 	}
 
@@ -867,19 +867,19 @@ func TestPainterMeasureText(t *testing.T) {
 				name:        "basic",
 				input:       "Hello World!",
 				font:        styleLargeNoto,
-				expectedCRC: 0x1bede00d,
+				expectedCRC: 0x8442e3c9,
 			},
 			{
 				name:        "emojis",
 				input:       "⭐❓💰🔥💯🎯🚀⚡🌟🎉🎊",
 				font:        styleLargeNoto,
-				expectedCRC: 0xd27d14bf,
+				expectedCRC: 0xab692e5e,
 			},
 			{
 				name:        "shapes",
 				input:       "▫●□▲▼◇★○△▪▴▾◆◯⬟⬠⬡⬢⬣⬤⬥",
 				font:        styleLargeNoto,
-				expectedCRC: 0x5de812bb,
+				expectedCRC: 0x619dde85,
 			},
 			{
 				name:        "playing_cards",
@@ -891,31 +891,31 @@ func TestPainterMeasureText(t *testing.T) {
 				name:        "faces",
 				input:       "😂😍🤣😊😭😘😎🤔😴😋😉😏😬😐😑😮😯",
 				font:        styleLargeNoto,
-				expectedCRC: 0xde74f82d,
+				expectedCRC: 0x5626b9e3,
 			},
 			{
 				name:        "fallback_notosans_currency",
 				input:       "₠₡₢₥₭₮₯₰₲₳₴₵₶₷₸₻₾₿",
 				font:        styleLargeRoboto,
-				expectedCRC: 0xd9c0ca71,
+				expectedCRC: 0x040e56b4,
 			},
 			{
 				name:        "fallback_notosans_letterlike",
 				input:       "℀℁ℂ℃℄℆ℇ℈℉ℊℋℌℍℎℏℐℑℒ℔ℕ℗℘ℙℚℛℜℝ℞℟℣ℤ℥℧ℨ℩KÅℬℭℯ",
 				font:        styleLargeRoboto,
-				expectedCRC: 0xb6a12c24,
+				expectedCRC: 0x5a44c47f,
 			},
 			{
 				name:        "fallback_notosans_subscripts",
 				input:       "ⁱₐₑₒₓₔₕₖₗₘₙₚₛₜ",
 				font:        styleLargeRoboto,
-				expectedCRC: 0xc74dbb,
+				expectedCRC: 0xca3cdfb4,
 			},
 			{
 				name:        "fallback_roboto_mathematical",
 				input:       "∂∆∏∑-√∞∫≈≠≤≥◊",
 				font:        styleLargeNoto,
-				expectedCRC: 0x90d8dde6,
+				expectedCRC: 0x69bc97ff,
 			},
 		}
 
@@ -1051,7 +1051,7 @@ func TestDashedLineStroke(t *testing.T) {
 					{X: 50, Y: 20},
 				}, ColorBlack, 1, []float64{5, 3})
 			},
-			pngCRC: 0xfb96dbae,
+			pngCRC: 0xa02162e8,
 		},
 		{
 			name: "thick_dashed",
@@ -1097,7 +1097,7 @@ func TestDashedLineStroke(t *testing.T) {
 					{X: 300, Y: 180},
 				}, ColorFromHex("#FF6B35"), 2, []float64{6, 4})
 			},
-			pngCRC: 0x193a9802,
+			pngCRC: 0x7eabd285,
 		},
 	}
 
@@ -1145,7 +1145,7 @@ func TestSmoothDashedLineStroke(t *testing.T) {
 					{X: 50, Y: 40},
 				}, 0.5, ColorBlack, 1, []float64{4, 2})
 			},
-			pngCRC: 0x32128171,
+			pngCRC: 0xf9cd79d9,
 		},
 		{
 			name: "smooth_dashed_high_tension",
@@ -1158,7 +1158,7 @@ func TestSmoothDashedLineStroke(t *testing.T) {
 					{X: 250, Y: 80},
 				}, 0.8, ColorRed, 2, []float64{8, 4})
 			},
-			pngCRC: 0x16e612e9,
+			pngCRC: 0xa1de9b98,
 		},
 		{
 			name: "smooth_dashed_low_tension",
@@ -1171,7 +1171,7 @@ func TestSmoothDashedLineStroke(t *testing.T) {
 					{X: 250, Y: 160},
 				}, 0.2, ColorBlue, 1.5, []float64{6, 3})
 			},
-			pngCRC: 0xd0f9842d,
+			pngCRC: 0xd5e30340,
 		},
 		{
 			name: "smooth_dashed_complex",
@@ -1188,7 +1188,7 @@ func TestSmoothDashedLineStroke(t *testing.T) {
 				}
 				p.SmoothDashedLineStroke(points, 0.6, ColorFromHex("#9932CC"), 2, []float64{10, 5})
 			},
-			pngCRC: 0xbc4f7165,
+			pngCRC: 0x2bf821c1,
 		},
 		{
 			name: "smooth_dashed_dotted",
@@ -1201,7 +1201,7 @@ func TestSmoothDashedLineStroke(t *testing.T) {
 					{X: 380, Y: 60},
 				}, 0.7, ColorGreen, 3, []float64{1, 3})
 			},
-			pngCRC: 0x79be85b5,
+			pngCRC: 0xdf0e0aad,
 		},
 	}
 

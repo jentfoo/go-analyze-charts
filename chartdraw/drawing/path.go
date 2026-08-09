@@ -6,7 +6,8 @@ import (
 	"slices"
 )
 
-// PathBuilder describes the interface for path drawing.
+// PathBuilder describes the interface for path drawing. Points which are not finite leave the
+// path unchanged, and a rejected MoveTo discards the subpath which would have followed it.
 type PathBuilder interface {
 	// LastPoint returns the current point of the current sub path.
 	LastPoint() (x, y float64)
@@ -51,6 +52,10 @@ type Path struct {
 	Points []float64
 	// Last Point of the Path.
 	x, y float64
+	// Start of the current subpath, the pen returns here on Close.
+	startX, startY float64
+	// Set when a MoveTo was rejected, suppressing the subpath it would have started.
+	penInvalid bool
 }
 
 func (p *Path) appendToPath(cmd PathComponent, points ...float64) {
@@ -66,19 +71,28 @@ func (p *Path) LastPoint() (x, y float64) {
 	return p.x, p.y
 }
 
-// MoveTo starts a new path at (x, y) position.
+// MoveTo starts a new path at (x, y) position. A position which is not finite leaves the path
+// unchanged and discards the subpath which would have followed.
 func (p *Path) MoveTo(x, y float64) {
+	if isNonFinite(x) || isNonFinite(y) {
+		p.penInvalid = true
+		return
+	}
+	p.penInvalid = false
 	if n := len(p.Components); n > 0 && p.Components[n-1] == MoveToComponent && p.x == x && p.y == y {
 		return // duplicate MoveTo
 	}
 	p.appendToPath(MoveToComponent, x, y)
-	p.x = x
-	p.y = y
+	p.x, p.y = x, y
+	p.startX, p.startY = x, y
 }
 
-// LineTo adds a line to the current path.
+// LineTo adds a line to the current path. An end point which is not finite leaves the path
+// unchanged.
 func (p *Path) LineTo(x, y float64) {
-	if len(p.Components) == 0 { //special case when no move has been done
+	if p.penInvalid || isNonFinite(x) || isNonFinite(y) {
+		return
+	} else if len(p.Components) == 0 { //special case when no move has been done
 		p.MoveTo(0, 0)
 	}
 	if p.x == x && p.y == y {
@@ -89,9 +103,13 @@ func (p *Path) LineTo(x, y float64) {
 	p.y = y
 }
 
-// QuadCurveTo adds a quadratic Bézier curve to the current path.
+// QuadCurveTo adds a quadratic Bézier curve to the current path. A control point or end point
+// which is not finite leaves the path unchanged.
 func (p *Path) QuadCurveTo(cx, cy, x, y float64) {
-	if len(p.Components) == 0 { //special case when no move has been done
+	params := [4]float64{cx, cy, x, y}
+	if p.penInvalid || hasNonFinite(params[:]) {
+		return
+	} else if len(p.Components) == 0 { //special case when no move has been done
 		p.MoveTo(0, 0)
 	}
 	p.appendToPath(QuadCurveToComponent, cx, cy, x, y)
@@ -99,9 +117,13 @@ func (p *Path) QuadCurveTo(cx, cy, x, y float64) {
 	p.y = y
 }
 
-// CubicCurveTo adds a cubic Bézier curve to the current path.
+// CubicCurveTo adds a cubic Bézier curve to the current path. A control point or end point which
+// is not finite leaves the path unchanged.
 func (p *Path) CubicCurveTo(cx1, cy1, cx2, cy2, x, y float64) {
-	if len(p.Components) == 0 { //special case when no move has been done
+	params := [6]float64{cx1, cy1, cx2, cy2, x, y}
+	if p.penInvalid || hasNonFinite(params[:]) {
+		return
+	} else if len(p.Components) == 0 { //special case when no move has been done
 		p.MoveTo(0, 0)
 	}
 	p.appendToPath(CubicCurveToComponent, cx1, cy1, cx2, cy2, x, y)
@@ -109,8 +131,12 @@ func (p *Path) CubicCurveTo(cx1, cy1, cx2, cy2, x, y float64) {
 	p.y = y
 }
 
-// ArcTo adds an arc to the path.
+// ArcTo adds an arc to the path. Parameters or endpoints which are not finite leave the path
+// unchanged.
 func (p *Path) ArcTo(cx, cy, rx, ry, startAngle, delta float64) {
+	if p.penInvalid {
+		return
+	}
 	endAngle := startAngle + delta
 	clockWise := delta >= 0
 	// normalize
@@ -125,19 +151,29 @@ func (p *Path) ArcTo(cx, cy, rx, ry, startAngle, delta float64) {
 	}
 	startX := cx + math.Cos(startAngle)*rx
 	startY := cy + math.Sin(startAngle)*ry
+	endX := cx + math.Cos(endAngle)*rx
+	endY := cy + math.Sin(endAngle)*ry
+	// endpoints checked too, so an overflowed angle sum is caught with the parameters
+	params := [10]float64{cx, cy, rx, ry, startAngle, delta, startX, startY, endX, endY}
+	if hasNonFinite(params[:]) {
+		return
+	}
 	if len(p.Components) > 0 {
 		p.LineTo(startX, startY)
 	} else {
 		p.MoveTo(startX, startY)
 	}
 	p.appendToPath(ArcToComponent, cx, cy, rx, ry, startAngle, delta)
-	p.x = cx + math.Cos(endAngle)*rx
-	p.y = cy + math.Sin(endAngle)*ry
+	p.x, p.y = endX, endY
 }
 
-// Close closes the current path.
+// Close closes the current path, returning the pen to the start of the subpath.
 func (p *Path) Close() {
+	if p.penInvalid {
+		return
+	}
 	p.appendToPath(CloseComponent)
+	p.x, p.y = p.startX, p.startY
 }
 
 // Copy make a clone of the current path and return it.
@@ -146,6 +182,8 @@ func (p *Path) Copy() (dest *Path) {
 	dest.Components = slices.Clone(p.Components)
 	dest.Points = slices.Clone(p.Points)
 	dest.x, dest.y = p.x, p.y
+	dest.startX, dest.startY = p.startX, p.startY
+	dest.penInvalid = p.penInvalid
 	return dest
 }
 
@@ -153,6 +191,9 @@ func (p *Path) Copy() (dest *Path) {
 func (p *Path) Clear() {
 	p.Components = p.Components[0:0]
 	p.Points = p.Points[0:0]
+	p.x, p.y = 0, 0
+	p.startX, p.startY = 0, 0
+	p.penInvalid = false
 }
 
 // IsEmpty returns true if the path is empty.

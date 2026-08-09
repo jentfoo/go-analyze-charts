@@ -108,12 +108,12 @@ func TestViolinChart(t *testing.T) {
 		{
 			name:        "basic_vertical",
 			makeOptions: makeBasicViolinChartOption,
-			pngCRC:      0x1dfaf01b,
+			pngCRC:      0x43e55b46,
 		},
 		{
 			name:        "basic_vertical",
 			makeOptions: makeDualViolinChartOption,
-			pngCRC:      0x3fa74c84,
+			pngCRC:      0x39669e28,
 		},
 		{
 			name: "horizontal_split",
@@ -128,7 +128,7 @@ func TestViolinChart(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x3262eb4f,
+			pngCRC: 0x628e8eab,
 		},
 		{
 			name: "width",
@@ -137,7 +137,7 @@ func TestViolinChart(t *testing.T) {
 				opt.ViolinWidth = "22"
 				return opt
 			},
-			pngCRC: 0xa94e1d4,
+			pngCRC: 0x69ca3fbf,
 		},
 		{
 			name: "hide_spine",
@@ -146,7 +146,7 @@ func TestViolinChart(t *testing.T) {
 				opt.ShowSpine = Ptr(false)
 				return opt
 			},
-			pngCRC: 0xe24ea399,
+			pngCRC: 0xa2373e31,
 		},
 		{
 			name: "value_formatter_axis_limit",
@@ -158,7 +158,7 @@ func TestViolinChart(t *testing.T) {
 				opt.ValueAxis.Limit = Ptr(10.0)
 				return opt
 			},
-			pngCRC: 0x48d36ad,
+			pngCRC: 0x22430864,
 		},
 		{
 			name: "negative_width",
@@ -167,7 +167,7 @@ func TestViolinChart(t *testing.T) {
 				opt.ViolinWidth = "-8"
 				return opt
 			},
-			pngCRC: 0x1dfaf01b,
+			pngCRC: 0x43e55b46,
 		},
 		{
 			name: "nan_inf_null_extents",
@@ -179,17 +179,17 @@ func TestViolinChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x1545de49,
+			pngCRC: 0xede1e440,
 		},
 		{
 			name:        "all_config",
 			makeOptions: makeAllConfigOption,
-			pngCRC:      0x38f15b81,
+			pngCRC:      0xddcb147b,
 		},
 		{
 			name:        "vertical_axis_all_fields",
 			makeOptions: makeViolinAxisVerticalOption,
-			pngCRC:      0xb8b76901,
+			pngCRC:      0x973bfb5f,
 		},
 		{
 			name: "horizontal_axis_all_fields",
@@ -201,7 +201,7 @@ func TestViolinChart(t *testing.T) {
 				opt.ValueAxis.Unit = 0.25
 				return opt
 			},
-			pngCRC: 0x46687e85,
+			pngCRC: 0x830b1b89,
 		},
 		{
 			name: "axis_hidden",
@@ -219,7 +219,7 @@ func TestViolinChart(t *testing.T) {
 				opt.ValueAxis.LabelCountAdjustment = 1
 				return opt
 			},
-			pngCRC: 0xee42246e,
+			pngCRC: 0xdd6433db,
 		},
 		{
 			name: "label_adjustment_-1",
@@ -228,7 +228,7 @@ func TestViolinChart(t *testing.T) {
 				opt.ValueAxis.LabelCountAdjustment = -1
 				return opt
 			},
-			pngCRC: 0x1dfaf01b,
+			pngCRC: 0x43e55b46,
 		},
 		{
 			name: "mark_line_dual",
@@ -250,7 +250,7 @@ func TestViolinChart(t *testing.T) {
 				)
 				return opt
 			},
-			pngCRC: 0xf45efac6,
+			pngCRC: 0x1324b098,
 		},
 		{
 			name: "mark_line_horizontal",
@@ -267,7 +267,7 @@ func TestViolinChart(t *testing.T) {
 				opt.SeriesList[0].MarkLine = NewMarkLine(SeriesMarkTypeAverage, SeriesMarkTypeMedian)
 				return opt
 			},
-			pngCRC: 0x74fc9823,
+			pngCRC: 0x545979e3,
 		},
 		{
 			name: "nil_data",
@@ -277,7 +277,7 @@ func TestViolinChart(t *testing.T) {
 					Legend:     LegendOption{Show: Ptr(false)},
 				}
 			},
-			pngCRC: 0x8ff80d58,
+			pngCRC: 0xf8a75cd6,
 		},
 		{
 			name: "single_pair",
@@ -287,7 +287,7 @@ func TestViolinChart(t *testing.T) {
 					Legend:     LegendOption{Show: Ptr(false)},
 				}
 			},
-			pngCRC: 0xa74aff81,
+			pngCRC: 0x8e8355ae,
 		},
 		{
 			name: "mixed_empty_and_populated",
@@ -300,7 +300,7 @@ func TestViolinChart(t *testing.T) {
 					Legend: LegendOption{Show: Ptr(false)},
 				}
 			},
-			pngCRC: 0x568dfb38,
+			pngCRC: 0x58a9af7c,
 		},
 		{
 			name: "horizontal_nil_data",
@@ -311,7 +311,7 @@ func TestViolinChart(t *testing.T) {
 					Legend:     LegendOption{Show: Ptr(false)},
 				}
 			},
-			pngCRC: 0xe18bf168,
+			pngCRC: 0xbfd8bbb3,
 		},
 		{
 			name: "empty_series",
@@ -325,7 +325,7 @@ func TestViolinChart(t *testing.T) {
 				opt.ValueAxis = ViolinAxis{Show: Ptr(true), Title: "Value"}
 				return opt
 			},
-			pngCRC: 0x6fab430f,
+			pngCRC: 0xe3ba870c,
 		},
 	}
 
@@ -684,7 +684,7 @@ func TestRenderViolinChart(t *testing.T) {
 	require.NoError(t, err)
 	pngData, err := pngPainter.Bytes()
 	require.NoError(t, err)
-	assertEqualPNGCRC(t, 0x7c42daa2, pngData)
+	assertEqualPNGCRC(t, 0x0b0faf91, pngData)
 
 	// empty data via ChartOption API renders without error
 	emptyOpt := ChartOption{
@@ -726,7 +726,7 @@ func TestViolinRender(t *testing.T) {
 	require.NoError(t, err)
 	pngData, err := pngPainter.Bytes()
 	require.NoError(t, err)
-	assertEqualPNGCRC(t, 0x7c42daa2, pngData)
+	assertEqualPNGCRC(t, 0x0b0faf91, pngData)
 }
 
 func TestRenderHorizontalViolinChart(t *testing.T) {

@@ -69,7 +69,7 @@ func TestRasterRendererCircleHash(t *testing.T) {
 	rr.FillStroke()
 
 	h := hashImage(t, rr)
-	assert.Equal(t, uint32(0xf767b6eb), h)
+	assert.Equal(t, uint32(0x59e4b5dd), h)
 }
 
 func TestRasterRendererRectangleHash(t *testing.T) {
@@ -100,7 +100,7 @@ func TestRasterRendererArcHash(t *testing.T) {
 	rr.FillStroke()
 
 	h := hashImage(t, rr)
-	assert.Equal(t, uint32(0x8a33cae6), h)
+	assert.Equal(t, uint32(0xa5291dba), h)
 }
 
 func TestRasterRendererQuadHash(t *testing.T) {
@@ -114,7 +114,7 @@ func TestRasterRendererQuadHash(t *testing.T) {
 	rr.Stroke()
 
 	h := hashImage(t, rr)
-	assert.Equal(t, uint32(0x02e4fd0e), h)
+	assert.Equal(t, uint32(0xb5ef51e3), h)
 }
 
 func TestRasterRendererTextHash(t *testing.T) {
@@ -127,7 +127,7 @@ func TestRasterRendererTextHash(t *testing.T) {
 	rr.Text("hi", 2, 12)
 
 	h := hashImage(t, rr)
-	assert.Equal(t, uint32(0x1b4a9b7d), h)
+	assert.Equal(t, uint32(0x17e7dad4), h)
 }
 
 func BenchmarkRaterCircle(b *testing.B) {

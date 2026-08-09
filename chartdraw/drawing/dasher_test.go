@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestValidDash(t *testing.T) {
@@ -186,5 +187,64 @@ func TestDashVertexConverterPattern(t *testing.T) {
 
 	t.Run("negative_offset", func(t *testing.T) {
 		assert.Equal(t, run([]float64{2, 2}, 3), run([]float64{2, 2}, -1))
+	})
+}
+
+func TestDashVertexConverterBounds(t *testing.T) {
+	t.Parallel()
+
+	// each case must terminate, an unbounded walk hangs the test binary
+	run := func(dash []float64, dashOffset float64, x, y float64) []string {
+		rec := &recordFlattenerEnd{}
+		d := NewDashVertexConverter(dash, dashOffset, rec)
+		d.MoveTo(0, 0)
+		d.LineTo(x, y)
+		d.End()
+		return rec.moves
+	}
+	solid := []string{"M0.0,0.0", "L10.0,0.0", "E"}
+
+	t.Run("unwalkable_pattern_solid", func(t *testing.T) {
+		for _, dash := range [][]float64{{0, 0}, {0}, {5, -5}, {-5}, {}, nil} {
+			assert.Equal(t, solid, run(dash, 0, 10, 0), dash)
+		}
+	})
+
+	t.Run("non_finite_offset_solid", func(t *testing.T) {
+		assert.Equal(t, solid, run([]float64{5, 5}, math.NaN(), 10, 0))
+		assert.Equal(t, solid, run([]float64{5, 5}, math.Inf(1), 10, 0))
+	})
+
+	t.Run("extreme_length_solid", func(t *testing.T) {
+		assert.Equal(t, []string{"M0.0,0.0", "L1000000000000000.0,0.0", "E"},
+			run([]float64{2, 2}, 0, 1e15, 0))
+	})
+
+	t.Run("overflowed_length_solid", func(t *testing.T) {
+		// squaring 1e200 overflows, the segment must still draw rather than be dropped
+		moves := run([]float64{2, 2}, 0, 1e200, 0)
+
+		require.Len(t, moves, 3)
+		assert.Equal(t, "M0.0,0.0", moves[0])
+		assert.Equal(t, "E", moves[2])
+	})
+
+	t.Run("non_finite_point_dropped", func(t *testing.T) {
+		for _, x := range []float64{math.NaN(), math.Inf(1), math.Inf(-1)} {
+			assert.Equal(t, []string{"M0.0,0.0", "E"}, run([]float64{2, 2}, 0, x, 0))
+		}
+	})
+
+	t.Run("pattern_resumes_after_fallback", func(t *testing.T) {
+		rec := &recordFlattenerEnd{}
+		d := NewDashVertexConverter([]float64{2, 2}, 0, rec)
+		d.MoveTo(0, 0)
+		d.LineTo(1e15, 0) // solid fallback, dash phase restarts from the segment end
+		d.LineTo(1e15+4, 0)
+		d.End()
+
+		expect := []string{"M0.0,0.0", "L1000000000000000.0,0.0", "L1000000000000002.0,0.0", "E",
+			"M1000000000000004.0,0.0", "L1000000000000004.0,0.0", "E"}
+		assert.Equal(t, expect, rec.moves)
 	})
 }

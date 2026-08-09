@@ -526,10 +526,49 @@ func TestStroke(t *testing.T) {
 			assert.NotZero(t, img.RGBAAt(x, 20).A, x)
 		}
 	})
+
+	t.Run("extreme_coordinates", func(t *testing.T) {
+		// each case must terminate, an unbounded dash walk hangs the test binary
+		dashTo := func(x float64) *image.RGBA {
+			img := image.NewRGBA(image.Rect(0, 0, 40, 40))
+			rgc := NewRasterGraphicContext(img)
+			rgc.SetStrokeColor(color.RGBA{R: 255, A: 255})
+			rgc.SetLineWidth(2)
+			rgc.SetLineDash([]float64{4, 4}, 0)
+			rgc.MoveTo(20, 20)
+			rgc.LineTo(x, 20)
+			rgc.Stroke()
+			return img
+		}
+
+		for _, x := range []float64{math.NaN(), math.Inf(1), math.Inf(-1)} {
+			assert.Zero(t, dashTo(x).RGBAAt(21, 20).A, x) // the segment is dropped entirely
+			assert.Zero(t, dashTo(x).RGBAAt(19, 20).A, x)
+		}
+		assert.NotZero(t, dashTo(1e15).RGBAAt(21, 20).A) // drawn solid past the dash budget
+		assert.NotZero(t, dashTo(-1e15).RGBAAt(19, 20).A)
+		assert.NotZero(t, dashTo(1e200).RGBAAt(21, 20).A) // a squared length would overflow here
+		assert.NotZero(t, dashTo(-1e200).RGBAAt(19, 20).A)
+	})
 }
 
 func TestFill(t *testing.T) {
 	t.Parallel()
+
+	t.Run("extreme_coordinates", func(t *testing.T) {
+		for _, x := range []float64{math.NaN(), math.Inf(1), 1e12} {
+			img := image.NewRGBA(image.Rect(0, 0, 40, 40))
+			rgc := NewRasterGraphicContext(img)
+			rgc.SetFillColor(color.RGBA{R: 255, A: 255})
+			rgc.MoveTo(10, 10)
+			rgc.LineTo(x, 20)
+			rgc.LineTo(30, 30)
+			rgc.Close()
+			rgc.Fill()
+
+			assert.Zero(t, img.RGBAAt(2, 2).A, x) // nothing outside the triangle
+		}
+	})
 
 	t.Run("rect_translated", func(t *testing.T) {
 		img := image.NewRGBA(image.Rect(0, 0, 40, 40))

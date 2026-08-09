@@ -162,7 +162,7 @@ func TestTraceCubicAndArc(t *testing.T) {
 		lx, ly := TraceArc(liner, 10, 20, 5, 3, 0, 2*math.Pi, 1e15)
 		assert.InDelta(t, 15.0, lx, 0.0001)
 		assert.InDelta(t, 20.0, ly, 0.0001)
-		assert.LessOrEqual(t, liner.Len(), maxArcSegments)
+		assert.LessOrEqual(t, liner.Len(), maxTraceSegments)
 	})
 
 	t.Run("arc_negative_scale", func(t *testing.T) {
@@ -171,7 +171,7 @@ func TestTraceCubicAndArc(t *testing.T) {
 		lx, ly := TraceArc(liner, 10, 20, 5, 3, 0, -2*math.Pi, -1)
 		assert.InDelta(t, 15.0, lx, 0.0001)
 		assert.InDelta(t, 20.0, ly, 0.0001)
-		assert.LessOrEqual(t, liner.Len(), maxArcSegments)
+		assert.LessOrEqual(t, liner.Len(), maxTraceSegments)
 	})
 
 	t.Run("arc_angle_stall", func(t *testing.T) {
@@ -211,6 +211,46 @@ func TestTraceCubicAndArc(t *testing.T) {
 				assert.Zero(t, liner.Len())
 			})
 		}
+	})
+}
+
+func TestTraceInvalidThreshold(t *testing.T) {
+	t.Parallel()
+
+	// an unclamped threshold never tests flat, subdividing into a full depth-31 tree
+	tests := []struct {
+		name      string
+		threshold float64
+	}{
+		{"zero", 0},
+		{"negative", -1},
+		{"nan", math.NaN()},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			quadLiner := &mockLine{}
+			TraceQuad(quadLiner, []float64{0, 0, 5, 0, 10, 0}, tt.threshold)
+			assert.NotZero(t, quadLiner.Len())
+			assert.LessOrEqual(t, quadLiner.Len(), 64)
+
+			cubicLiner := &mockLine{}
+			TraceCubic(cubicLiner, []float64{0, 0, 3, 0, 7, 0, 10, 0}, tt.threshold)
+			assert.NotZero(t, cubicLiner.Len())
+			assert.LessOrEqual(t, cubicLiner.Len(), 64)
+		})
+	}
+
+	t.Run("default_density_unchanged", func(t *testing.T) {
+		// guards against over-clamping, a curved input must tessellate the same at the default
+		quad := []float64{0, 0, 10, 20, 20, 0}
+		clamped := &mockLine{}
+		TraceQuad(clamped, quad, 0)
+		explicit := &mockLine{}
+		TraceQuad(explicit, quad, defaultFlatteningThreshold)
+
+		assert.Equal(t, explicit.inner, clamped.inner)
+		assert.Greater(t, explicit.Len(), 1)
 	})
 }
 
@@ -322,5 +362,42 @@ func TestSubdivideQuadAndHelpers(t *testing.T) {
 				assert.Equal(t, tt.expect, window)
 			})
 		}
+	})
+}
+
+func TestTraceExtremeControlPoints(t *testing.T) {
+	t.Parallel()
+
+	// extreme but finite control points never test flat, subdividing into a full depth-31 tree
+	const bound = maxTraceSegments + CurveRecursionLimit
+
+	t.Run("cubic", func(t *testing.T) {
+		tests := []struct {
+			name  string
+			cubic []float64
+		}{
+			{"1e12", []float64{0, 0, 1e12, 0, 0, 1e12, 1, 1}},
+			{"1e18", []float64{0, 0, 1e18, 0, 0, 1e18, 1, 1}},
+			{"max_float", []float64{0, 0, math.MaxFloat64, 0, 0, math.MaxFloat64, 1, 1}},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				liner := &mockLine{}
+				TraceCubic(liner, tt.cubic, defaultFlatteningThreshold)
+
+				assert.NotZero(t, liner.Len())
+				assert.LessOrEqual(t, liner.Len(), bound)
+			})
+		}
+	})
+
+	t.Run("quad_overflowed_deltas", func(t *testing.T) {
+		// smaller magnitudes self flatten as the chord grows with the control point
+		liner := &mockLine{}
+		TraceQuad(liner, []float64{0, 0, math.MaxFloat64, 0, 1, 1}, defaultFlatteningThreshold)
+
+		assert.NotZero(t, liner.Len())
+		assert.LessOrEqual(t, liner.Len(), bound)
 	})
 }

@@ -21,6 +21,8 @@ type LineStroker struct {
 }
 
 // MoveTo records the starting point for a stroked segment (for PathBuilder interface).
+// A non-finite point is stored rather than rejected, poisoning the pen so line drops the whole
+// subpath; dropping the point instead would splice the subpath onto the previous one.
 func (l *LineStroker) MoveTo(x, y float64) {
 	l.x, l.y = x, y
 }
@@ -34,7 +36,7 @@ func (l *LineStroker) line(x1, y1, x2, y2 float64) {
 	dx := x2 - x1
 	dy := y2 - y1
 	d := vectorDistance(dx, dy)
-	if d > 0 { // excludes zero length segments and non-finite input
+	if d > 0 && !isNonFinite(d) { // excludes zero length segments, NaN and infinite input
 		nx := dy * l.HalfLineWidth / d
 		ny := -(dx * l.HalfLineWidth / d)
 		l.appendVertex(x1+nx, y1+ny, x2+nx, y2+ny, x1-nx, y1-ny, x2-nx, y2-ny)

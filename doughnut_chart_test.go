@@ -74,13 +74,13 @@ func TestDoughnutChart(t *testing.T) {
 				opt.Legend.Vertical = nil
 				return opt
 			},
-			pngCRC: 0x84807187,
+			pngCRC: 0xaffe0000,
 		},
 		{
 			name:        "basic_themed",
 			themed:      true,
 			makeOptions: makeBasicDoughnutChartOption,
-			pngCRC:      0xe601afe9,
+			pngCRC:      0xb4e40417,
 		},
 		{
 			name: "custom_fonts",
@@ -92,7 +92,7 @@ func TestDoughnutChart(t *testing.T) {
 				opt.Title.FontStyle = customFont
 				return opt
 			},
-			pngCRC: 0x665a2277,
+			pngCRC: 0xcec813f4,
 		},
 		{
 			name: "variable_series_radius",
@@ -103,7 +103,7 @@ func TestDoughnutChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x35cb31f8,
+			pngCRC: 0xcc4076ec,
 		},
 		{
 			name: "center_radius_small",
@@ -115,7 +115,7 @@ func TestDoughnutChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0xc46376c4,
+			pngCRC: 0xfd0eb22d,
 		},
 		{
 			name: "center_radius_large",
@@ -128,7 +128,7 @@ func TestDoughnutChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0xced7cdf6,
+			pngCRC: 0x43f96b0e,
 		},
 		{
 			name: "segment_gap",
@@ -137,7 +137,7 @@ func TestDoughnutChart(t *testing.T) {
 				opt.SegmentGap = 20.0
 				return opt
 			},
-			pngCRC: 0xc5e85f35,
+			pngCRC: 0x6d818174,
 		},
 		{
 			name: "center_sum",
@@ -148,7 +148,7 @@ func TestDoughnutChart(t *testing.T) {
 				opt.CenterValuesFontStyle.FontColor = ColorNavy
 				return opt
 			},
-			pngCRC: 0xff9189f4,
+			pngCRC: 0xa65dd7b9,
 		},
 		{
 			name: "center_labels",
@@ -160,7 +160,7 @@ func TestDoughnutChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x5c692a2,
+			pngCRC: 0x99cafe9,
 		},
 		{
 			name: "center_lots_labels",
@@ -182,7 +182,7 @@ func TestDoughnutChart(t *testing.T) {
 					},
 				}
 			},
-			pngCRC: 0x854b1678,
+			pngCRC: 0x9d3ddc0a,
 		},
 		{
 			name: "styled_custom_labels",
@@ -234,7 +234,7 @@ func TestDoughnutChart(t *testing.T) {
 					},
 				}
 			},
-			pngCRC: 0x11af6a88,
+			pngCRC: 0x1e095fb7,
 		},
 		{
 			name: "empty_series",
@@ -247,7 +247,7 @@ func TestDoughnutChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0xe190da28,
+			pngCRC: 0x18544830,
 		},
 		{
 			name: "zero_sum",
@@ -260,7 +260,7 @@ func TestDoughnutChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0xe190da28,
+			pngCRC: 0x18544830,
 		},
 	}
 

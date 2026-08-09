@@ -100,6 +100,26 @@ func TestFlattenAfterClose(t *testing.T) {
 		}
 	})
 
+	t.Run("line_after_close_emitted", func(t *testing.T) {
+		p := &Path{}
+		p.MoveTo(0, 0)
+		p.LineTo(10, 10)
+		p.Close()
+		p.LineTo(10, 10)
+
+		rec := &recordFloat{}
+		Flatten(p, rec, 1.0)
+
+		// the post-close segment back out to (10,10) must survive to the output
+		expectOps := []string{"M", "L", "L", "L"}
+		expectX := []float64{0, 10, 0, 10}
+		expectY := []float64{0, 10, 0, 10}
+
+		require.Equal(t, expectOps, rec.ops)
+		assert.InDeltaSlice(t, expectX, rec.xs, 0.0001)
+		assert.InDeltaSlice(t, expectY, rec.ys, 0.0001)
+	})
+
 	t.Run("double_close_no_repeat", func(t *testing.T) {
 		p := &Path{}
 		p.MoveTo(0, 0)
@@ -140,6 +160,72 @@ func TestFlattenMultiMove(t *testing.T) {
 	assert.Equal(t, expectOps, rec.ops)
 	assert.InDeltaSlice(t, expectX, rec.xs, 0.0001)
 	assert.InDeltaSlice(t, expectY, rec.ys, 0.0001)
+}
+
+func TestFlattenNonFiniteArc(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name   string
+		points []float64
+	}{
+		{"nan_radius", []float64{0, 0, math.NaN(), 1, 0, math.Pi}},
+		{"nan_start_angle", []float64{0, 0, 1, 1, math.NaN(), math.Pi}},
+		{"inf_center", []float64{math.Inf(1), 0, 1, 1, 0, math.Pi}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// built on the struct to bypass the ArcTo guard
+			p := &Path{
+				Components: []PathComponent{MoveToComponent, ArcToComponent, LineToComponent},
+				Points:     append(append([]float64{5, 5}, tt.points...), 20, 20),
+			}
+
+			rec := &recordFloat{}
+			Flatten(p, rec, 1.0)
+
+			for i, x := range rec.xs {
+				assert.False(t, isNonFinite(x) || isNonFinite(rec.ys[i]))
+			}
+			// the trailing line still reaches the output from the unmoved pen
+			require.NotEmpty(t, rec.xs)
+			assert.InDelta(t, 20.0, rec.xs[len(rec.xs)-1], 0.0001)
+			assert.InDelta(t, 20.0, rec.ys[len(rec.ys)-1], 0.0001)
+		})
+	}
+}
+
+func TestFlattenNonFiniteCurve(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name       string
+		components []PathComponent
+		points     []float64
+	}{
+		{"quad_nan_end", []PathComponent{QuadCurveToComponent}, []float64{1, 1, math.NaN(), 5}},
+		{"quad_inf_control", []PathComponent{QuadCurveToComponent}, []float64{math.Inf(1), 1, 5, 5}},
+		{"cubic_nan_end", []PathComponent{CubicCurveToComponent}, []float64{1, 1, 2, 2, 5, math.NaN()}},
+		{"cubic_inf_control", []PathComponent{CubicCurveToComponent}, []float64{1, math.Inf(-1), 2, 2, 5, 5}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// built on the struct to bypass the builder guards
+			p := &Path{
+				Components: append([]PathComponent{MoveToComponent}, tt.components...),
+				Points:     append([]float64{5, 5}, tt.points...),
+			}
+
+			rec := &recordFloat{}
+			Flatten(p, rec, 1.0)
+
+			for i, x := range rec.xs {
+				assert.False(t, isNonFinite(x) || isNonFinite(rec.ys[i]))
+			}
+		})
+	}
 }
 
 func TestSegmentedPathPoints(t *testing.T) {

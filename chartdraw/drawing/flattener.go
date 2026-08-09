@@ -39,20 +39,30 @@ func Flatten(path *Path, flattener Flattener, scale float64) {
 			// prepend current point as the curve start
 			quad := [6]float64{x, y}
 			copy(quad[2:], path.Points[i:i+4])
-			TraceQuad(flattener, quad[:], 0.5)
-			x, y = path.Points[i+2], path.Points[i+3]
-			flattener.LineTo(x, y)
+			TraceQuad(flattener, quad[:], defaultFlatteningThreshold)
+			end := [2]float64{path.Points[i+2], path.Points[i+3]}
+			if !hasNonFinite(end[:]) { // only reachable on a hand built path, the builder rejects these
+				x, y = end[0], end[1]
+				flattener.LineTo(x, y)
+			}
 			i += 4
 		case CubicCurveToComponent:
 			cubic := [8]float64{x, y}
 			copy(cubic[2:], path.Points[i:i+6])
-			TraceCubic(flattener, cubic[:], 0.5)
-			x, y = path.Points[i+4], path.Points[i+5]
-			flattener.LineTo(x, y)
+			TraceCubic(flattener, cubic[:], defaultFlatteningThreshold)
+			end := [2]float64{path.Points[i+4], path.Points[i+5]}
+			if !hasNonFinite(end[:]) { // only reachable on a hand built path, the builder rejects these
+				x, y = end[0], end[1]
+				flattener.LineTo(x, y)
+			}
 			i += 6
 		case ArcToComponent:
-			x, y = TraceArc(flattener, path.Points[i], path.Points[i+1], path.Points[i+2], path.Points[i+3], path.Points[i+4], path.Points[i+5], scale)
-			flattener.LineTo(x, y)
+			ax, ay := TraceArc(flattener, path.Points[i], path.Points[i+1], path.Points[i+2], path.Points[i+3], path.Points[i+4], path.Points[i+5], scale)
+			end := [2]float64{ax, ay}
+			if !hasNonFinite(end[:]) { // a suppressed arc must not move the pen to NaN
+				x, y = ax, ay
+				flattener.LineTo(x, y)
+			}
 			i += 6
 		case CloseComponent:
 			if x != startX || y != startY {
