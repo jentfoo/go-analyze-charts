@@ -108,6 +108,11 @@ func (d *doughnutChart) renderChart(result *defaultRenderResult) (Box, error) {
 	minRadius := radiusRing
 	var total float64
 	for index, series := range opt.SeriesList {
+		if !isValidExtent(series.Value) {
+			continue // null or non-finite is no value for this series
+		} else if series.Value < 0 {
+			return BoxZero, fmt.Errorf("unsupported negative value for series index %d", index)
+		}
 		if opt.RadiusRing == "" && series.Radius != "" {
 			seriesRadius := getFlexibleRadius(diameter, radiusFactorDefault, series.Radius)
 			if seriesRadius > radiusRing {
@@ -115,9 +120,6 @@ func (d *doughnutChart) renderChart(result *defaultRenderResult) (Box, error) {
 			} else if seriesRadius < minRadius {
 				minRadius = seriesRadius
 			}
-		}
-		if series.Value < 0 {
-			return BoxZero, fmt.Errorf("unsupported negative value at series index %d", index)
 		}
 		total += series.Value
 	}

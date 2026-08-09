@@ -686,7 +686,9 @@ type PieSeriesList []PieSeries
 func (p PieSeriesList) SumSeries() float64 {
 	var sum float64
 	for _, s := range p {
-		sum += s.Value
+		if isValidExtent(s.Value) {
+			sum += s.Value
+		}
 	}
 	return sum
 }
@@ -695,7 +697,7 @@ func (p PieSeriesList) SumSeries() float64 {
 func (p PieSeriesList) MaxValue() float64 {
 	maxValue := float64(math.MinInt64)
 	for _, s := range p {
-		if s.Value > maxValue {
+		if isValidExtent(s.Value) && s.Value > maxValue {
 			maxValue = s.Value
 		}
 	}
@@ -795,7 +797,9 @@ type DoughnutSeriesList []DoughnutSeries
 func (d DoughnutSeriesList) SumSeries() float64 {
 	var sum float64
 	for _, s := range d {
-		sum += s.Value
+		if isValidExtent(s.Value) {
+			sum += s.Value
+		}
 	}
 	return sum
 }
@@ -804,7 +808,7 @@ func (d DoughnutSeriesList) SumSeries() float64 {
 func (d DoughnutSeriesList) MaxValue() float64 {
 	maxValue := float64(math.MinInt64)
 	for _, s := range d {
-		if s.Value > maxValue {
+		if isValidExtent(s.Value) && s.Value > maxValue {
 			maxValue = s.Value
 		}
 	}

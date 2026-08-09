@@ -6,7 +6,6 @@ import (
 	"slices"
 	"strconv"
 
-	"github.com/go-analyze/charts/chartdraw"
 	"github.com/go-analyze/charts/chartdraw/matrix"
 )
 
@@ -22,14 +21,17 @@ type HeatMapOption struct {
 	Title TitleOption
 	// Values provides the 2D data for the heat map. The outer slice represents the rows (y-axis), rendered
 	// top to bottom, and the inner slice represents the columns (x-axis), rendered left to right.
+	// GetNullValue() and non-finite values render as an empty cell with no label.
 	Values [][]float64
 	// XAxis contains configuration options for the x-axis.
 	XAxis HeatMapAxis
 	// YAxis contains configuration options for the y-axis.
 	YAxis HeatMapAxis
-	// ScaleMinValue overrides the minimum value for color gradient calculation. If nil, calculated from the data.
+	// ScaleMinValue overrides the minimum value for color gradient calculation. If nil or non-finite, calculated
+	// from the data.
 	ScaleMinValue *float64
-	// ScaleMaxValue overrides the maximum value for color gradient calculation. If nil, calculated from the data.
+	// ScaleMaxValue overrides the maximum value for color gradient calculation. If nil or non-finite, calculated
+	// from the data.
 	ScaleMaxValue *float64
 	// ValuesLabel contains configuration for displaying numeric values on heat map cells.
 	ValuesLabel SeriesLabel
@@ -92,10 +94,10 @@ func (h *heatMap) renderChart(result *defaultRenderResult) (Box, error) {
 
 	// determine scale for map colors
 	minVal, maxVal := computeMinMax(opt.Values, numCols)
-	if opt.ScaleMinValue != nil {
+	if opt.ScaleMinValue != nil && isValidExtent(*opt.ScaleMinValue) {
 		minVal = *opt.ScaleMinValue
 	}
-	if opt.ScaleMaxValue != nil {
+	if opt.ScaleMaxValue != nil && isValidExtent(*opt.ScaleMaxValue) {
 		maxVal = *opt.ScaleMaxValue
 	}
 	valueRange := maxVal - minVal
@@ -123,6 +125,9 @@ func (h *heatMap) renderChart(result *defaultRenderResult) (Box, error) {
 			if x < len(opt.Values[y]) {
 				value = opt.Values[y][x]
 			}
+			if !isValidExtent(value) {
+				continue // no cell for a null value
+			}
 			ratio := (value - minVal) / valueRange
 			lightDelta := (1 - ratio) * 0.4
 			satDelta := (1 - ratio) * 0.1
@@ -148,6 +153,9 @@ func (h *heatMap) renderChart(result *defaultRenderResult) (Box, error) {
 				if x < len(opt.Values[y]) {
 					value = opt.Values[y][x]
 				}
+				if !isValidExtent(value) {
+					continue // no label for a null value
+				}
 				labelPainter.Add(labelValue{
 					index:     0,
 					value:     value,
@@ -169,27 +177,30 @@ func computeMinMax(values [][]float64, numCol int) (float64, float64) {
 	if len(values) == 0 || numCol == 0 {
 		return 0, 0
 	}
-
 	var min, max float64
-	if len(values[0]) != 0 {
-		min = values[0][0]
-		max = values[0][0]
-	}
+	var anyValue, shortRow bool
 	for _, row := range values {
-		rowMin, rowMax := chartdraw.MinMax(row...)
-		if rowMin < min {
-			min = rowMin
+		if len(row) < numCol {
+			shortRow = true
 		}
-		if rowMax > max {
-			max = rowMax
+		for _, v := range row {
+			if !isValidExtent(v) {
+				continue // null or non-finite is no value for this cell
+			} else if !anyValue {
+				min, max, anyValue = v, v, true
+			} else if v < min {
+				min = v
+			} else if v > max {
+				max = v
+			}
 		}
-		if len(row) < numCol { // ensure range considers potential default values
-			if min > 0 {
-				min = 0
-			}
-			if max < 0 {
-				max = 0
-			}
+	}
+	if shortRow { // ensure range considers potential default values
+		if min > 0 {
+			min = 0
+		}
+		if max < 0 {
+			max = 0
 		}
 	}
 	return min, max

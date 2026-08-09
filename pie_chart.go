@@ -125,16 +125,12 @@ func (s *sector) calculateAdjustedOuterLabelPosition(cx, cy int, outerRadius, la
 	// adjust y to avoid collisions
 	threshold := ceilFloatToInt(labelFontSize) + 5
 	adjustedBranchY := lbY
-	if s.quadrant <= 2 {
-		// quadrants in the top half
-		for (prevY - adjustedBranchY) <= threshold {
-			adjustedBranchY--
+	if s.quadrant <= 2 { // quadrants in the top half
+		if prevY-adjustedBranchY <= threshold {
+			adjustedBranchY = prevY - threshold - 1
 		}
-	} else {
-		// quadrants in the bottom half
-		for (adjustedBranchY - prevY) <= threshold {
-			adjustedBranchY++
-		}
+	} else if adjustedBranchY-prevY <= threshold { // quadrants in the bottom half
+		adjustedBranchY = prevY + threshold + 1
 	}
 	leY := adjustedBranchY
 
@@ -173,13 +169,15 @@ func (p *pieChart) renderChart(result *defaultRenderResult) (Box, error) {
 	radius := getFlexibleRadius(diameter, defaultPieRadiusFactor, opt.Radius)
 	var total float64
 	for index, series := range opt.SeriesList {
+		if !isValidExtent(series.Value) {
+			continue // null or non-finite is no value for this series
+		} else if series.Value < 0 {
+			return BoxZero, fmt.Errorf("unsupported negative value for series index %d", index)
+		}
 		if opt.Radius == "" && series.Radius != "" {
 			if seriesRadius := getFlexibleRadius(diameter, defaultPieRadiusFactor, series.Radius); seriesRadius > radius {
 				radius = seriesRadius
 			}
-		}
-		if series.Value < 0 {
-			return BoxZero, fmt.Errorf("unsupported negative value for series index %d", index)
 		}
 		total += series.Value
 	}
@@ -213,6 +211,9 @@ func renderPie(p *Painter, cx, cy int, space, radius, total float64, renderLabel
 	// organize sectors by quadrant
 	var quadrant1, quadrant2, quadrant3, quadrant4 []sector
 	for index, series := range seriesList {
+		if !isValidExtent(series.Value) {
+			continue // no sector for an invalid or null value
+		}
 		seriesRadius := radius
 		if series.Radius != "" {
 			seriesRadius = getFlexibleRadius(space, defaultRadiusFactor, series.Radius)

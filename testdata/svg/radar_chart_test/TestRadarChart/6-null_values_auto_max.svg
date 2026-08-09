@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 600 400"><path d="M 20 20
+L 580 20
+L 580 380
+L 20 380
+L 20 20" style="stroke:none;fill:white"/><text x="20" y="36" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">Basic Radar Chart</text><path d="M 138 39
+L 168 39
+L 168 52
+L 138 52
+L 138 39" style="stroke:none;fill:rgb(84,112,198)"/><text x="170" y="51" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">Allocated Budget</text><path d="M 313 39
+L 343 39
+L 343 52
+L 313 52
+L 313 39" style="stroke:none;fill:rgb(145,204,117)"/><text x="345" y="51" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">Actual Spending</text><path d="M 300 198
+L 321 211
+L 321 235
+L 300 248
+L 279 235
+L 279 211
+L 300 198" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 300 173
+L 343 198
+L 343 247
+L 300 273
+L 257 248
+L 257 199
+L 300 173" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 300 148
+L 364 186
+L 364 260
+L 300 298
+L 236 260
+L 236 186
+L 300 148" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 300 123
+L 386 173
+L 386 272
+L 300 323
+L 214 273
+L 214 174
+L 300 123" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 300 98
+L 408 161
+L 408 285
+L 300 348
+L 192 285
+L 192 161
+L 300 98" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 300 223
+L 300 98" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 300 223
+L 408 161" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 300 223
+L 408 285" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 300 223
+L 300 348" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 300 223
+L 192 285" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 300 223
+L 192 161" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><text x="284" y="89" style="stroke:none;fill:rgb(70,70,70);font-size:13.3px;font-family:'Roboto Medium',sans-serif">Sales</text><text x="413" y="166" style="stroke:none;fill:rgb(70,70,70);font-size:13.3px;font-family:'Roboto Medium',sans-serif">Administration</text><text x="413" y="290" style="stroke:none;fill:rgb(70,70,70);font-size:13.3px;font-family:'Roboto Medium',sans-serif">Information Technology</text><text x="246" y="367" style="stroke:none;fill:rgb(70,70,70);font-size:13.3px;font-family:'Roboto Medium',sans-serif">Customer Support</text><text x="108" y="290" style="stroke:none;fill:rgb(70,70,70);font-size:13.3px;font-family:'Roboto Medium',sans-serif">Development</text><text x="126" y="166" style="stroke:none;fill:rgb(70,70,70);font-size:13.3px;font-family:'Roboto Medium',sans-serif">Marketing</text><path d="M 360 189
+L 368 262
+L 300 309
+L 221 268
+L 218 176" style="stroke-width:2;stroke:rgb(84,112,198);fill:none"/><path d="M 360 189
+L 368 262
+L 300 309
+L 221 268
+L 218 176" style="stroke:none;fill:rgba(84,112,198,0.078)"/><circle cx="360" cy="189" r="2" style="stroke-width:2;stroke:rgb(84,112,198);fill:white"/><circle cx="368" cy="262" r="2" style="stroke-width:2;stroke:rgb(84,112,198);fill:white"/><circle cx="300" cy="309" r="2" style="stroke-width:2;stroke:rgb(84,112,198);fill:white"/><circle cx="221" cy="268" r="2" style="stroke-width:2;stroke:rgb(84,112,198);fill:white"/><circle cx="218" cy="176" r="2" style="stroke-width:2;stroke:rgb(84,112,198);fill:white"/><path d="M 300 223
+L 408 161
+L 408 285
+L 300 348
+L 192 285
+L 192 161
+L 300 223" style="stroke-width:2;stroke:rgb(145,204,117);fill:none"/><path d="M 300 223
+L 408 161
+L 408 285
+L 300 348
+L 192 285
+L 192 161
+L 300 223" style="stroke:none;fill:rgba(145,204,117,0.078)"/><circle cx="300" cy="223" r="2" style="stroke-width:2;stroke:rgb(145,204,117);fill:white"/><circle cx="408" cy="161" r="2" style="stroke-width:2;stroke:rgb(145,204,117);fill:white"/><circle cx="408" cy="285" r="2" style="stroke-width:2;stroke:rgb(145,204,117);fill:white"/><circle cx="300" cy="348" r="2" style="stroke-width:2;stroke:rgb(145,204,117);fill:white"/><circle cx="192" cy="285" r="2" style="stroke-width:2;stroke:rgb(145,204,117);fill:white"/><circle cx="192" cy="161" r="2" style="stroke-width:2;stroke:rgb(145,204,117);fill:white"/><circle cx="300" cy="223" r="2" style="stroke-width:2;stroke:rgb(145,204,117);fill:white"/></svg>

@@ -2,6 +2,8 @@ package charts
 
 import (
 	"errors"
+	"math"
+	"slices"
 
 	"github.com/dustin/go-humanize"
 )
@@ -82,7 +84,7 @@ func newRadarChart(p *Painter, opt RadarChartOption) *radarChart {
 
 func (r *radarChart) renderChart(result *defaultRenderResult) (Box, error) {
 	opt := r.opt
-	indicators := opt.RadarIndicators
+	indicators := slices.Clone(opt.RadarIndicators)
 	sides := len(indicators)
 	if sides < 3 {
 		return BoxZero, errors.New("indicator count should be at least 3")
@@ -93,7 +95,7 @@ func (r *radarChart) renderChart(result *defaultRenderResult) (Box, error) {
 	maxValues := make([]float64, len(indicators))
 	for _, series := range opt.SeriesList {
 		for index, item := range series.Values {
-			if index < len(maxValues) && item > maxValues[index] {
+			if index < len(maxValues) && isValidExtent(item) && item > maxValues[index] {
 				maxValues[index] = item
 			}
 		}
@@ -173,10 +175,15 @@ func (r *radarChart) renderChart(result *defaultRenderResult) (Box, error) {
 		valueFormatter := getPreferredValueFormatter(series.Label.ValueFormatter, opt.ValueFormatter,
 			radarDefaultValueFormatter)
 		linePoints := make([]Point, 0, maxCount)
+		var anyValue bool
 		for j, item := range series.Values {
 			if j >= maxCount {
 				continue
+			} else if !isValidExtent(item) {
+				linePoints = append(linePoints, Point{X: center.X, Y: math.MaxInt32})
+				continue // null breaks the polygon at this spoke
 			}
+			anyValue = true
 			indicator := indicators[j]
 			var percent float64
 			offset := indicator.Max - indicator.Min
@@ -187,7 +194,7 @@ func (r *radarChart) renderChart(result *defaultRenderResult) (Box, error) {
 			p := getPolygonPoint(center, r, angles[j])
 			linePoints = append(linePoints, p)
 		}
-		if len(linePoints) == 0 {
+		if !anyValue {
 			continue // no values to render
 		}
 		color := theme.GetSeriesColor(index)
@@ -200,6 +207,9 @@ func (r *radarChart) renderChart(result *defaultRenderResult) (Box, error) {
 		seriesPainter.FillArea(linePoints, color.WithAlpha(20))
 		dotWidth := defaultDotWidth
 		for pointIndex, point := range linePoints {
+			if point.Y == math.MaxInt32 {
+				continue // no dot or label for a null value
+			}
 			seriesPainter.Circle(dotWidth, point.X, point.Y, dotFillColor, color, defaultStrokeWidth)
 			if flagIs(true, series.Label.Show) && pointIndex < len(linePoints)-1 {
 				fontStyle := fillFontStyleDefaults(series.Label.FontStyle,

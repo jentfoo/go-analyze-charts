@@ -1,7 +1,11 @@
 package charts
 
 import (
+	"math"
+	"regexp"
+	"slices"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -177,6 +181,20 @@ func TestHeatMapChart(t *testing.T) {
 			},
 			pngCRC: 0x2c8b2bab,
 		},
+		{
+			name: "null_values",
+			makeOptions: func() HeatMapOption {
+				opt := NewHeatMapOptionWithData([][]float64{
+					{1, 2, GetNullValue(), 4},
+					{5, math.NaN(), 7, 8},
+					{9, 10, GetNullValue(), 12},
+				})
+				opt.XAxis.Labels = []string{"A", "B", "C", "D"}
+				opt.YAxis.Labels = []string{"Row1", "Row2", "Row3"}
+				return opt
+			},
+			pngCRC: 0xb8664598,
+		},
 	}
 
 	for i, tt := range tests {
@@ -285,6 +303,89 @@ func TestHeatMapChartError(t *testing.T) {
 	}
 }
 
+// cellFillColors returns the distinct rgb fill colors used by heat map cells, excluding axis/text fills.
+func cellFillColors(svgData string) []string {
+	fillRe := regexp.MustCompile(`fill:(rgb\([^)]*\)|#[0-9a-fA-F]+)`)
+	var seen []string
+	for _, m := range fillRe.FindAllStringSubmatch(svgData, -1) {
+		if strings.HasPrefix(m[1], "rgb(70,") { // axis and text use the gray label color
+			continue
+		}
+		if !slices.Contains(seen, m[1]) {
+			seen = append(seen, m[1])
+		}
+	}
+	return seen
+}
+
+func TestHeatMapChartNullValue(t *testing.T) {
+	t.Parallel()
+
+	render := func(values [][]float64, label bool) string {
+		opt := NewHeatMapOptionWithData(values)
+		if label {
+			opt.ValuesLabel = SeriesLabel{Show: Ptr(true)}
+		}
+		p := NewPainter(PainterOptions{OutputFormat: ChartOutputSVG, Width: 600, Height: 400})
+		req := require.New(t)
+		req.NoError(p.HeatMapChart(opt))
+		data, err := p.Bytes()
+		req.NoError(err)
+		return string(data)
+	}
+
+	t.Run("partial_null", func(t *testing.T) {
+		full := render([][]float64{{1, 4}, {2, 3}}, false)
+		part := render([][]float64{{1, GetNullValue()}, {2, 3}}, false)
+
+		// the null cell draws no rect, so exactly one fewer filled path than the all-valid grid
+		assert.Equal(t, strings.Count(full, "<path")-1, strings.Count(part, "<path"))
+		// real cells still resolve to distinct shades, proving the scale did not flatten
+		assert.GreaterOrEqual(t, len(cellFillColors(part)), 3)
+	})
+	t.Run("all_null", func(t *testing.T) {
+		full := render([][]float64{{1, 4}, {2, 3}}, false)
+		nulls := render([][]float64{{GetNullValue(), GetNullValue()}, {GetNullValue(), GetNullValue()}}, false)
+
+		// no cells are drawn at all; only the fixed axis/background paths remain
+		assert.Equal(t, strings.Count(full, "<path")-4, strings.Count(nulls, "<path"))
+		assert.Empty(t, cellFillColors(nulls))
+	})
+	t.Run("nan_first_cell", func(t *testing.T) {
+		v := render([][]float64{{math.NaN(), 2}, {3, 4}}, false)
+
+		// a NaN in values[0][0] must not poison min/max seeding; remaining cells keep distinct shades
+		assert.GreaterOrEqual(t, len(cellFillColors(v)), 3)
+	})
+	t.Run("no_sentinel_in_labels", func(t *testing.T) {
+		s := render([][]float64{{1, GetNullValue()}, {2, math.NaN()}}, true)
+
+		// null and NaN cells never reach the label path, so no sentinel or nan text appears
+		assert.NotContains(t, s, "e+308")
+		assert.NotContains(t, s, "NaN")
+	})
+	t.Run("non_finite_scale_override", func(t *testing.T) {
+		values := [][]float64{{1, 4}, {2, 3}}
+		renderScaled := func(min, max float64) string {
+			opt := NewHeatMapOptionWithData(values)
+			opt.ScaleMinValue, opt.ScaleMaxValue = &min, &max
+			p := NewPainter(PainterOptions{OutputFormat: ChartOutputSVG, Width: 600, Height: 400})
+			req := require.New(t)
+			req.NoError(p.HeatMapChart(opt))
+			data, err := p.Bytes()
+			req.NoError(err)
+			return string(data)
+		}
+
+		// a non-finite override is ignored, falling back to the computed extent rather than
+		// producing a NaN ratio for every cell
+		computed := render(values, false)
+		for _, v := range []float64{math.NaN(), math.Inf(1), math.Inf(-1), GetNullValue()} {
+			assert.Equal(t, computed, renderScaled(v, v))
+		}
+	})
+}
+
 func TestComputeMinMax(t *testing.T) {
 	t.Parallel()
 
@@ -361,6 +462,46 @@ func TestComputeMinMax(t *testing.T) {
 			numCol:      2,
 			expectedMin: -2,
 			expectedMax: 4,
+		},
+		{
+			name: "null_value", // the sentinel is not a real value and must not poison the range
+			values: [][]float64{
+				{1, GetNullValue()},
+				{2, 3},
+			},
+			numCol:      2,
+			expectedMin: 1,
+			expectedMax: 3,
+		},
+		{
+			name: "nan_value", // NaN comparisons are always false, so it must be skipped explicitly
+			values: [][]float64{
+				{math.NaN(), 2},
+				{1, 3},
+			},
+			numCol:      2,
+			expectedMin: 1,
+			expectedMax: 3,
+		},
+		{
+			name: "inf_values", // ±Inf is not a real value either
+			values: [][]float64{
+				{math.Inf(1), 2},
+				{1, math.Inf(-1)},
+			},
+			numCol:      2,
+			expectedMin: 1,
+			expectedMax: 2,
+		},
+		{
+			name: "all_null", // no valid values, range defaults to zero
+			values: [][]float64{
+				{GetNullValue()},
+				{math.NaN()},
+			},
+			numCol:      1,
+			expectedMin: 0,
+			expectedMax: 0,
 		},
 	}
 

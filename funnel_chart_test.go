@@ -1,9 +1,11 @@
 package charts
 
 import (
+	"math"
 	"strconv"
 	"testing"
 
+	"github.com/dustin/go-humanize"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -179,6 +181,19 @@ func TestFunnelChart(t *testing.T) {
 			},
 			pngCRC: 0x83721fd3,
 		},
+		{
+			name: "null_values",
+			makeOptions: func() FunnelChartOption {
+				opt := makeBasicFunnelChartOption()
+				// a middle and a trailing null: neither band is drawn, and the band above each
+				// keeps a flat bottom rather than tapering into the gap
+				opt.SeriesList = NewSeriesListFunnel([]float64{
+					100, GetNullValue(), 60, 40, GetNullValue(),
+				})
+				return opt
+			},
+			pngCRC: 0x33680261,
+		},
 	}
 
 	for i, tt := range tests {
@@ -241,7 +256,15 @@ func TestFunnelChartError(t *testing.T) {
 		name             string
 		makeOptions      func() FunnelChartOption
 		errorMsgContains string
-	}{}
+	}{
+		{
+			name: "negative_value",
+			makeOptions: func() FunnelChartOption {
+				return NewFunnelChartOptionWithData([]float64{10.0, -1.0})
+			},
+			errorMsgContains: "unsupported negative value",
+		},
+	}
 
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i)+"-"+tt.name, func(t *testing.T) {
@@ -256,4 +279,50 @@ func TestFunnelChartError(t *testing.T) {
 			require.ErrorContains(t, err, tt.errorMsgContains)
 		})
 	}
+}
+
+func TestFunnelChartNullValue(t *testing.T) {
+	t.Parallel()
+
+	t.Run("all_null", func(t *testing.T) {
+		p := NewPainter(PainterOptions{OutputFormat: ChartOutputSVG, Width: 600, Height: 400})
+		require.NoError(t, p.FunnelChart(NewFunnelChartOptionWithData([]float64{GetNullValue(), GetNullValue()})))
+		data, err := p.Bytes()
+		require.NoError(t, err)
+
+		assert.NotContains(t, string(data), "(0%)") // no series rendered
+	})
+	t.Run("non_finite_skipped", func(t *testing.T) {
+		for _, v := range []float64{math.NaN(), math.Inf(1), math.Inf(-1)} {
+			p := NewPainter(PainterOptions{OutputFormat: ChartOutputSVG, Width: 600, Height: 400})
+			req := require.New(t)
+			req.NoError(p.FunnelChart(NewFunnelChartOptionWithData([]float64{v, 5})))
+			data, err := p.Bytes()
+			req.NoError(err)
+
+			// the non-finite band gets no label, like a null; only the real band's label renders
+			assert.NotContains(t, string(data), "(0%)")
+		}
+	})
+	t.Run("null_skips_formatters", func(t *testing.T) {
+		var received []float64
+		opt := NewFunnelChartOptionWithData([]float64{GetNullValue(), 5})
+		for i := range opt.SeriesList {
+			opt.SeriesList[i].Label.ValueFormatter = func(v float64) string {
+				received = append(received, v)
+				return humanize.FtoaWithDigits(v, 2)
+			}
+			opt.SeriesList[i].Label.LabelFormatter = func(_ int, name string, v float64) (string, *LabelStyle) {
+				received = append(received, v)
+				return name + humanize.FtoaWithDigits(v, 2), nil
+			}
+		}
+		p := NewPainter(PainterOptions{OutputFormat: ChartOutputSVG, Width: 600, Height: 400})
+		req := require.New(t)
+		req.NoError(p.FunnelChart(opt))
+
+		// the null series is never passed to a user formatter; only the real value arrives
+		assert.NotContains(t, received, GetNullValue())
+		assert.Contains(t, received, 5.0)
+	})
 }

@@ -2,6 +2,7 @@ package charts
 
 import (
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -114,6 +115,39 @@ func TestRadarChart(t *testing.T) {
 			},
 			pngCRC: 0x6e141545,
 		},
+		{
+			name: "null_values",
+			makeOptions: func() RadarChartOption {
+				opt := makeBasicRadarChartOption()
+				// one null spoke in each series to demo the polygon break and skipped label
+				values := [][]float64{
+					{4200, GetNullValue(), 20000, 35000, GetNullValue(), 18000},
+					{5000, 14000, GetNullValue(), 26000, 22000, 21000},
+				}
+				opt.SeriesList = NewSeriesListRadar(values)
+				opt.SeriesList.SetSeriesLabels(SeriesLabel{Show: Ptr(true)})
+				return opt
+			},
+			pngCRC: 0xcd355d85,
+		},
+		{
+			name: "null_values_auto_max",
+			makeOptions: func() RadarChartOption {
+				opt := makeBasicRadarChartOption()
+				// a null spoke must not poison the auto indicator max, which would otherwise
+				// collapse every real series toward the center on that spoke
+				values := [][]float64{
+					{GetNullValue(), 5, 7, 9, 11, 13},
+					{0, 9, 11, 13, 15, 17},
+				}
+				opt.SeriesList = NewSeriesListRadar(values)
+				for i := range opt.RadarIndicators {
+					opt.RadarIndicators[i].Max = 0 // auto-compute from the series values
+				}
+				return opt
+			},
+			pngCRC: 0xceebd205,
+		},
 	}
 
 	for i, tt := range tests {
@@ -168,6 +202,40 @@ func validateRadarChartRender(t *testing.T, svgP, pngP *Painter, opt RadarChartO
 	rasterData, err := pngP.Bytes()
 	require.NoError(t, err)
 	assertEqualPNGCRC(t, expectedCRC, rasterData)
+}
+
+func TestRadarChartNullValue(t *testing.T) {
+	t.Parallel()
+
+	render := func(values [][]float64) string {
+		opt := makeBasicRadarChartOption()
+		opt.SeriesList = NewSeriesListRadar(values)
+		opt.SeriesList.SetSeriesLabels(SeriesLabel{Show: Ptr(true)})
+		opt.RadarIndicators = opt.RadarIndicators[:3]
+		p := NewPainter(PainterOptions{OutputFormat: ChartOutputSVG, Width: 600, Height: 400})
+		req := require.New(t)
+		req.NoError(p.RadarChart(opt))
+		data, err := p.Bytes()
+		req.NoError(err)
+		return string(data)
+	}
+
+	t.Run("partial_null", func(t *testing.T) {
+		s := render([][]float64{{4200, GetNullValue(), 5000}})
+
+		// the null spoke gets no label, so no sentinel text reaches the output
+		assert.NotContains(t, s, "e+308")
+		// real spokes still render their value labels
+		assert.Contains(t, s, ">4200<")
+		assert.Contains(t, s, ">5000<")
+	})
+	t.Run("all_null", func(t *testing.T) {
+		s := render([][]float64{{GetNullValue(), GetNullValue(), GetNullValue()}})
+
+		// only the legend swatch carries the series color; no polygon vertices or dots are drawn
+		assert.Equal(t, 1, strings.Count(s, "rgb(84,112,198"))
+		assert.NotContains(t, s, `r="2" style="stroke-width:2;stroke`)
+	})
 }
 
 func TestRadarChartError(t *testing.T) {

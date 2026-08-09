@@ -606,6 +606,40 @@ func TestPieChartDominantSeries(t *testing.T) {
 	assert.Equal(t, 3, strings.Count(string(data), "A "))
 }
 
+func TestPieChartNullValue(t *testing.T) {
+	t.Parallel()
+
+	t.Run("partial_null", func(t *testing.T) {
+		p := NewPainter(PainterOptions{OutputFormat: ChartOutputSVG, Width: 600, Height: 400})
+		require.NoError(t, p.PieChart(PieChartOption{SeriesList: NewSeriesListPie([]float64{GetNullValue(), 5})}))
+		data, err := p.Bytes()
+		require.NoError(t, err)
+
+		// the null series has no sector, leaving a single full circle sweep of two arc segments
+		assert.Equal(t, 2, strings.Count(string(data), "A "))
+	})
+	t.Run("all_null", func(t *testing.T) {
+		p := NewPainter(PainterOptions{OutputFormat: ChartOutputSVG, Width: 600, Height: 400})
+		require.NoError(t, p.PieChart(PieChartOption{SeriesList: NewSeriesListPie([]float64{GetNullValue()})}))
+		data, err := p.Bytes()
+		require.NoError(t, err)
+
+		assert.Equal(t, 0, strings.Count(string(data), "A ")) // no sectors, no data rendered
+	})
+	t.Run("non_finite_skipped", func(t *testing.T) {
+		for _, v := range []float64{math.NaN(), math.Inf(1), math.Inf(-1)} {
+			p := NewPainter(PainterOptions{OutputFormat: ChartOutputSVG, Width: 600, Height: 400})
+			req := require.New(t)
+			req.NoError(p.PieChart(NewPieChartOptionWithData([]float64{v, 5})))
+			data, err := p.Bytes()
+			req.NoError(err)
+
+			// the non-finite series is skipped like a null, leaving one real sector arc sweep
+			assert.Equal(t, 2, strings.Count(string(data), "A "))
+		}
+	})
+}
+
 func TestPieChartError(t *testing.T) {
 	t.Parallel()
 
@@ -688,6 +722,17 @@ func TestSectorAdjustedOuterLabelPosition(t *testing.T) {
 	assert.Equal(t, 44, leY)
 	assert.Equal(t, 98, textX)
 	assert.Equal(t, 48, textY)
+
+	// a branch already clear of prevY by more than the threshold is left untouched
+	lsX, lsY, lbX, adjY, leX, leY, textX, textY = secTop.calculateAdjustedOuterLabelPosition(50, 50, 20, 30, 15, 80, 10, textBox)
+	assert.Equal(t, 70, lsX)
+	assert.Equal(t, 50, lsY)
+	assert.Equal(t, 80, lbX)
+	assert.Equal(t, 50, adjY)
+	assert.Equal(t, 95, leX)
+	assert.Equal(t, 50, leY)
+	assert.Equal(t, 98, textX)
+	assert.Equal(t, 54, textY)
 
 	secBottom := sector{midAngle: math.Pi, quadrant: 3}
 	lsX, lsY, lbX, adjY, leX, leY, textX, textY = secBottom.calculateAdjustedOuterLabelPosition(50, 50, 20, 30, 15, 40, 10, textBox)

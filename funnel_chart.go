@@ -50,14 +50,22 @@ func (f *funnelChart) renderChart(result *defaultRenderResult) (Box, error) {
 		return f.p.box, nil
 	}
 	seriesPainter := result.seriesPainter
-	max := opt.SeriesList[0].Value
+	var maxValue float64
+	var anyValue bool
 	for index, item := range opt.SeriesList {
-		if item.Value < 0 {
+		if !isValidExtent(item.Value) {
+			continue // null or non-finite is no value for this series
+		} else if item.Value < 0 {
 			return BoxZero, fmt.Errorf("unsupported negative value for series index %d", index)
 		}
-		if item.Value > max {
-			max = item.Value
+		anyValue = true
+		if item.Value > maxValue {
+			maxValue = item.Value
 		}
+	}
+	if !anyValue {
+		result.renderNoData(opt.Theme)
+		return f.p.box, nil
 	}
 	theme := opt.Theme
 	gap := 2
@@ -68,17 +76,21 @@ func (f *funnelChart) renderChart(result *defaultRenderResult) (Box, error) {
 
 	var y int
 	widthList := make([]int, seriesCount)
+	nullList := make([]bool, seriesCount)
 	textList := make([]string, seriesCount)
 	labelStyleList := make([]*LabelStyle, seriesCount)
 	seriesNames := opt.SeriesList.names()
 	for index, item := range opt.SeriesList {
-		// full width when the maximum value is 0
-		percent := 1.0
-		if max != 0 {
-			percent = item.Value / max
+		percent := 1.0 // full width when the maximum value is 0
+		nullValue := !isValidExtent(item.Value)
+		if nullValue {
+			percent = 0 // no band for a null value
+			nullList[index] = true
+		} else if maxValue != 0 {
+			percent = item.Value / maxValue
 		}
 		widthList[index] = int(percent * float64(width))
-		if !flagIs(false, item.Label.Show) {
+		if !nullValue && !flagIs(false, item.Label.Show) { // no label for a null band
 			if item.Label.LabelFormatter != nil {
 				textList[index], labelStyleList[index] = item.Label.LabelFormatter(index, seriesNames[index], item.Value)
 			} else if item.Label.ValueFormatter != nil {
@@ -90,9 +102,17 @@ func (f *funnelChart) renderChart(result *defaultRenderResult) (Box, error) {
 	}
 
 	for index, w := range widthList {
+		if nullList[index] {
+			y += h + gap // the slot is kept so the remaining bands stay aligned with their colors
+			continue     // no band or label for a null value
+		}
 		var nextWidth int
 		if index+1 < len(widthList) {
-			nextWidth = widthList[index+1]
+			if nullList[index+1] {
+				nextWidth = w // flat bottom rather than a taper into an unknown value
+			} else {
+				nextWidth = widthList[index+1]
+			}
 		}
 		topStartX := (width - w) >> 1
 		topEndX := topStartX + w

@@ -399,6 +399,68 @@ func TestSumSeries(t *testing.T) {
 	}
 }
 
+func TestCircularSeriesSumMax(t *testing.T) {
+	t.Parallel()
+
+	type circularSeries interface {
+		SumSeries() float64
+		MaxValue() float64
+	}
+	testTypes := []struct {
+		name       string
+		seriesFact func([]float64) circularSeries
+	}{
+		{
+			name: "pie",
+			seriesFact: func(values []float64) circularSeries {
+				return NewSeriesListPie(values)
+			},
+		},
+		{
+			name: "doughnut",
+			seriesFact: func(values []float64) circularSeries {
+				return NewSeriesListDoughnut(values)
+			},
+		},
+	}
+	tests := []struct {
+		name        string
+		values      []float64
+		expectedSum float64
+		expectedMax float64
+	}{
+		{
+			name:        "valid_values",
+			values:      []float64{1, 2, 3},
+			expectedSum: 6,
+			expectedMax: 3,
+		},
+		{
+			name:        "null_values",
+			values:      []float64{GetNullValue(), 2, 3},
+			expectedSum: 5,
+			expectedMax: 3,
+		},
+		{
+			name:        "nan_inf_values",
+			values:      []float64{math.NaN(), math.Inf(1), 2, math.Inf(-1), 3},
+			expectedSum: 5,
+			expectedMax: 3,
+		},
+	}
+
+	for _, typeCase := range testTypes {
+		for _, tc := range tests {
+			t.Run(typeCase.name+"-"+tc.name, func(t *testing.T) {
+				series := typeCase.seriesFact(tc.values)
+
+				assert.InDelta(t, tc.expectedSum, series.SumSeries(), 0)
+				assert.InDelta(t, tc.expectedMax, series.MaxValue(), 0)
+			})
+		}
+	}
+}
+
 func TestSumSeriesValues(t *testing.T) {
 	t.Parallel()
 
