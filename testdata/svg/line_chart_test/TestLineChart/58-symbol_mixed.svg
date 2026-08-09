@@ -2,18 +2,18 @@
 L 600 0
 L 600 400
 L 0 400
-L 0 0" style="stroke:none;fill:white"/><path d="M 26 19
-L 56 19" style="stroke-width:3;stroke:rgb(84,112,198);fill:none"/><circle cx="41" cy="19" r="5" style="stroke-width:3;stroke:rgb(84,112,198);fill:rgb(84,112,198)"/><circle cx="41" cy="19" r="2" style="stroke-width:3;stroke:white;fill:white"/><text x="58" y="25" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">Email</text><path d="M 117 13
-L 147 13
-L 147 26
-L 117 26
-L 117 13" style="stroke:none;fill:rgb(145,204,117)"/><text x="149" y="25" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">Union Ads</text><path d="M 245 10
-L 252 20
-L 245 30
-L 238 20
-L 245 10" style="stroke:none;fill:rgb(250,200,88)"/><text x="262" y="25" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">Video Ads</text><path d="M 352 19
-L 382 19" style="stroke-width:3;stroke:rgb(238,102,102);fill:none"/><circle cx="367" cy="19" r="5" style="stroke-width:3;stroke:rgb(238,102,102);fill:rgb(238,102,102)"/><text x="384" y="25" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">Direct</text><path d="M 445 19
-L 475 19" style="stroke-width:3;stroke:rgb(115,192,222);fill:none"/><circle cx="460" cy="19" r="5" style="stroke-width:3;stroke:rgb(115,192,222);fill:rgb(115,192,222)"/><text x="477" y="25" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">Search Engine</text><path d="M 68 365
+L 0 0" style="stroke:none;fill:white"/><path d="M 19 19
+L 49 19" style="stroke-width:3;stroke:rgb(84,112,198);fill:none"/><circle cx="34" cy="19" r="5" style="stroke-width:3;stroke:rgb(84,112,198);fill:rgb(84,112,198)"/><circle cx="34" cy="19" r="2" style="stroke-width:3;stroke:white;fill:white"/><text x="51" y="25" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">Email</text><path d="M 111 13
+L 141 13
+L 141 26
+L 111 26
+L 111 13" style="stroke:none;fill:rgb(145,204,117)"/><text x="143" y="25" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">Union Ads</text><path d="M 242 10
+L 249 20
+L 242 30
+L 235 20
+L 242 10" style="stroke:none;fill:rgb(250,200,88)"/><text x="259" y="25" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">Video Ads</text><path d="M 352 19
+L 382 19" style="stroke-width:3;stroke:rgb(238,102,102);fill:none"/><circle cx="367" cy="19" r="5" style="stroke-width:3;stroke:rgb(238,102,102);fill:rgb(238,102,102)"/><text x="384" y="25" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">Direct</text><path d="M 447 19
+L 477 19" style="stroke-width:3;stroke:rgb(115,192,222);fill:none"/><circle cx="462" cy="19" r="5" style="stroke-width:3;stroke:rgb(115,192,222);fill:rgb(115,192,222)"/><text x="479" y="25" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">Search Engine</text><path d="M 68 365
 L 184 362
 L 300 369
 L 416 362

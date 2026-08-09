@@ -2,74 +2,74 @@
 L 600 0
 L 600 400
 L 0 400
-L 0 0" style="stroke:none;fill:white"/><text x="10" y="26" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">World Population</text><path d="M 87 41
-L 87 366" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><path d="M 82 41
-L 87 41" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><path d="M 82 95
-L 87 95" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><path d="M 82 149
-L 87 149" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><path d="M 82 203
-L 87 203" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><path d="M 82 257
-L 87 257" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><path d="M 82 311
-L 87 311" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><path d="M 82 366
-L 87 366" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><text x="36" y="73" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">World</text><text x="37" y="127" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">China</text><text x="43" y="181" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">India</text><text x="47" y="235" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">USA</text><text x="9" y="289" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">Indonesia</text><text x="38" y="343" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">Brazil</text><text x="87" y="385" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">0</text><text x="212" y="385" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">200k</text><text x="338" y="385" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">400k</text><text x="463" y="385" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">600k</text><text x="555" y="385" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">800k</text><path d="M 213 41
-L 213 362" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 339 41
-L 339 362" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 464 41
-L 464 362" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 590 41
-L 590 362" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 88 321
-L 99 321
-L 99 335
-L 88 335
-L 88 321" style="stroke:none;fill:rgb(84,112,198)"/><path d="M 88 267
-L 102 267
-L 102 281
-L 88 281
-L 88 267" style="stroke:none;fill:rgb(84,112,198)"/><path d="M 88 213
-L 106 213
-L 106 227
-L 88 227
-L 88 213" style="stroke:none;fill:rgb(84,112,198)"/><path d="M 88 159
-L 153 159
-L 153 173
-L 88 173
-L 88 159" style="stroke:none;fill:rgb(84,112,198)"/><path d="M 88 105
-L 170 105
-L 170 119
-L 88 119
-L 88 105" style="stroke:none;fill:rgb(84,112,198)"/><path d="M 88 51
+L 0 0" style="stroke:none;fill:white"/><text x="10" y="26" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">World Population</text><path d="M 89 41
+L 89 366" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><path d="M 84 41
+L 89 41" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><path d="M 84 95
+L 89 95" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><path d="M 84 149
+L 89 149" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><path d="M 84 203
+L 89 203" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><path d="M 84 257
+L 89 257" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><path d="M 84 311
+L 89 311" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><path d="M 84 366
+L 89 366" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><text x="37" y="73" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">World</text><text x="38" y="127" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">China</text><text x="43" y="181" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">India</text><text x="48" y="235" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">USA</text><text x="9" y="289" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">Indonesia</text><text x="38" y="343" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">Brazil</text><text x="89" y="385" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">0</text><text x="214" y="385" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">200k</text><text x="339" y="385" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">400k</text><text x="464" y="385" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">600k</text><text x="554" y="385" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">800k</text><path d="M 215 41
+L 215 362" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 340 41
+L 340 362" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 465 41
+L 465 362" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 590 41
+L 590 362" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 90 321
+L 101 321
+L 101 335
+L 90 335
+L 90 321" style="stroke:none;fill:rgb(84,112,198)"/><path d="M 90 267
+L 104 267
+L 104 281
+L 90 281
+L 90 267" style="stroke:none;fill:rgb(84,112,198)"/><path d="M 90 213
+L 108 213
+L 108 227
+L 90 227
+L 90 213" style="stroke:none;fill:rgb(84,112,198)"/><path d="M 90 159
+L 155 159
+L 155 173
+L 90 173
+L 90 159" style="stroke:none;fill:rgb(84,112,198)"/><path d="M 90 105
+L 172 105
+L 172 119
+L 90 119
+L 90 105" style="stroke:none;fill:rgb(84,112,198)"/><path d="M 90 51
 L 483 51
 L 483 65
-L 88 65
-L 88 51" style="stroke:none;fill:rgb(84,112,198)"/><path d="M 88 340
-L 100 340
-L 100 354
-L 88 354
-L 88 340" style="stroke:none;fill:rgb(145,204,117)"/><path d="M 88 286
-L 102 286
-L 102 300
-L 88 300
-L 88 286" style="stroke:none;fill:rgb(145,204,117)"/><path d="M 88 232
-L 107 232
-L 107 246
-L 88 246
-L 88 232" style="stroke:none;fill:rgb(145,204,117)"/><path d="M 88 178
-L 164 178
-L 164 192
-L 88 192
-L 88 178" style="stroke:none;fill:rgb(145,204,117)"/><path d="M 88 124
-L 172 124
-L 172 138
-L 88 138
-L 88 124" style="stroke:none;fill:rgb(145,204,117)"/><path d="M 88 70
-L 515 70
-L 515 84
-L 88 84
-L 88 70" style="stroke:none;fill:rgb(145,204,117)"/><path d="M 106.48 324.38
-A 14 14 0 1 1 106.48 331.62
-L 120 328
-Z" style="stroke:none;fill:rgb(84,112,198)"/><path d="M 120 314
-Q85,328 120,342
-Z" style="stroke:none;fill:rgb(84,112,198)"/><text x="106" y="331" style="stroke:none;fill:rgb(238,238,238);font-size:10.2px;font-family:'Roboto Medium',sans-serif">18.2k</text><path d="M 490.48 54.38
+L 90 65
+L 90 51" style="stroke:none;fill:rgb(84,112,198)"/><path d="M 90 340
+L 102 340
+L 102 354
+L 90 354
+L 90 340" style="stroke:none;fill:rgb(145,204,117)"/><path d="M 90 286
+L 104 286
+L 104 300
+L 90 300
+L 90 286" style="stroke:none;fill:rgb(145,204,117)"/><path d="M 90 232
+L 109 232
+L 109 246
+L 90 246
+L 90 232" style="stroke:none;fill:rgb(145,204,117)"/><path d="M 90 178
+L 165 178
+L 165 192
+L 90 192
+L 90 178" style="stroke:none;fill:rgb(145,204,117)"/><path d="M 90 124
+L 173 124
+L 173 138
+L 90 138
+L 90 124" style="stroke:none;fill:rgb(145,204,117)"/><path d="M 90 70
+L 516 70
+L 516 84
+L 90 84
+L 90 70" style="stroke:none;fill:rgb(145,204,117)"/><path d="M 108.48 324.38
+A 14 14 0 1 1 108.48 331.62
+L 122 328
+Z" style="stroke:none;fill:rgb(84,112,198)"/><path d="M 122 314
+Q87,328 122,342
+Z" style="stroke:none;fill:rgb(84,112,198)"/><text x="107" y="331" style="stroke:none;fill:rgb(238,238,238);font-size:10.7px;font-family:'Roboto Medium',sans-serif">18.2k</text><path d="M 490.48 54.38
 A 14 14 0 1 1 490.48 61.62
 L 504 58
 Z" style="stroke:none;fill:rgb(84,112,198)"/><path d="M 504 44
 Q469,58 504,72
-Z" style="stroke:none;fill:rgb(84,112,198)"/><text x="478" y="61" style="stroke:none;fill:rgb(238,238,238);font-size:10.2px;font-family:'Roboto Medium',sans-serif">630.23k</text></svg>
+Z" style="stroke:none;fill:rgb(84,112,198)"/><text x="477" y="61" style="stroke:none;fill:rgb(238,238,238);font-size:10.7px;font-family:'Roboto Medium',sans-serif">630.23k</text></svg>

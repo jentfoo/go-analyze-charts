@@ -359,7 +359,7 @@ func TestPainterExternal(t *testing.T) {
 				opt.Theme = GetDefaultTheme().WithBackgroundColor(ColorTransparent)
 				_ = p.LineChart(opt)
 			},
-			pngCRC: 0xab1bf439,
+			pngCRC: 0xc46d9c75,
 		},
 	}
 
@@ -392,7 +392,7 @@ func TestTextRotationHeightAdjustment(t *testing.T) {
 	t.Parallel()
 
 	text := "hello world "
-	expectedTemplate := "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" viewBox=\"0 0 600 400\"><text x=\"200\" y=\"%d\" style=\"stroke:none;fill:black;font-size:40.9px;font-family:'Roboto Medium',sans-serif\" transform=\"rotate(%d.00,200,%d)\">hello world %s</text></svg>"
+	expectedTemplate := "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" viewBox=\"0 0 600 400\"><text x=\"200\" y=\"%d\" style=\"stroke:none;fill:black;font-size:42.7px;font-family:'Roboto Medium',sans-serif\" transform=\"rotate(%d.00,200,%d)\">hello world %s</text></svg>"
 	fontStyle := FontStyle{
 		Font:      GetDefaultFont(),
 		FontSize:  32,
@@ -406,67 +406,67 @@ func TestTextRotationHeightAdjustment(t *testing.T) {
 	}{
 		{
 			degrees:   15,
-			expectedY: 127,
+			expectedY: 124,
 		},
 		{
 			degrees:   30,
-			expectedY: 60,
+			expectedY: 54,
 		},
 		{
 			degrees:   45,
-			expectedY: 1,
+			expectedY: -7,
 		},
 		{
 			degrees:   60,
-			expectedY: -43,
+			expectedY: -54,
 		},
 		{
 			degrees:   75,
-			expectedY: -71,
+			expectedY: -83,
 		},
 		{
 			degrees:   90,
-			expectedY: -81,
+			expectedY: -93,
 		},
 		{
 			degrees:   105,
-			expectedY: -71,
+			expectedY: -83,
 		},
 		{
 			degrees:   120,
-			expectedY: -43,
+			expectedY: -54,
 		},
 		{
 			degrees:   135,
-			expectedY: 1,
+			expectedY: -7,
 		},
 		{
 			degrees:   150,
-			expectedY: 60,
+			expectedY: 54,
 		},
 		{
 			degrees:   165,
-			expectedY: 127,
+			expectedY: 124,
 		},
 		{
 			degrees:   180,
-			expectedY: 159,
+			expectedY: 157,
 		},
 		{
 			degrees:   195,
-			expectedY: 170,
+			expectedY: 168,
 		},
 		{
 			degrees:   210,
-			expectedY: 180,
+			expectedY: 179,
 		},
 		{
 			degrees:   225,
-			expectedY: 188,
+			expectedY: 187,
 		},
 		{
 			degrees:   240,
-			expectedY: 195,
+			expectedY: 194,
 		},
 		{
 			degrees:   255,
@@ -681,20 +681,20 @@ func TestPainterMeasureText(t *testing.T) {
 	}
 
 	t.Run("basic", func(t *testing.T) {
-		assert.Equal(t, Box{Right: 84, Bottom: 16, IsSet: true},
+		assert.Equal(t, Box{Right: 88, Bottom: 16, IsSet: true},
 			svgP.MeasureText("Hello World!", 0, style))
-		assert.Equal(t, Box{Right: 99, Bottom: 14, IsSet: true},
+		assert.Equal(t, Box{Right: 88, Bottom: 16, IsSet: true},
 			pngP.MeasureText("Hello World!", 0, style))
-		assert.Equal(t, Box{Right: 99, Bottom: 14, IsSet: true},
+		assert.Equal(t, Box{Right: 88, Bottom: 16, IsSet: true},
 			jpgP.MeasureText("Hello World!", 0, style))
 	})
 
 	t.Run("basic_large", func(t *testing.T) {
-		assert.Equal(t, Box{Right: 200, Bottom: 36, IsSet: true},
+		assert.Equal(t, Box{Right: 208, Bottom: 38, IsSet: true},
 			svgP.MeasureText("Hello World!", 0, styleLargeNoto))
-		assert.Equal(t, Box{Right: 235, Bottom: 33, IsSet: true},
+		assert.Equal(t, Box{Right: 208, Bottom: 38, IsSet: true},
 			pngP.MeasureText("Hello World!", 0, styleLargeNoto))
-		assert.Equal(t, Box{Right: 235, Bottom: 33, IsSet: true},
+		assert.Equal(t, Box{Right: 208, Bottom: 38, IsSet: true},
 			jpgP.MeasureText("Hello World!", 0, styleLargeNoto))
 	})
 
@@ -702,32 +702,32 @@ func TestPainterMeasureText(t *testing.T) {
 		radians := DegreesToRadians(90)
 
 		box := svgP.MeasureText("Hello World!", radians, style)
-		assert.Equal(t, 84, box.Height())
+		assert.Equal(t, 88, box.Height())
 		assert.Equal(t, 16, box.Width())
 
 		box = pngP.MeasureText("Hello World!", radians, style)
-		assert.Equal(t, 99, box.Height())
-		assert.Equal(t, 14, box.Width())
+		assert.Equal(t, 88, box.Height())
+		assert.Equal(t, 16, box.Width())
 
 		box = jpgP.MeasureText("Hello World!", radians, style)
-		assert.Equal(t, 99, box.Height())
-		assert.Equal(t, 14, box.Width())
+		assert.Equal(t, 88, box.Height())
+		assert.Equal(t, 16, box.Width())
 	})
 
 	t.Run("rotated-270", func(t *testing.T) {
 		radians := DegreesToRadians(270)
 
 		box := svgP.MeasureText("Hello World!", radians, style)
-		assert.Equal(t, 84, box.Height())
+		assert.Equal(t, 88, box.Height())
 		assert.Equal(t, 14, box.Width())
 
 		box = pngP.MeasureText("Hello World!", radians, style)
-		assert.Equal(t, 99, box.Height())
-		assert.Equal(t, 12, box.Width())
+		assert.Equal(t, 88, box.Height())
+		assert.Equal(t, 14, box.Width())
 
 		box = jpgP.MeasureText("Hello World!", radians, style)
-		assert.Equal(t, 99, box.Height())
-		assert.Equal(t, 12, box.Width())
+		assert.Equal(t, 88, box.Height())
+		assert.Equal(t, 14, box.Width())
 	})
 
 	t.Run("empty", func(t *testing.T) {
@@ -740,120 +740,146 @@ func TestPainterMeasureText(t *testing.T) {
 		text := "🟢"
 
 		assert.Equal(t, Box{Right: 12, Bottom: 16, IsSet: true}, svgP.MeasureText(text, 0, style))
-		assert.Equal(t, Box{Right: 8, Bottom: 13, IsSet: true}, pngP.MeasureText(text, 0, style))
-		assert.Equal(t, Box{Right: 8, Bottom: 13, IsSet: true}, jpgP.MeasureText(text, 0, style))
+		assert.Equal(t, Box{Right: 8, Bottom: 16, IsSet: true}, pngP.MeasureText(text, 0, style))
+		assert.Equal(t, Box{Right: 8, Bottom: 16, IsSet: true}, jpgP.MeasureText(text, 0, style))
 
-		assert.Equal(t, Box{Right: 28, Bottom: 36, IsSet: true}, svgP.MeasureText(text, 0, styleLargeNoto))
-		assert.Equal(t, Box{Right: 24, Bottom: 30, IsSet: true}, pngP.MeasureText(text, 0, styleLargeNoto))
-		assert.Equal(t, Box{Right: 24, Bottom: 30, IsSet: true}, jpgP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 28, Bottom: 38, IsSet: true}, svgP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 21, Bottom: 38, IsSet: true}, pngP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 21, Bottom: 38, IsSet: true}, jpgP.MeasureText(text, 0, styleLargeNoto))
 	})
 
 	t.Run("star_emoji", func(t *testing.T) {
 		text := "⭐"
 
 		assert.Equal(t, Box{Right: 12, Bottom: 16, IsSet: true}, svgP.MeasureText(text, 0, style))
-		assert.Equal(t, Box{Right: 13, Bottom: 12, IsSet: true}, pngP.MeasureText(text, 0, style))
-		assert.Equal(t, Box{Right: 13, Bottom: 12, IsSet: true}, jpgP.MeasureText(text, 0, style))
+		assert.Equal(t, Box{Right: 12, Bottom: 16, IsSet: true}, pngP.MeasureText(text, 0, style))
+		assert.Equal(t, Box{Right: 12, Bottom: 16, IsSet: true}, jpgP.MeasureText(text, 0, style))
 
-		assert.Equal(t, Box{Right: 28, Bottom: 36, IsSet: true}, svgP.MeasureText(text, 0, styleLargeNoto))
-		assert.Equal(t, Box{Right: 30, Bottom: 28, IsSet: true}, pngP.MeasureText(text, 0, styleLargeNoto))
-		assert.Equal(t, Box{Right: 30, Bottom: 28, IsSet: true}, jpgP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 28, Bottom: 38, IsSet: true}, svgP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 27, Bottom: 38, IsSet: true}, pngP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 27, Bottom: 38, IsSet: true}, jpgP.MeasureText(text, 0, styleLargeNoto))
 	})
 
 	t.Run("question_emoji", func(t *testing.T) {
 		text := "❓"
 
 		assert.Equal(t, Box{Right: 12, Bottom: 16, IsSet: true}, svgP.MeasureText(text, 0, style))
-		assert.Equal(t, Box{Right: 11, Bottom: 14, IsSet: true}, pngP.MeasureText(text, 0, style))
-		assert.Equal(t, Box{Right: 11, Bottom: 14, IsSet: true}, jpgP.MeasureText(text, 0, style))
+		assert.Equal(t, Box{Right: 10, Bottom: 16, IsSet: true}, pngP.MeasureText(text, 0, style))
+		assert.Equal(t, Box{Right: 10, Bottom: 16, IsSet: true}, jpgP.MeasureText(text, 0, style))
 
-		assert.Equal(t, Box{Right: 28, Bottom: 36, IsSet: true}, svgP.MeasureText(text, 0, styleLargeNoto))
-		assert.Equal(t, Box{Right: 25, Bottom: 31, IsSet: true}, pngP.MeasureText(text, 0, styleLargeNoto))
-		assert.Equal(t, Box{Right: 25, Bottom: 31, IsSet: true}, jpgP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 28, Bottom: 38, IsSet: true}, svgP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 22, Bottom: 38, IsSet: true}, pngP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 22, Bottom: 38, IsSet: true}, jpgP.MeasureText(text, 0, styleLargeNoto))
 	})
 
 	t.Run("money_emoji", func(t *testing.T) {
 		text := "💰"
 
-		assert.Equal(t, Box{Right: 15, Bottom: 16, IsSet: true}, svgP.MeasureText(text, 0, style))
-		assert.Equal(t, Box{Right: 18, Bottom: 17, IsSet: true}, pngP.MeasureText(text, 0, style))
-		assert.Equal(t, Box{Right: 18, Bottom: 17, IsSet: true}, jpgP.MeasureText(text, 0, style))
+		assert.Equal(t, Box{Right: 16, Bottom: 16, IsSet: true}, svgP.MeasureText(text, 0, style))
+		assert.Equal(t, Box{Right: 16, Bottom: 16, IsSet: true}, pngP.MeasureText(text, 0, style))
+		assert.Equal(t, Box{Right: 16, Bottom: 16, IsSet: true}, jpgP.MeasureText(text, 0, style))
 
-		assert.Equal(t, Box{Right: 35, Bottom: 36, IsSet: true}, svgP.MeasureText(text, 0, styleLargeNoto))
-		assert.Equal(t, Box{Right: 41, Bottom: 40, IsSet: true}, pngP.MeasureText(text, 0, styleLargeNoto))
-		assert.Equal(t, Box{Right: 41, Bottom: 40, IsSet: true}, jpgP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 36, Bottom: 38, IsSet: true}, svgP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 36, Bottom: 38, IsSet: true}, pngP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 36, Bottom: 38, IsSet: true}, jpgP.MeasureText(text, 0, styleLargeNoto))
 	})
 
 	t.Run("multiple_emojis", func(t *testing.T) {
 		text := "🟢⭐❓💰"
 
-		assert.Equal(t, Box{Right: 51, Bottom: 16, IsSet: true}, svgP.MeasureText(text, 0, style))
-		assert.Equal(t, Box{Right: 49, Bottom: 17, IsSet: true}, pngP.MeasureText(text, 0, style))
-		assert.Equal(t, Box{Right: 49, Bottom: 17, IsSet: true}, jpgP.MeasureText(text, 0, style))
+		assert.Equal(t, Box{Right: 52, Bottom: 16, IsSet: true}, svgP.MeasureText(text, 0, style))
+		assert.Equal(t, Box{Right: 44, Bottom: 16, IsSet: true}, pngP.MeasureText(text, 0, style))
+		assert.Equal(t, Box{Right: 44, Bottom: 16, IsSet: true}, jpgP.MeasureText(text, 0, style))
 
-		assert.Equal(t, Box{Right: 119, Bottom: 36, IsSet: true}, svgP.MeasureText(text, 0, styleLargeNoto))
-		assert.Equal(t, Box{Right: 120, Bottom: 40, IsSet: true}, pngP.MeasureText(text, 0, styleLargeNoto))
-		assert.Equal(t, Box{Right: 120, Bottom: 40, IsSet: true}, jpgP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 120, Bottom: 38, IsSet: true}, svgP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 105, Bottom: 38, IsSet: true}, pngP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 105, Bottom: 38, IsSet: true}, jpgP.MeasureText(text, 0, styleLargeNoto))
 	})
 
 	t.Run("mixed_text_emoji", func(t *testing.T) {
 		text := "Status: 🟢 OK"
 
-		assert.Equal(t, Box{Right: 89, Bottom: 16, IsSet: true}, svgP.MeasureText(text, 0, style))
-		assert.Equal(t, Box{Right: 99, Bottom: 14, IsSet: true}, pngP.MeasureText(text, 0, style))
-		assert.Equal(t, Box{Right: 99, Bottom: 14, IsSet: true}, jpgP.MeasureText(text, 0, style))
+		assert.Equal(t, Box{Right: 92, Bottom: 16, IsSet: true}, svgP.MeasureText(text, 0, style))
+		assert.Equal(t, Box{Right: 87, Bottom: 16, IsSet: true}, pngP.MeasureText(text, 0, style))
+		assert.Equal(t, Box{Right: 87, Bottom: 16, IsSet: true}, jpgP.MeasureText(text, 0, style))
 
-		assert.Equal(t, Box{Right: 205, Bottom: 36, IsSet: true}, svgP.MeasureText(text, 0, styleLargeNoto))
-		assert.Equal(t, Box{Right: 233, Bottom: 32, IsSet: true}, pngP.MeasureText(text, 0, styleLargeNoto))
-		assert.Equal(t, Box{Right: 233, Bottom: 32, IsSet: true}, jpgP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 213, Bottom: 38, IsSet: true}, svgP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 206, Bottom: 38, IsSet: true}, pngP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 206, Bottom: 38, IsSet: true}, jpgP.MeasureText(text, 0, styleLargeNoto))
 	})
 
 	t.Run("transport_symbols", func(t *testing.T) {
 		text := "🚗🚕"
 
 		assert.Equal(t, Box{Right: 24, Bottom: 16, IsSet: true}, svgP.MeasureText(text, 0, style))
-		assert.Equal(t, Box{Right: 16, Bottom: 13, IsSet: true}, pngP.MeasureText(text, 0, style))
-		assert.Equal(t, Box{Right: 16, Bottom: 13, IsSet: true}, jpgP.MeasureText(text, 0, style))
+		assert.Equal(t, Box{Right: 15, Bottom: 16, IsSet: true}, pngP.MeasureText(text, 0, style))
+		assert.Equal(t, Box{Right: 15, Bottom: 16, IsSet: true}, jpgP.MeasureText(text, 0, style))
 
-		assert.Equal(t, Box{Right: 56, Bottom: 36, IsSet: true}, svgP.MeasureText(text, 0, styleLargeNoto))
-		assert.Equal(t, Box{Right: 48, Bottom: 30, IsSet: true}, pngP.MeasureText(text, 0, styleLargeNoto))
-		assert.Equal(t, Box{Right: 48, Bottom: 30, IsSet: true}, jpgP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 56, Bottom: 38, IsSet: true}, svgP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 42, Bottom: 38, IsSet: true}, pngP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 42, Bottom: 38, IsSet: true}, jpgP.MeasureText(text, 0, styleLargeNoto))
 	})
 
 	t.Run("geometric_shapes", func(t *testing.T) {
 		text := "▪▫"
 
 		assert.Equal(t, Box{Right: 24, Bottom: 16, IsSet: true}, svgP.MeasureText(text, 0, style))
-		assert.Equal(t, Box{Right: 13, Bottom: 9, IsSet: true}, pngP.MeasureText(text, 0, style))
-		assert.Equal(t, Box{Right: 13, Bottom: 9, IsSet: true}, jpgP.MeasureText(text, 0, style))
+		assert.Equal(t, Box{Right: 12, Bottom: 16, IsSet: true}, pngP.MeasureText(text, 0, style))
+		assert.Equal(t, Box{Right: 12, Bottom: 16, IsSet: true}, jpgP.MeasureText(text, 0, style))
 
-		assert.Equal(t, Box{Right: 56, Bottom: 36, IsSet: true}, svgP.MeasureText(text, 0, styleLargeNoto))
-		assert.Equal(t, Box{Right: 30, Bottom: 21, IsSet: true}, pngP.MeasureText(text, 0, styleLargeNoto))
-		assert.Equal(t, Box{Right: 30, Bottom: 21, IsSet: true}, jpgP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 56, Bottom: 38, IsSet: true}, svgP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 27, Bottom: 38, IsSet: true}, pngP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 27, Bottom: 38, IsSet: true}, jpgP.MeasureText(text, 0, styleLargeNoto))
 	})
 
 	t.Run("wave_dash_and_part_alternation_mark", func(t *testing.T) {
 		text := "〰〽"
 
 		assert.Equal(t, Box{Right: 24, Bottom: 16, IsSet: true}, svgP.MeasureText(text, 0, style))
-		assert.Equal(t, Box{Right: 16, Bottom: 13, IsSet: true}, pngP.MeasureText(text, 0, style))
-		assert.Equal(t, Box{Right: 16, Bottom: 13, IsSet: true}, jpgP.MeasureText(text, 0, style))
+		assert.Equal(t, Box{Right: 15, Bottom: 16, IsSet: true}, pngP.MeasureText(text, 0, style))
+		assert.Equal(t, Box{Right: 15, Bottom: 16, IsSet: true}, jpgP.MeasureText(text, 0, style))
 
-		assert.Equal(t, Box{Right: 56, Bottom: 36, IsSet: true}, svgP.MeasureText(text, 0, styleLargeNoto))
-		assert.Equal(t, Box{Right: 48, Bottom: 30, IsSet: true}, pngP.MeasureText(text, 0, styleLargeNoto))
-		assert.Equal(t, Box{Right: 48, Bottom: 30, IsSet: true}, jpgP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 56, Bottom: 38, IsSet: true}, svgP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 42, Bottom: 38, IsSet: true}, pngP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 42, Bottom: 38, IsSet: true}, jpgP.MeasureText(text, 0, styleLargeNoto))
 	})
 
 	t.Run("playing_cards", func(t *testing.T) {
 		text := "🂡🂢"
 
 		assert.Equal(t, Box{Right: 24, Bottom: 16, IsSet: true}, svgP.MeasureText(text, 0, style))
-		assert.Equal(t, Box{Right: 16, Bottom: 13, IsSet: true}, pngP.MeasureText(text, 0, style))
-		assert.Equal(t, Box{Right: 16, Bottom: 13, IsSet: true}, jpgP.MeasureText(text, 0, style))
+		assert.Equal(t, Box{Right: 15, Bottom: 16, IsSet: true}, pngP.MeasureText(text, 0, style))
+		assert.Equal(t, Box{Right: 15, Bottom: 16, IsSet: true}, jpgP.MeasureText(text, 0, style))
 
-		assert.Equal(t, Box{Right: 56, Bottom: 36, IsSet: true}, svgP.MeasureText(text, 0, styleLargeNoto))
-		assert.Equal(t, Box{Right: 48, Bottom: 30, IsSet: true}, pngP.MeasureText(text, 0, styleLargeNoto))
-		assert.Equal(t, Box{Right: 48, Bottom: 30, IsSet: true}, jpgP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 56, Bottom: 38, IsSet: true}, svgP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 42, Bottom: 38, IsSet: true}, pngP.MeasureText(text, 0, styleLargeNoto))
+		assert.Equal(t, Box{Right: 42, Bottom: 38, IsSet: true}, jpgP.MeasureText(text, 0, styleLargeNoto))
+	})
+
+	t.Run("renderer_parity", func(t *testing.T) {
+		// sizes where the 26.6 em scale is fractional previously diverged between renderers
+		sizes := []float64{8, 10, 11, 12, 14, 17, 20, 28}
+		fontStyles := make([]FontStyle, 0, len(sizes)+2)
+		fontStyles = append(fontStyles, styleLargeNoto, styleLargeRoboto)
+		for _, size := range sizes {
+			fontStyles = append(fontStyles, FontStyle{
+				FontSize:  size,
+				FontColor: ColorBlack,
+				Font:      GetDefaultFont(),
+			})
+		}
+
+		for _, fs := range fontStyles {
+			for _, text := range []string{"Hello World!", "Mon", "365", "The quick brown fox",
+				"the quick brown fox jumps over the lazy dog, repeatedly and often",
+				"jjjj", "trailing space ", "   ", "中文测试"} {
+				svgBox := svgP.MeasureText(text, 0, fs)
+				pngBox := pngP.MeasureText(text, 0, fs)
+
+				assert.Equal(t, svgBox.Height(), pngBox.Height())
+				assert.Equal(t, svgBox.Width(), pngBox.Width())
+			}
+		}
 	})
 
 	t.Run("rendered", func(t *testing.T) {
@@ -867,55 +893,55 @@ func TestPainterMeasureText(t *testing.T) {
 				name:        "basic",
 				input:       "Hello World!",
 				font:        styleLargeNoto,
-				expectedCRC: 0x8442e3c9,
+				expectedCRC: 0xa0774ae1,
 			},
 			{
 				name:        "emojis",
 				input:       "⭐❓💰🔥💯🎯🚀⚡🌟🎉🎊",
 				font:        styleLargeNoto,
-				expectedCRC: 0xab692e5e,
+				expectedCRC: 0x7bb34191,
 			},
 			{
 				name:        "shapes",
 				input:       "▫●□▲▼◇★○△▪▴▾◆◯⬟⬠⬡⬢⬣⬤⬥",
 				font:        styleLargeNoto,
-				expectedCRC: 0x619dde85,
+				expectedCRC: 0x4985dbfc,
 			},
 			{
 				name:        "playing_cards",
 				input:       "🂡🂢🂫🃄🃍🃘🃞🃟",
 				font:        styleLargeNoto,
-				expectedCRC: 0x94611d5b,
+				expectedCRC: 0xaf691a66,
 			},
 			{
 				name:        "faces",
 				input:       "😂😍🤣😊😭😘😎🤔😴😋😉😏😬😐😑😮😯",
 				font:        styleLargeNoto,
-				expectedCRC: 0x5626b9e3,
+				expectedCRC: 0xa4a1ca28,
 			},
 			{
 				name:        "fallback_notosans_currency",
 				input:       "₠₡₢₥₭₮₯₰₲₳₴₵₶₷₸₻₾₿",
 				font:        styleLargeRoboto,
-				expectedCRC: 0x040e56b4,
+				expectedCRC: 0x5e2097ec,
 			},
 			{
 				name:        "fallback_notosans_letterlike",
 				input:       "℀℁ℂ℃℄℆ℇ℈℉ℊℋℌℍℎℏℐℑℒ℔ℕ℗℘ℙℚℛℜℝ℞℟℣ℤ℥℧ℨ℩KÅℬℭℯ",
 				font:        styleLargeRoboto,
-				expectedCRC: 0x5a44c47f,
+				expectedCRC: 0xfd4c93a9,
 			},
 			{
 				name:        "fallback_notosans_subscripts",
 				input:       "ⁱₐₑₒₓₔₕₖₗₘₙₚₛₜ",
 				font:        styleLargeRoboto,
-				expectedCRC: 0xca3cdfb4,
+				expectedCRC: 0x690572ea,
 			},
 			{
 				name:        "fallback_roboto_mathematical",
 				input:       "∂∆∏∑-√∞∫≈≠≤≥◊",
 				font:        styleLargeNoto,
-				expectedCRC: 0x69bc97ff,
+				expectedCRC: 0xa1c74648,
 			},
 		}
 
@@ -990,14 +1016,26 @@ func TestPainterTextFit(t *testing.T) {
 
 	text := "Hello World!"
 	box := p.TextFit(text, 0, 20, 80, fontStyle)
-	assert.Equal(t, Box{Right: 45, Bottom: 37, IsSet: true}, box)
+	assert.Equal(t, Box{Right: 47, Bottom: 37, IsSet: true}, box)
 
 	box = p.TextFit(text, 0, 100, 200, fontStyle)
-	assert.Equal(t, Box{Right: 84, Bottom: 16, IsSet: true}, box)
+	assert.Equal(t, Box{Right: 88, Bottom: 16, IsSet: true}, box)
 
 	buf, err := p.Bytes()
 	require.NoError(t, err)
 	assertTestdataSVG(t, buf)
+
+	t.Run("renderer_parity", func(t *testing.T) {
+		for _, body := range []string{text, "one two three four five six", "中文测试 换行 测试文本"} {
+			for _, width := range []int{80, 120, 200} {
+				svgP := NewPainter(PainterOptions{OutputFormat: ChartOutputSVG, Width: 400, Height: 300})
+				pngP := NewPainter(PainterOptions{OutputFormat: ChartOutputPNG, Width: 400, Height: 300})
+
+				assert.Equal(t, svgP.TextFit(body, 0, 20, width, fontStyle),
+					pngP.TextFit(body, 0, 20, width, fontStyle))
+			}
+		}
+	})
 }
 
 func TestMultipleChartsOnPainter(t *testing.T) {

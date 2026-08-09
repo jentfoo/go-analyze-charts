@@ -72,7 +72,7 @@ func TestRadarChart(t *testing.T) {
 			name:        "basic_themed",
 			themed:      true,
 			makeOptions: makeBasicRadarChartOption,
-			pngCRC:      0x4a49b7fb,
+			pngCRC:      0xc346801e,
 		},
 		{
 			name: "empty_series",
@@ -85,7 +85,7 @@ func TestRadarChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0xfcd03355,
+			pngCRC: 0x426c62ff,
 		},
 		{
 			name: "empty_values_series_skipped",
@@ -94,7 +94,7 @@ func TestRadarChart(t *testing.T) {
 				opt.SeriesList = append(opt.SeriesList, RadarSeries{Name: "Empty"})
 				return opt
 			},
-			pngCRC: 0x9b83b998,
+			pngCRC: 0xd3b8a805,
 		},
 		{
 			name: "all_series_empty_values",
@@ -102,7 +102,7 @@ func TestRadarChart(t *testing.T) {
 				return NewRadarChartOptionWithData([][]float64{{}},
 					[]string{"Sales", "Admin", "IT"}, []float64{100, 200, 300})
 			},
-			pngCRC: 0x9cacfabc,
+			pngCRC: 0xea52f55c,
 		},
 		{
 			name: "values_longer_than_indicators",
@@ -112,7 +112,7 @@ func TestRadarChart(t *testing.T) {
 				opt.SeriesList.SetSeriesLabels(SeriesLabel{Show: Ptr(true)})
 				return opt
 			},
-			pngCRC: 0x44386648,
+			pngCRC: 0x38e3dbd6,
 		},
 	}
 

@@ -2,15 +2,15 @@
 L 600 0
 L 600 400
 L 0 400
-L 0 0" style="stroke:none;fill:rgb(40,40,40)"/><text x="0" y="16" style="stroke:none;fill:rgb(238,238,238);font-size:15.3px;font-family:'Roboto Medium',sans-serif">Basic Radar Chart</text><path d="M 143 3
-L 173 3
-L 173 16
-L 143 16
-L 143 3" style="stroke:none;fill:rgb(255,100,100)"/><text x="175" y="15" style="stroke:none;fill:rgb(238,238,238);font-size:15.3px;font-family:'Roboto Medium',sans-serif">Allocated Budget</text><path d="M 313 3
+L 0 0" style="stroke:none;fill:rgb(40,40,40)"/><text x="0" y="16" style="stroke:none;fill:rgb(238,238,238);font-size:16px;font-family:'Roboto Medium',sans-serif">Basic Radar Chart</text><path d="M 138 3
+L 168 3
+L 168 16
+L 138 16
+L 138 3" style="stroke:none;fill:rgb(255,100,100)"/><text x="170" y="15" style="stroke:none;fill:rgb(238,238,238);font-size:16px;font-family:'Roboto Medium',sans-serif">Allocated Budget</text><path d="M 313 3
 L 343 3
 L 343 16
 L 313 16
-L 313 3" style="stroke:none;fill:rgb(255,210,100)"/><text x="345" y="15" style="stroke:none;fill:rgb(238,238,238);font-size:15.3px;font-family:'Roboto Medium',sans-serif">Actual Spending</text><path d="M 300 189
+L 313 3" style="stroke:none;fill:rgb(255,210,100)"/><text x="345" y="15" style="stroke:none;fill:rgb(238,238,238);font-size:16px;font-family:'Roboto Medium',sans-serif">Actual Spending</text><path d="M 300 189
 L 325 204
 L 325 232
 L 300 247
@@ -46,7 +46,7 @@ L 425 146" style="stroke-width:1;stroke:rgb(72,71,83);fill:none"/><path d="M 300
 L 425 290" style="stroke-width:1;stroke:rgb(72,71,83);fill:none"/><path d="M 300 218
 L 300 363" style="stroke-width:1;stroke:rgb(72,71,83);fill:none"/><path d="M 300 218
 L 175 290" style="stroke-width:1;stroke:rgb(72,71,83);fill:none"/><path d="M 300 218
-L 175 146" style="stroke-width:1;stroke:rgb(72,71,83);fill:none"/><text x="284" y="65" style="stroke:none;fill:rgb(238,238,238);font-size:12.8px;font-family:'Roboto Medium',sans-serif">Sales</text><text x="430" y="151" style="stroke:none;fill:rgb(238,238,238);font-size:12.8px;font-family:'Roboto Medium',sans-serif">Administration</text><text x="430" y="295" style="stroke:none;fill:rgb(238,238,238);font-size:12.8px;font-family:'Roboto Medium',sans-serif">Information Technology</text><text x="248" y="381" style="stroke:none;fill:rgb(238,238,238);font-size:12.8px;font-family:'Roboto Medium',sans-serif">Customer Support</text><text x="94" y="295" style="stroke:none;fill:rgb(238,238,238);font-size:12.8px;font-family:'Roboto Medium',sans-serif">Development</text><text x="112" y="151" style="stroke:none;fill:rgb(238,238,238);font-size:12.8px;font-family:'Roboto Medium',sans-serif">Marketing</text><path d="M 300 125
+L 175 146" style="stroke-width:1;stroke:rgb(72,71,83);fill:none"/><text x="284" y="64" style="stroke:none;fill:rgb(238,238,238);font-size:13.3px;font-family:'Roboto Medium',sans-serif">Sales</text><text x="430" y="151" style="stroke:none;fill:rgb(238,238,238);font-size:13.3px;font-family:'Roboto Medium',sans-serif">Administration</text><text x="430" y="295" style="stroke:none;fill:rgb(238,238,238);font-size:13.3px;font-family:'Roboto Medium',sans-serif">Information Technology</text><text x="246" y="382" style="stroke:none;fill:rgb(238,238,238);font-size:13.3px;font-family:'Roboto Medium',sans-serif">Customer Support</text><text x="91" y="295" style="stroke:none;fill:rgb(238,238,238);font-size:13.3px;font-family:'Roboto Medium',sans-serif">Development</text><text x="109" y="151" style="stroke:none;fill:rgb(238,238,238);font-size:13.3px;font-family:'Roboto Medium',sans-serif">Marketing</text><path d="M 300 125
 L 323 205
 L 383 266
 L 300 351

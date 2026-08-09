@@ -175,35 +175,22 @@ func (rr *rasterRenderer) Text(body string, x, y int) {
 	rr.gc.Fill()
 }
 
-// MeasureText returns the height and width in pixels of a string.
+// MeasureText returns the width and em height in pixels of a string, where the width covers the
+// advance and any ink extending past it.
 func (rr *rasterRenderer) MeasureText(body string) Box {
 	rr.gc.SetFont(rr.s.Font)
 	rr.gc.SetFontSize(rr.s.FontSize)
 	rr.gc.SetFillColor(rr.s.FontColor)
-	l, t, r, b, err := rr.gc.GetStringBounds(body)
+	// left ink overhang is ignored to match the vector renderer, padding the right edge never covered it
+	_, _, r, _, err := rr.gc.GetStringBounds(body)
 	if err != nil {
 		return Box{}
 	}
-	if l < 0 {
-		r -= l // equivalent to r+(-1*l)
-		l = 0
-	} else if l > 0 {
-		r += l
-		l = 0
-	}
-	if t < 0 {
-		b -= t
-		t = 0
-	} else if t > 0 {
-		b += t
-		t = 0
-	}
 
 	textBox := Box{
-		Top:    int(math.Ceil(t)),
-		Left:   int(math.Ceil(l)),
-		Right:  int(math.Ceil(r)),
-		Bottom: int(math.Ceil(b)),
+		Right: int(math.Ceil(r)),
+		// em height rather than ink height, matching the vector renderer
+		Bottom: int(math.Ceil(drawing.PointsToPixels(rr.gc.GetDPI(), rr.s.FontSize))),
 		IsSet:  true,
 	}
 	if rr.rotateRadians == nil {

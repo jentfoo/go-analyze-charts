@@ -50,10 +50,10 @@ func TestAnnotationSeriesMeasure(t *testing.T) {
 
 	box := as.Measure(r, cb, xrange, yrange, sd)
 	assert.False(t, box.IsZero())
-	assert.Equal(t, -5, box.Top)
+	assert.Equal(t, -7, box.Top)
 	assert.Equal(t, 5, box.Left)
-	assert.Equal(t, 146, box.Right) //the top,left annotation sticks up 5px and out ~44px.
-	assert.Equal(t, 115, box.Bottom)
+	assert.Equal(t, 144, box.Right) //the top,left annotation sticks up 5px and out ~44px.
+	assert.Equal(t, 117, box.Bottom)
 }
 
 func TestAnnotationSeriesRender(t *testing.T) {

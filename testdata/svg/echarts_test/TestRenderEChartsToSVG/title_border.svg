@@ -2,11 +2,11 @@
 L 600 0
 L 600 400
 L 0 400
-L 0 0" style="stroke:none;fill:white"/><text x="20" y="36" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">Title</text><path d="M 10 46
+L 0 0" style="stroke:none;fill:white"/><text x="20" y="36" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">Title</text><path d="M 10 46
 L 10 10
-L 61 10
-L 61 46
-L 10 46" style="stroke-width:2;stroke:lime;fill:none"/><text x="29" y="49" style="stroke:none;fill:none;font-size:15.3px;font-family:'Roboto Medium',sans-serif">75</text><text x="29" y="92" style="stroke:none;fill:none;font-size:15.3px;font-family:'Roboto Medium',sans-serif">70</text><text x="29" y="135" style="stroke:none;fill:none;font-size:15.3px;font-family:'Roboto Medium',sans-serif">65</text><text x="29" y="178" style="stroke:none;fill:none;font-size:15.3px;font-family:'Roboto Medium',sans-serif">60</text><text x="29" y="221" style="stroke:none;fill:none;font-size:15.3px;font-family:'Roboto Medium',sans-serif">55</text><text x="29" y="264" style="stroke:none;fill:none;font-size:15.3px;font-family:'Roboto Medium',sans-serif">50</text><text x="29" y="307" style="stroke:none;fill:none;font-size:15.3px;font-family:'Roboto Medium',sans-serif">45</text><text x="29" y="351" style="stroke:none;fill:none;font-size:15.3px;font-family:'Roboto Medium',sans-serif">40</text><path d="M 25 51
+L 62 10
+L 62 46
+L 10 46" style="stroke-width:2;stroke:lime;fill:none"/><text x="29" y="49" style="stroke:none;fill:none;font-size:16px;font-family:'Roboto Medium',sans-serif">75</text><text x="29" y="92" style="stroke:none;fill:none;font-size:16px;font-family:'Roboto Medium',sans-serif">70</text><text x="29" y="135" style="stroke:none;fill:none;font-size:16px;font-family:'Roboto Medium',sans-serif">65</text><text x="29" y="178" style="stroke:none;fill:none;font-size:16px;font-family:'Roboto Medium',sans-serif">60</text><text x="29" y="221" style="stroke:none;fill:none;font-size:16px;font-family:'Roboto Medium',sans-serif">55</text><text x="29" y="264" style="stroke:none;fill:none;font-size:16px;font-family:'Roboto Medium',sans-serif">50</text><text x="29" y="307" style="stroke:none;fill:none;font-size:16px;font-family:'Roboto Medium',sans-serif">45</text><text x="29" y="351" style="stroke:none;fill:none;font-size:16px;font-family:'Roboto Medium',sans-serif">40</text><path d="M 25 51
 L 580 51" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 25 94
 L 580 94" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 25 137
 L 580 137" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 25 181
@@ -17,5 +17,5 @@ L 580 311" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 
 L 580 355" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><path d="M 29 360
 L 29 355" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><path d="M 304 360
 L 304 355" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><path d="M 580 360
-L 580 355" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><text x="166" y="362" style="stroke:none;fill:none;font-size:15.3px;font-family:'Roboto Medium',sans-serif">A</text><text x="442" y="362" style="stroke:none;fill:none;font-size:15.3px;font-family:'Roboto Medium',sans-serif">B</text><path d="M 166 355
+L 580 355" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><text x="166" y="362" style="stroke:none;fill:none;font-size:16px;font-family:'Roboto Medium',sans-serif">A</text><text x="442" y="362" style="stroke:none;fill:none;font-size:16px;font-family:'Roboto Medium',sans-serif">B</text><path d="M 166 355
 L 442 95" style="stroke-width:2;stroke:rgb(84,112,198);fill:none"/><circle cx="166" cy="355" r="2.4" style="stroke-width:1;stroke:rgb(84,112,198);fill:white"/><circle cx="442" cy="95" r="2.4" style="stroke-width:1;stroke:rgb(84,112,198);fill:white"/></svg>

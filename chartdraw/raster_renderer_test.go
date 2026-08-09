@@ -127,7 +127,48 @@ func TestRasterRendererTextHash(t *testing.T) {
 	rr.Text("hi", 2, 12)
 
 	h := hashImage(t, rr)
-	assert.Equal(t, uint32(0x17e7dad4), h)
+	assert.Equal(t, uint32(0x51c2f68c), h)
+}
+
+func TestRasterRendererDefaultDPI(t *testing.T) {
+	t.Parallel()
+
+	assert.InDelta(t, drawing.DefaultDPI, PNG(10, 10).GetDPI(), 0)
+	assert.InDelta(t, drawing.DefaultDPI, JPG(10, 10).GetDPI(), 0)
+	assert.InDelta(t, drawing.DefaultDPI, SVG(10, 10).GetDPI(), 0)
+}
+
+func TestRasterRendererMeasureText(t *testing.T) {
+	t.Parallel()
+
+	rr := PNG(200, 50).(*rasterRenderer)
+	rr.SetFont(GetDefaultFont())
+	rr.SetFontSize(10)
+
+	emHeight := int(math.Ceil(drawing.PointsToPixels(rr.GetDPI(), 10)))
+
+	empty := rr.MeasureText("")
+	assert.Zero(t, empty.Width())
+	assert.Equal(t, emHeight, empty.Height())
+
+	space := rr.MeasureText(" ")
+	assert.Positive(t, space.Width()) // advance width, no ink
+	assert.Equal(t, emHeight, space.Height())
+
+	text := rr.MeasureText("hi")
+	assert.Greater(t, text.Width(), space.Width())
+	assert.Equal(t, emHeight, text.Height())
+
+	// height is the em box, independent of the ink of the string
+	assert.Equal(t, emHeight, rr.MeasureText("Ayg").Height())
+
+	assert.Greater(t, rr.MeasureText("hi ").Width(), text.Width())
+
+	vr := SVG(200, 50)
+	vr.SetFont(GetDefaultFont())
+	vr.SetFontSize(10)
+	// glyphs with a negative left side bearing measure the same in both renderers
+	assert.Equal(t, vr.MeasureText("jjjj").Width(), rr.MeasureText("jjjj").Width())
 }
 
 func BenchmarkRaterCircle(b *testing.B) {

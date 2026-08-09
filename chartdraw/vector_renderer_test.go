@@ -103,12 +103,12 @@ func TestVectorRendererMeasureText(t *testing.T) {
 
 	vr := SVG(100, 100)
 
-	vr.SetDPI(defaultDPI)
+	vr.SetDPI(drawing.DefaultDPI)
 	vr.SetFont(GetDefaultFont())
 	vr.SetFontSize(12.0)
 
 	tb := vr.MeasureText("Ljp")
-	assert.Equal(t, 21, tb.Width())
+	assert.Equal(t, 22, tb.Width())
 	assert.Equal(t, 16, tb.Height())
 }
 
@@ -128,7 +128,7 @@ func TestCanvasStyleSVG(t *testing.T) {
 	}
 
 	var bb bytes.Buffer
-	styleAsSVG(&bb, set, defaultDPI, false)
+	styleAsSVG(&bb, set, drawing.DefaultDPI, false)
 	svgString := bb.String()
 	assert.NotEmpty(t, svgString)
 	assert.True(t, strings.HasPrefix(svgString, "style=\""))
@@ -140,7 +140,7 @@ func TestCanvasStyleSVG(t *testing.T) {
 	assert.True(t, strings.HasSuffix(svgString, "\""))
 
 	bb.Reset()
-	styleAsSVG(&bb, set, defaultDPI, true)
+	styleAsSVG(&bb, set, drawing.DefaultDPI, true)
 	svgString = bb.String()
 	assert.True(t, strings.HasPrefix(svgString, "style=\""))
 	assert.Contains(t, svgString, "stroke:white")
@@ -152,7 +152,7 @@ func TestCanvasStyleSVG(t *testing.T) {
 
 	set.StrokeWidth = 0.25
 	bb.Reset()
-	styleAsSVG(&bb, set, defaultDPI, false)
+	styleAsSVG(&bb, set, drawing.DefaultDPI, false)
 	assert.Contains(t, bb.String(), "stroke-width:0.25")
 }
 
@@ -170,7 +170,7 @@ func TestCanvasStyleSVGNonFinite(t *testing.T) {
 				Font:      GetDefaultFont(),
 				FontSize:  fontSize,
 			},
-		}, defaultDPI, true)
+		}, drawing.DefaultDPI, true)
 		return bb.String()
 	}
 
@@ -217,12 +217,12 @@ func TestCanvasClassSVG(t *testing.T) {
 	}
 
 	var bb bytes.Buffer
-	styleAsSVG(&bb, set, defaultDPI, false)
+	styleAsSVG(&bb, set, drawing.DefaultDPI, false)
 	assert.Equal(t, "class=\"test-class\"", bb.String())
 
 	set.ClassName = `a"b&c<d`
 	bb.Reset()
-	styleAsSVG(&bb, set, defaultDPI, false)
+	styleAsSVG(&bb, set, drawing.DefaultDPI, false)
 	assert.Equal(t, `class="a&quot;b&amp;c&lt;d"`, bb.String())
 }
 

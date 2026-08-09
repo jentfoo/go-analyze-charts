@@ -19,8 +19,7 @@ func newTestRange(size, divideCount int, min, max, minPaddingScale, maxPaddingSc
 	}
 }
 
-func newTestRangeForLabels(labels []string, rotation float64, style FontStyle) axisRange {
-	p := NewPainter(PainterOptions{})
+func newTestRangeForLabels(p *Painter, labels []string, rotation float64, style FontStyle) axisRange {
 	style = fillFontStyleDefaults(style, defaultFontSize, ColorBlack)
 	width, height := p.measureTextMaxWidthHeight(labels, rotation, style)
 	return axisRange{
@@ -155,9 +154,9 @@ func TestCalculateValueAxisRange(t *testing.T) {
 			nil, 0, 5, 2,
 			tsl, 0, false, defaultValueFormatter, 0, fs, nil)
 
-		assert.Equal(t, 13, ar.labelCount)
+		assert.Equal(t, 12, ar.labelCount)
 		assert.InDelta(t, 0.0, ar.min, 0.0)
-		assert.InDelta(t, 120.0, ar.max, 0.0)
+		assert.InDelta(t, 110.0, ar.max, 0.0)
 	})
 
 	t.Run("label_unit_adjusted_negative", func(t *testing.T) {
@@ -245,8 +244,8 @@ func TestCalculateValueAxisRange(t *testing.T) {
 			inputLabels, 0, 0, 0,
 			tsl, 0, false, defaultValueFormatter, 0, fs, nil)
 
-		assert.Equal(t, 810, ar.textMaxWidth)
-		assert.Equal(t, 41, ar.textMaxHeight)
+		assert.Equal(t, 722, ar.textMaxWidth)
+		assert.Equal(t, 38, ar.textMaxHeight)
 		assert.Equal(t, 2, ar.labelCount)
 	})
 
@@ -275,8 +274,8 @@ func TestCalculateValueAxisRange(t *testing.T) {
 			[]string{"Label One", "Label Two", "Label Three", "Label Four"}, 0, 0, 0,
 			tsl, 0, false, defaultValueFormatter, rotation, fs, nil)
 
-		assert.Equal(t, 103, ar.textMaxWidth)
-		assert.Equal(t, 103, ar.textMaxHeight)
+		assert.Equal(t, 95, ar.textMaxWidth)
+		assert.Equal(t, 95, ar.textMaxHeight)
 		assert.InDelta(t, rotation, ar.labelRotation, 0.0)
 	})
 
@@ -442,8 +441,8 @@ func TestCalculateCategoryAxisRange(t *testing.T) {
 		ar := calculateCategoryAxisRange(p, 800, true, false, []string{},
 			0, 0, 0, tsl, rotation, fs)
 
-		assert.Equal(t, 17, ar.textMaxWidth)
-		assert.Equal(t, 20, ar.textMaxHeight)
+		assert.Equal(t, 21, ar.textMaxWidth)
+		assert.Equal(t, 25, ar.textMaxHeight)
 		assert.InDelta(t, rotation, ar.labelRotation, 0.0)
 	})
 

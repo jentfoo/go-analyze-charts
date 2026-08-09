@@ -9,7 +9,7 @@ L 300 200
 Z" style="stroke:none;fill:rgb(84,112,198)"/><path d="M 424 128
 L 437 121
 M 437 121
-L 452 121" style="stroke-width:1;stroke:rgb(84,112,198);fill:none"/><text x="455" y="126" style="stroke:none;fill:rgb(70,70,70);font-size:12.8px;font-family:'Roboto Medium',sans-serif">Visible: 1048</text><path d="M 300 200
+L 452 121" style="stroke-width:1;stroke:rgb(84,112,198);fill:none"/><text x="455" y="127" style="stroke:none;fill:rgb(70,70,70);font-size:13.3px;font-family:'Roboto Medium',sans-serif">Visible: 1048</text><path d="M 300 200
 L 424.85 271.75
 A 144 144 0 0 1 241.51 331.59
 L 300 200
@@ -20,20 +20,20 @@ L 300 200
 Z" style="stroke:none;fill:rgb(250,200,88)"/><path d="M 180 278
 L 167 286
 M 167 286
-L 152 286" style="stroke-width:1;stroke:rgb(250,200,88);fill:none"/><path d="M 97 270
+L 152 286" style="stroke-width:1;stroke:rgb(250,200,88);fill:none"/><path d="M 95 270
 L 165 270
 L 165 270
 A 4 4 0 0 1 169 274
-L 169 291
-L 169 291
-A 4 4 0 0 1 165 295
-L 97 295
-L 97 295
-A 4 4 0 0 1 93 291
-L 93 274
-L 93 274
-A 4 4 0 0 1 97 270
-Z" style="stroke:none;fill:purple"/><text x="97" y="291" style="stroke:none;fill:white;font-size:16.6px;font-family:'Roboto Medium',sans-serif">📊 Styled</text><path d="M 300 200
+L 169 292
+L 169 292
+A 4 4 0 0 1 165 296
+L 95 296
+L 95 296
+A 4 4 0 0 1 91 292
+L 91 274
+L 91 274
+A 4 4 0 0 1 95 270
+Z" style="stroke:none;fill:purple"/><text x="95" y="292" style="stroke:none;fill:white;font-size:17.3px;font-family:'Roboto Medium',sans-serif">📊 Styled</text><path d="M 300 200
 L 156 199.21
 A 144 144 0 0 1 218.81 81.07
 L 300 200
@@ -44,4 +44,4 @@ L 300 200
 Z" style="stroke:none;fill:rgb(115,192,222)"/><path d="M 258 63
 L 254 49
 M 254 49
-L 239 49" style="stroke-width:1;stroke:rgb(115,192,222);fill:none"/><text x="175" y="54" style="stroke:none;fill:green;font-size:17.9px;font-family:'Roboto Medium',sans-serif">Custom ★</text></svg>
+L 239 49" style="stroke-width:1;stroke:rgb(115,192,222);fill:none"/><text x="173" y="55" style="stroke:none;fill:green;font-size:18.7px;font-family:'Roboto Medium',sans-serif">Custom ★</text></svg>

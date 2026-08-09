@@ -9,67 +9,67 @@ L 300 200
 Z" style="stroke:none;fill:rgb(84,112,198)"/><path d="M 424 128
 L 437 121
 M 437 121
-L 452 121" style="stroke-width:1;stroke:rgb(84,112,198);fill:none"/><path d="M 455 106
-L 538 106
-L 538 106
-A 4 4 0 0 1 542 110
-L 542 126
-L 542 126
-A 4 4 0 0 1 538 130
-L 455 130
-L 455 130
-A 4 4 0 0 1 451 126
-L 451 110
-L 451 110
-A 4 4 0 0 1 455 106
-Z" style="stroke:none;fill:blue"/><text x="455" y="126" style="stroke:none;fill:white;font-size:15.3px;font-family:'Roboto Medium',sans-serif">📊 Analytics</text><path d="M 300 200
+L 452 121" style="stroke-width:1;stroke:rgb(84,112,198);fill:none"/><path d="M 455 107
+L 542 107
+L 542 107
+A 4 4 0 0 1 546 111
+L 546 127
+L 546 127
+A 4 4 0 0 1 542 131
+L 455 131
+L 455 131
+A 4 4 0 0 1 451 127
+L 451 111
+L 451 111
+A 4 4 0 0 1 455 107
+Z" style="stroke:none;fill:blue"/><text x="455" y="127" style="stroke:none;fill:white;font-size:16px;font-family:'Roboto Medium',sans-serif">📊 Analytics</text><path d="M 300 200
 L 424.85 271.75
 A 144 144 0 0 1 241.51 331.59
 L 300 200
 Z" style="stroke:none;fill:rgb(145,204,117)"/><path d="M 344 336
 L 349 351
 M 349 351
-L 364 351" style="stroke-width:1;stroke:rgb(145,204,117);fill:none"/><path d="M 369 336
-L 435 336
-L 435 336
-A 6 6 0 0 1 441 342
-L 441 354
-L 441 354
-A 6 6 0 0 1 435 360
-L 369 360
-L 369 360
-A 6 6 0 0 1 363 354
-L 363 342
-L 363 342
-A 6 6 0 0 1 369 336
-Z" style="stroke:none;fill:red"/><text x="367" y="356" style="stroke:none;fill:white;font-size:15.3px;font-family:'Roboto Medium',sans-serif">Marketing</text><path d="M 300 200
+L 364 351" style="stroke-width:1;stroke:rgb(145,204,117);fill:none"/><path d="M 369 337
+L 438 337
+L 438 337
+A 6 6 0 0 1 444 343
+L 444 355
+L 444 355
+A 6 6 0 0 1 438 361
+L 369 361
+L 369 361
+A 6 6 0 0 1 363 355
+L 363 343
+L 363 343
+A 6 6 0 0 1 369 337
+Z" style="stroke:none;fill:red"/><text x="367" y="357" style="stroke:none;fill:white;font-size:16px;font-family:'Roboto Medium',sans-serif">Marketing</text><path d="M 300 200
 L 241.51 331.59
 A 144 144 0 0 1 156 199.21
 L 300 200
 Z" style="stroke:none;fill:rgb(250,200,88)"/><path d="M 180 278
 L 167 286
 M 167 286
-L 152 286" style="stroke-width:1;stroke:rgb(250,200,88);fill:none"/><path d="M 101 272
-L 155 272
-L 155 272
-A 3 3 0 0 1 158 275
-L 158 292
-L 158 292
-A 3 3 0 0 1 155 295
-L 101 295
-L 101 295
-A 3 3 0 0 1 98 292
-L 98 275
-L 98 275
-A 3 3 0 0 1 101 272
-Z" style="stroke-width:2;stroke:red;fill:lime"/><text x="102" y="291" style="stroke:none;fill:black;font-size:14.1px;font-family:'Roboto Medium',sans-serif">💰 Sales</text><path d="M 300 200
+L 152 286" style="stroke-width:1;stroke:rgb(250,200,88);fill:none"/><path d="M 99 273
+L 155 273
+L 155 273
+A 3 3 0 0 1 158 276
+L 158 293
+L 158 293
+A 3 3 0 0 1 155 296
+L 99 296
+L 99 296
+A 3 3 0 0 1 96 293
+L 96 276
+L 96 276
+A 3 3 0 0 1 99 273
+Z" style="stroke-width:2;stroke:red;fill:lime"/><text x="100" y="292" style="stroke:none;fill:black;font-size:14.7px;font-family:'Roboto Medium',sans-serif">💰 Sales</text><path d="M 300 200
 L 156 199.21
 A 144 144 0 0 1 218.81 81.07
 L 300 200
 Z" style="stroke:none;fill:rgb(238,102,102)"/><path d="M 173 133
 L 160 126
 M 160 126
-L 145 126" style="stroke-width:1;stroke:rgb(238,102,102);fill:none"/><text x="83" y="131" style="stroke:none;fill:rgb(255,165,0);font-size:16.6px;font-family:'Roboto Medium',sans-serif">❓ Support</text><path d="M 300 200
+L 145 126" style="stroke-width:1;stroke:rgb(238,102,102);fill:none"/><text x="81" y="132" style="stroke:none;fill:rgb(255,165,0);font-size:17.3px;font-family:'Roboto Medium',sans-serif">❓ Support</text><path d="M 300 200
 L 218.81 81.07
 A 144 144 0 0 1 300 56
 L 300 200

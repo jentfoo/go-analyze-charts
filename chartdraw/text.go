@@ -95,7 +95,9 @@ func (t text) WrapFitWord(r Renderer, value string, width int, style Style) []st
 		textBox = r.MeasureText(line + word + string(c))
 
 		if textBox.Width() >= width {
-			output = append(output, t.Trim(line))
+			if trimmed := t.Trim(line); trimmed != "" { // empty when the first word already exceeds the width
+				output = append(output, trimmed)
+			}
 			line = word
 			word = string(c)
 			continue
@@ -128,13 +130,18 @@ func (t text) WrapFitRune(r Renderer, value string, width int, style Style) []st
 		textBox = r.MeasureText(line + string(c))
 
 		if textBox.Width() >= width {
-			output = append(output, line)
+			if line != "" { // empty when the first rune already exceeds the width
+				output = append(output, line)
+			}
 			line = string(c)
 			continue
 		}
 		line += string(c)
 	}
-	return t.appendLast(output, line)
+	if line != "" || len(output) == 0 {
+		output = append(output, line)
+	}
+	return output
 }
 
 func (t text) Trim(value string) string {
@@ -153,13 +160,4 @@ func (t text) MeasureLines(r Renderer, lines []string, style Style) Box {
 		}
 	}
 	return output
-}
-
-func (t text) appendLast(lines []string, text string) []string {
-	if len(lines) == 0 {
-		return []string{text}
-	}
-	lastLine := lines[len(lines)-1]
-	lines[len(lines)-1] = lastLine + text
-	return lines
 }

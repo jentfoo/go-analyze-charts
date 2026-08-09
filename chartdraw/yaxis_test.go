@@ -21,7 +21,7 @@ func TestYAxisGetTicks(t *testing.T) {
 	}
 	vf := FloatValueFormatter
 	ticks := ya.GetTicks(r, yr, styleDefaults, vf)
-	assert.Len(t, ticks, 32)
+	assert.Len(t, ticks, 29)
 }
 
 func TestYAxisGetTicksWithUserDefaults(t *testing.T) {
@@ -57,8 +57,8 @@ func TestYAxisMeasure(t *testing.T) {
 	ticks := []Tick{{Value: 1.0, Label: "1.0"}, {Value: 2.0, Label: "2.0"}, {Value: 3.0, Label: "3.0"}}
 	ya := YAxis{}
 	yab := ya.Measure(r, NewBox(0, 0, 100, 100), &ContinuousRange{Min: 1.0, Max: 3.0, Domain: 100}, style, ticks)
-	assert.Equal(t, 32, yab.Width())
-	assert.Equal(t, 110, yab.Height())
+	assert.Equal(t, 29, yab.Width())
+	assert.Equal(t, 114, yab.Height())
 }
 
 func TestYAxisSecondaryMeasure(t *testing.T) {
@@ -74,6 +74,6 @@ func TestYAxisSecondaryMeasure(t *testing.T) {
 	ticks := []Tick{{Value: 1.0, Label: "1.0"}, {Value: 2.0, Label: "2.0"}, {Value: 3.0, Label: "3.0"}}
 	ya := YAxis{AxisType: YAxisSecondary}
 	yab := ya.Measure(r, NewBox(0, 0, 100, 100), &ContinuousRange{Min: 1.0, Max: 3.0, Domain: 100}, style, ticks)
-	assert.Equal(t, 32, yab.Width())
-	assert.Equal(t, 110, yab.Height())
+	assert.Equal(t, 29, yab.Width())
+	assert.Equal(t, 114, yab.Height())
 }

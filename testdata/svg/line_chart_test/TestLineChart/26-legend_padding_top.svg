@@ -2,13 +2,13 @@
 L 600 0
 L 600 400
 L 0 400
-L 0 0" style="stroke:none;fill:white"/><text x="10" y="26" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">Line</text><path d="M 250 64
-L 280 64" style="stroke-width:3;stroke:rgb(84,112,198);fill:none"/><circle cx="265" cy="64" r="5" style="stroke-width:3;stroke:rgb(84,112,198);fill:rgb(84,112,198)"/><text x="282" y="70" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">1</text><path d="M 311 64
-L 341 64" style="stroke-width:3;stroke:rgb(145,204,117);fill:none"/><circle cx="326" cy="64" r="5" style="stroke-width:3;stroke:rgb(145,204,117);fill:rgb(145,204,117)"/><text x="343" y="70" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">2</text><path d="M 190 136
-L 190 0
-L 410 0
-L 410 136
-L 190 136" style="stroke-width:1;stroke:black;fill:none"/><path d="M 10 365
+L 0 0" style="stroke:none;fill:white"/><text x="10" y="26" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">Line</text><path d="M 249 64
+L 279 64" style="stroke-width:3;stroke:rgb(84,112,198);fill:none"/><circle cx="264" cy="64" r="5" style="stroke-width:3;stroke:rgb(84,112,198);fill:rgb(84,112,198)"/><text x="281" y="70" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">1</text><path d="M 311 64
+L 341 64" style="stroke-width:3;stroke:rgb(145,204,117);fill:none"/><circle cx="326" cy="64" r="5" style="stroke-width:3;stroke:rgb(145,204,117);fill:rgb(145,204,117)"/><text x="343" y="70" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">2</text><path d="M 189 136
+L 189 0
+L 411 0
+L 411 136
+L 189 136" style="stroke-width:1;stroke:black;fill:none"/><path d="M 10 365
 L 590 365" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><path d="M 10 370
 L 10 365" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><path d="M 92 370
 L 92 365" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><path d="M 175 370
@@ -17,7 +17,7 @@ L 258 365" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><path d="M 
 L 341 365" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><path d="M 424 370
 L 424 365" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><path d="M 507 370
 L 507 365" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><path d="M 590 370
-L 590 365" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><text x="46" y="388" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">A</text><text x="128" y="388" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">B</text><text x="211" y="388" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">C</text><text x="294" y="388" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">D</text><text x="378" y="388" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">E</text><text x="461" y="388" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">F</text><text x="543" y="388" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">G</text><path d="M 51 349
+L 590 365" style="stroke-width:1;stroke:rgb(110,112,121);fill:none"/><text x="46" y="388" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">A</text><text x="128" y="388" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">B</text><text x="211" y="388" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">C</text><text x="294" y="388" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">D</text><text x="377" y="388" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">E</text><text x="461" y="388" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">F</text><text x="543" y="388" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">G</text><path d="M 51 349
 L 133 347
 L 216 351
 L 299 347

@@ -24,24 +24,71 @@ func (r *recordBuilder) Close()                                          {}
 func TestDrawContour(t *testing.T) {
 	t.Parallel()
 
-	contour := []truetype.Point{
-		{X: 0, Y: 0, Flags: 0x01},
-		{X: 64, Y: 0, Flags: 0x01},
-		{X: 64, Y: 64, Flags: 0x00},
-		{X: 0, Y: 64, Flags: 0x01},
+	tests := []struct {
+		name    string
+		contour []truetype.Point
+		expect  []string
+	}{
+		{
+			name: "on_curve_start",
+			contour: []truetype.Point{
+				{X: 0, Y: 0, Flags: 0x01},
+				{X: 64, Y: 0, Flags: 0x01},
+				{X: 64, Y: 64, Flags: 0x00},
+				{X: 0, Y: 64, Flags: 0x01},
+			},
+			expect: []string{
+				"M0.0,0.0",
+				"L1.0,0.0",
+				"Q1.0,-1.0,0.0,-1.0",
+				"L0.0,0.0",
+			},
+		},
+		{
+			name: "off_curve_start_on_curve_end", // starts at the last point
+			contour: []truetype.Point{
+				{X: 0, Y: 64, Flags: 0x00},
+				{X: 64, Y: 64, Flags: 0x01},
+				{X: 64, Y: 0, Flags: 0x01},
+				{X: 0, Y: 0, Flags: 0x01},
+			},
+			expect: []string{
+				"M0.0,0.0",
+				"Q0.0,-1.0,1.0,-1.0",
+				"L1.0,0.0",
+				"L0.0,0.0",
+			},
+		},
+		{
+			name: "off_curve_start_and_end", // starts at the first/last midpoint
+			contour: []truetype.Point{
+				{X: 0, Y: 64, Flags: 0x00},
+				{X: 64, Y: 64, Flags: 0x01},
+				{X: 64, Y: 0, Flags: 0x01},
+				{X: 0, Y: 0, Flags: 0x00},
+			},
+			expect: []string{
+				"M0.0,-0.5",
+				"Q0.0,-1.0,1.0,-1.0",
+				"L1.0,0.0",
+				"Q0.0,0.0,0.0,-0.5",
+			},
+		},
+		{
+			name:    "empty",
+			contour: []truetype.Point{},
+			expect:  nil,
+		},
 	}
 
-	rec := &recordBuilder{}
-	DrawContour(rec, contour, 0, 0)
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			rec := &recordBuilder{}
+			DrawContour(rec, tc.contour, 0, 0)
 
-	expect := []string{
-		"M0.0,0.0",
-		"L1.0,0.0",
-		"Q1.0,-1.0,0.0,-1.0",
-		"L0.0,0.0",
+			assert.Equal(t, tc.expect, rec.ops)
+		})
 	}
-
-	assert.Equal(t, expect, rec.ops)
 }
 
 func TestFontExtents(t *testing.T) {

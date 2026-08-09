@@ -18,7 +18,7 @@ func TestRasterGraphicContext(t *testing.T) {
 
 		img := image.NewRGBA(image.Rect(0, 0, 3, 3))
 		rgc := NewRasterGraphicContext(img)
-		assert.InDelta(t, defaultDPI, rgc.GetDPI(), 0.0)
+		assert.InDelta(t, DefaultDPI, rgc.GetDPI(), 0.0)
 		rgc.SetDPI(72)
 		assert.InDelta(t, 72.0, rgc.GetDPI(), 0.0)
 	})
@@ -291,6 +291,23 @@ func TestRasterGraphicContext(t *testing.T) {
 	})
 }
 
+func TestRasterRecalcScale(t *testing.T) {
+	t.Parallel()
+
+	img := image.NewRGBA(image.Rect(0, 0, 20, 20))
+	rgc := NewRasterGraphicContext(img)
+
+	for _, dpi := range []float64{72, 92, 96, 300} {
+		for _, size := range []float64{8, 10, 11, 12, 14, 28} {
+			rgc.SetDPI(dpi)
+			rgc.SetFontSize(size)
+
+			// rounded so the truncating fixed.Int26_6 conversions match the freetype face scale
+			assert.InDelta(t, math.Round(PointsToPixels(dpi, size)*64), rgc.current.Scale, 0)
+		}
+	}
+}
+
 func TestRasterCreateStringPathAndBounds(t *testing.T) {
 	t.Parallel()
 
@@ -314,8 +331,51 @@ func TestRasterCreateStringPathAndBounds(t *testing.T) {
 	pbLeft, pbTop, pbRight, pbBottom := pathBounds(rgc.current.Path)
 	assert.InDelta(t, left, pbLeft, 0.001)
 	assert.InDelta(t, top, pbTop, 0.001)
-	assert.InDelta(t, right, pbRight, 0.001)
 	assert.InDelta(t, bottom, pbBottom, 0.001)
+	assert.GreaterOrEqual(t, right, pbRight) // bounds include the advance, the path only the ink
+}
+
+func TestRasterGetStringBounds(t *testing.T) {
+	t.Parallel()
+
+	img := image.NewRGBA(image.Rect(0, 0, 50, 50))
+	rgc := NewRasterGraphicContext(img)
+	rgc.SetFont(getTestFont(t))
+	rgc.SetFontSize(10)
+
+	t.Run("empty_string", func(t *testing.T) {
+		left, top, right, bottom, err := rgc.GetStringBounds("")
+		require.NoError(t, err)
+		assert.Zero(t, left)
+		assert.Zero(t, top)
+		assert.Zero(t, right)
+		assert.Zero(t, bottom)
+	})
+
+	t.Run("space_only", func(t *testing.T) {
+		left, top, right, bottom, err := rgc.GetStringBounds("   ")
+		require.NoError(t, err)
+		assert.Zero(t, left)
+		assert.Zero(t, top)
+		assert.Zero(t, bottom)
+		assert.Positive(t, right) // advance width of the spaces
+	})
+
+	t.Run("ordinary_string", func(t *testing.T) {
+		left, top, right, bottom, err := rgc.GetStringBounds("Ay")
+		require.NoError(t, err)
+		assert.Less(t, left, right)
+		assert.Less(t, top, bottom)
+		assert.Less(t, right, 100.0)
+	})
+
+	t.Run("trailing_space", func(t *testing.T) {
+		_, _, right, _, err := rgc.GetStringBounds("hi")
+		require.NoError(t, err)
+		_, _, spacedRight, _, err := rgc.GetStringBounds("hi ")
+		require.NoError(t, err)
+		assert.Greater(t, spacedRight, right)
+	})
 }
 
 func TestRasterFillAndStrokeString(t *testing.T) {

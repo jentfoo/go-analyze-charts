@@ -2,15 +2,15 @@
 L 600 0
 L 600 400
 L 0 400
-L 0 0" style="stroke:none;fill:white"/><path d="M 265 10
-L 272 20
-L 265 30
-L 258 20
-L 265 10" style="stroke:none;fill:rgb(84,112,198)"/><text x="282" y="25" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">1</text><path d="M 316 10
+L 0 0" style="stroke:none;fill:white"/><path d="M 264 10
+L 271 20
+L 264 30
+L 257 20
+L 264 10" style="stroke:none;fill:rgb(84,112,198)"/><text x="281" y="25" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">1</text><path d="M 316 10
 L 323 20
 L 316 30
 L 309 20
-L 316 10" style="stroke:none;fill:rgb(145,204,117)"/><text x="333" y="25" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">2</text><path d="M 51 365
+L 316 10" style="stroke:none;fill:rgb(145,204,117)"/><text x="333" y="25" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">2</text><path d="M 51 365
 L 133 362
 L 216 369
 L 299 362

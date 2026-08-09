@@ -32,7 +32,7 @@ func TestAxisRender(t *testing.T) {
 					BoundaryGap:    Ptr(true),
 					LabelFontStyle: fs,
 				}
-				return opt.prep(axisTheme, false).toAxisOption(newTestRangeForLabels(dayLabels, 0, fs))
+				return opt.prep(axisTheme, false).toAxisOption(newTestRangeForLabels(p, dayLabels, 0, fs))
 			},
 		},
 		{
@@ -42,7 +42,7 @@ func TestAxisRender(t *testing.T) {
 					BoundaryGap:    Ptr(true),
 					LabelFontStyle: fs,
 				}
-				return opt.prep(axisTheme, false).toAxisOption(newTestRangeForLabels(dayLabels, DegreesToRadians(45), fs))
+				return opt.prep(axisTheme, false).toAxisOption(newTestRangeForLabels(p, dayLabels, DegreesToRadians(45), fs))
 			},
 		},
 		{
@@ -53,7 +53,7 @@ func TestAxisRender(t *testing.T) {
 					BoundaryGap:    Ptr(true),
 					LabelFontStyle: fs,
 				}
-				return opt.prep(axisTheme, false).toAxisOption(newTestRangeForLabels(dayLabels, DegreesToRadians(90), fs))
+				return opt.prep(axisTheme, false).toAxisOption(newTestRangeForLabels(p, dayLabels, DegreesToRadians(90), fs))
 			},
 		},
 		{
@@ -61,7 +61,7 @@ func TestAxisRender(t *testing.T) {
 			optionFactory: func(p *Painter) axisOption {
 				return axisOption{
 					theme:         axisTheme,
-					aRange:        newTestRangeForLabels(letterLabels, 0, fs),
+					aRange:        newTestRangeForLabels(p, letterLabels, 0, fs),
 					splitLineShow: Ptr(true),
 				}
 			},
@@ -73,7 +73,7 @@ func TestAxisRender(t *testing.T) {
 					Position:       PositionLeft,
 					isCategoryAxis: true,
 				}
-				return opt.prep(axisTheme, true).toAxisOption(newTestRangeForLabels(dayLabels, 0, fs))
+				return opt.prep(axisTheme, true).toAxisOption(newTestRangeForLabels(p, dayLabels, 0, fs))
 			},
 		},
 		{
@@ -81,7 +81,7 @@ func TestAxisRender(t *testing.T) {
 			optionFactory: func(p *Painter) axisOption {
 				return axisOption{
 					theme:         axisTheme,
-					aRange:        newTestRangeForLabels(dayLabels, 0, fs),
+					aRange:        newTestRangeForLabels(p, dayLabels, 0, fs),
 					position:      PositionRight,
 					boundaryGap:   Ptr(false),
 					splitLineShow: Ptr(true),
@@ -91,7 +91,7 @@ func TestAxisRender(t *testing.T) {
 		{
 			name: "reduced_label_count",
 			optionFactory: func(p *Painter) axisOption {
-				aRange := newTestRangeForLabels(letterLabels, 0, fs)
+				aRange := newTestRangeForLabels(p, letterLabels, 0, fs)
 				aRange.labelCount -= 2
 				return axisOption{
 					theme:         axisTheme,
@@ -109,7 +109,7 @@ func TestAxisRender(t *testing.T) {
 				}
 				return axisOption{
 					theme:  axisTheme,
-					aRange: newTestRangeForLabels(letterLabels, 0, fs),
+					aRange: newTestRangeForLabels(p, letterLabels, 0, fs),
 				}
 			},
 		},
@@ -118,7 +118,7 @@ func TestAxisRender(t *testing.T) {
 			optionFactory: func(p *Painter) axisOption {
 				return axisOption{
 					theme:       axisTheme,
-					aRange:      newTestRangeForLabels(letterLabels, 0, fs),
+					aRange:      newTestRangeForLabels(p, letterLabels, 0, fs),
 					boundaryGap: Ptr(false),
 				}
 			},
@@ -128,7 +128,7 @@ func TestAxisRender(t *testing.T) {
 			optionFactory: func(p *Painter) axisOption {
 				return axisOption{
 					theme:       axisTheme,
-					aRange:      newTestRangeForLabels(letterLabels, 0, fs),
+					aRange:      newTestRangeForLabels(p, letterLabels, 0, fs),
 					boundaryGap: Ptr(true),
 				}
 			},
@@ -242,7 +242,7 @@ func TestBottomXAxis(t *testing.T) {
 
 			xAxisOpt := tt.makeOption()
 			xAxisOpt = *xAxisOpt.prep(theme, false)
-			aRange := newTestRangeForLabels(xAxisOpt.Labels, xAxisOpt.LabelRotation,
+			aRange := newTestRangeForLabels(p, xAxisOpt.Labels, xAxisOpt.LabelRotation,
 				fillFontStyleDefaults(xAxisOpt.LabelFontStyle, defaultFontSize, theme.GetXAxisTextColor()))
 			aRange.isCategory = !tt.makeValue
 			_, err := newAxisPainter(p, xAxisOpt.toAxisOption(aRange)).Render()
@@ -349,7 +349,7 @@ func TestYAxis(t *testing.T) {
 
 			yAxisOpt := tt.makeOption()
 			yAxisOpt = yAxisOpt.prep(theme, true)
-			aRange := newTestRangeForLabels(yAxisOpt.Labels, yAxisOpt.LabelRotation,
+			aRange := newTestRangeForLabels(p, yAxisOpt.Labels, yAxisOpt.LabelRotation,
 				fillFontStyleDefaults(yAxisOpt.LabelFontStyle, defaultFontSize, theme.GetYAxisTextColor()))
 			aRange.isCategory = tt.makeCategory
 			axisOpt := yAxisOpt.toAxisOption(aRange)

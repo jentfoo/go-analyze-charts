@@ -7,6 +7,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/go-analyze/charts/chartdraw/drawing"
 )
 
 func TestBarChartRender(t *testing.T) {
@@ -50,7 +52,7 @@ func TestBarChartProps(t *testing.T) {
 
 	bc := BarChart{}
 
-	assert.InDelta(t, defaultDPI, bc.GetDPI(), 0)
+	assert.InDelta(t, drawing.DefaultDPI, bc.GetDPI(), 0)
 	bc.DPI = 100
 	assert.InDelta(t, float64(100), bc.GetDPI(), 0)
 

@@ -6,6 +6,8 @@ import (
 	"math"
 
 	"github.com/golang/freetype/truetype"
+
+	"github.com/go-analyze/charts/chartdraw/drawing"
 )
 
 // BarChart is a chart that draws bars on a range.
@@ -41,7 +43,7 @@ type BarChart struct {
 // GetDPI returns the dpi for the chart.
 func (bc BarChart) GetDPI() float64 {
 	if bc.DPI == 0 {
-		return defaultDPI
+		return drawing.DefaultDPI
 	}
 	return bc.DPI
 }

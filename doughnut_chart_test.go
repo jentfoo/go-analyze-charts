@@ -74,13 +74,13 @@ func TestDoughnutChart(t *testing.T) {
 				opt.Legend.Vertical = nil
 				return opt
 			},
-			pngCRC: 0xaffe0000,
+			pngCRC: 0xa98f40a8,
 		},
 		{
 			name:        "basic_themed",
 			themed:      true,
 			makeOptions: makeBasicDoughnutChartOption,
-			pngCRC:      0xb4e40417,
+			pngCRC:      0xb6b265f5,
 		},
 		{
 			name: "custom_fonts",
@@ -92,7 +92,7 @@ func TestDoughnutChart(t *testing.T) {
 				opt.Title.FontStyle = customFont
 				return opt
 			},
-			pngCRC: 0xcec813f4,
+			pngCRC: 0x9a495fbd,
 		},
 		{
 			name: "variable_series_radius",
@@ -115,7 +115,7 @@ func TestDoughnutChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0xfd0eb22d,
+			pngCRC: 0x3a058dfe,
 		},
 		{
 			name: "center_radius_large",
@@ -128,7 +128,7 @@ func TestDoughnutChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x43f96b0e,
+			pngCRC: 0x66300d9a,
 		},
 		{
 			name: "segment_gap",
@@ -148,7 +148,7 @@ func TestDoughnutChart(t *testing.T) {
 				opt.CenterValuesFontStyle.FontColor = ColorNavy
 				return opt
 			},
-			pngCRC: 0xa65dd7b9,
+			pngCRC: 0xb9419e90,
 		},
 		{
 			name: "center_labels",
@@ -160,7 +160,7 @@ func TestDoughnutChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x99cafe9,
+			pngCRC: 0x995fee13,
 		},
 		{
 			name: "center_lots_labels",
@@ -182,7 +182,7 @@ func TestDoughnutChart(t *testing.T) {
 					},
 				}
 			},
-			pngCRC: 0x9d3ddc0a,
+			pngCRC: 0x62a22409,
 		},
 		{
 			name: "styled_custom_labels",
@@ -234,7 +234,7 @@ func TestDoughnutChart(t *testing.T) {
 					},
 				}
 			},
-			pngCRC: 0x1e095fb7,
+			pngCRC: 0xc7046d0d,
 		},
 		{
 			name: "empty_series",
@@ -247,7 +247,7 @@ func TestDoughnutChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x18544830,
+			pngCRC: 0x76deb821,
 		},
 		{
 			name: "zero_sum",
@@ -260,7 +260,7 @@ func TestDoughnutChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x18544830,
+			pngCRC: 0x76deb821,
 		},
 	}
 

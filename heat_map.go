@@ -106,7 +106,10 @@ func (h *heatMap) renderChart(result *defaultRenderResult) (Box, error) {
 	}
 
 	baseColor := opt.Theme.GetSeriesColor(opt.BaseColorIndex)
-	if seriesPainter.Width()/numCols < 2 || seriesPainter.Height()/numRows < 2 {
+	// signed extents, an over-constrained box inverts and would read as positive through Width/Height
+	cellsWidth := seriesPainter.box.Right - seriesPainter.box.Left
+	cellsHeight := seriesPainter.box.Bottom - seriesPainter.box.Top
+	if cellsWidth/numCols < 2 || cellsHeight/numRows < 2 {
 		return BoxZero, errors.New("insufficient space for heat map cells")
 	}
 	// divide the same way the axes do so cells line up with their labels

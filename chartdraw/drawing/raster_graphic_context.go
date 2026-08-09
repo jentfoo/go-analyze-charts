@@ -13,8 +13,8 @@ import (
 	"golang.org/x/image/math/fixed"
 )
 
-// defaultDPI is the default image DPI.
-const defaultDPI = 96.0
+// DefaultDPI is the default image DPI used when no resolution is set.
+const DefaultDPI = 96.0
 
 // NewRasterGraphicContext creates a new Graphic context from an image.
 func NewRasterGraphicContext(img *image.RGBA) *RasterGraphicContext {
@@ -32,7 +32,7 @@ func NewRasterGraphicContextWithPainter(img draw.Image, painter Painter) *Raster
 		raster.NewRasterizer(width, height),
 		raster.NewRasterizer(width, height),
 		&truetype.GlyphBuf{},
-		defaultDPI,
+		DefaultDPI,
 	}
 }
 
@@ -159,7 +159,8 @@ func (rgc *RasterGraphicContext) CreateStringPath(s string, x, y float64) (curso
 	return
 }
 
-// GetStringBounds returns the approximate pixel bounds of a string.
+// GetStringBounds returns the approximate pixel bounds of a string, where the right bound includes
+// the trailing advance so trailing whitespace is measured.
 func (rgc *RasterGraphicContext) GetStringBounds(s string) (left, top, right, bottom float64, err error) {
 	f := rgc.GetFont()
 	if f == nil {
@@ -204,13 +205,17 @@ func (rgc *RasterGraphicContext) GetStringBounds(s string) (left, top, right, bo
 		cursor += fUnitsToFloat64(currentFont.HMetric(fixed.Int26_6(rgc.current.Scale), index).AdvanceWidth)
 		prevFont, prevIndex = currentFont, index
 	}
+	right = max(right, cursor)   // include trailing advance, matching the vector renderer
+	if left == math.MaxFloat64 { // no outlines, empty or whitespace only
+		left, top = 0, 0
+	}
 	return
 }
 
-// recalc recalculates scale and bounds values from the font size, screen
-// resolution and font metrics, and invalidates the glyph cache.
+// recalc updates the 26.6 fixed point em scale from the current font size and DPI.
 func (rgc *RasterGraphicContext) recalc() {
-	rgc.current.Scale = rgc.current.FontSizePoints * rgc.dpi
+	// rounded to match the freetype face scale used for SVG measurement
+	rgc.current.Scale = math.Round(PointsToPixels(rgc.dpi, rgc.current.FontSizePoints) * 64)
 }
 
 // SetFont sets the font used to draw text.

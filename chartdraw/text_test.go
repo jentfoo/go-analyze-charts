@@ -45,6 +45,11 @@ func TestTextWrapWord(t *testing.T) {
 	// test that it handles newlines and long lines.
 	output = Text.WrapFitWord(r, "this\nis\na\ntest\nstring that is very long", 100, basicTextStyle)
 	assert.Len(t, output, 8)
+
+	// a first word wider than the limit must not produce a leading empty line
+	output = Text.WrapFitWord(r, "this is a test string", 5, basicTextStyle)
+	require.NotEmpty(t, output)
+	assert.Equal(t, "t", output[0])
 }
 
 func TestTextWrapRune(t *testing.T) {
@@ -57,8 +62,35 @@ func TestTextWrapRune(t *testing.T) {
 	output := Text.WrapFitRune(r, "this is a test string", 150, basicTextStyle)
 	assert.NotEmpty(t, output)
 	require.Len(t, output, 2)
-	assert.Equal(t, "this is a t", output[0])
-	assert.Equal(t, "est string", output[1])
+	assert.Equal(t, "this is a te", output[0])
+	assert.Equal(t, "st string", output[1])
+
+	output = Text.WrapFitRune(r, "this is a test string", 110, basicTextStyle)
+	require.Len(t, output, 3)
+	assert.Equal(t, "this is ", output[0])
+	assert.Equal(t, "a test s", output[1])
+	assert.Equal(t, "tring", output[2])
+
+	// a first rune wider than the limit must not produce a leading empty line
+	output = Text.WrapFitRune(r, "this is a test string", 5, basicTextStyle)
+	require.NotEmpty(t, output)
+	assert.Equal(t, "t", output[0])
+}
+
+func TestWrapFitRendererParity(t *testing.T) {
+	t.Parallel()
+
+	png, svg := PNG(1024, 1024), SVG(1024, 1024)
+	style := Style{FontStyle: FontStyle{Font: GetDefaultFont(), FontSize: 24}}
+
+	for _, value := range []string{"this is a test string", "trailing spaces   here", "  leading and trailing  "} {
+		for _, width := range []int{5, 110, 150} {
+			for _, wrap := range []TextWrap{TextWrapRune, TextWrapWord} {
+				style.TextWrap = wrap
+				assert.Equal(t, Text.WrapFit(png, value, width, style), Text.WrapFit(svg, value, width, style))
+			}
+		}
+	}
 }
 
 func TestExtents(t *testing.T) {

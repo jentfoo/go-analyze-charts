@@ -5,6 +5,7 @@ import (
 	"image"
 	"image/png"
 	"math"
+	"strings"
 	"testing"
 	"time"
 
@@ -18,7 +19,7 @@ func TestChartGetDPI(t *testing.T) {
 	t.Parallel()
 
 	unset := Chart{}
-	assert.InDelta(t, defaultDPI, unset.GetDPI(), 0)
+	assert.InDelta(t, drawing.DefaultDPI, unset.GetDPI(), 0)
 	assert.InDelta(t, float64(192), unset.GetDPI(192), 0)
 
 	set := Chart{DPI: 128}
@@ -627,7 +628,7 @@ func Test_Chart_cve(t *testing.T) {
 		Title: "poc",
 		Bars: []StackedBar{
 			{
-				Name: "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111",
+				Name: strings.Repeat("1", 1000), // long enough that the label leaves no canvas room
 				Values: []Value{
 					{Value: 1, Label: "infinite"},
 					{Value: 1, Label: "loop"},

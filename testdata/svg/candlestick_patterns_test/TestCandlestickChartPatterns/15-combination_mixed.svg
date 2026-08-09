@@ -2,14 +2,14 @@
 L 800 0
 L 800 600
 L 0 600
-L 0 0" style="stroke:none;fill:white"/><text x="9" y="16" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">130</text><text x="9" y="88" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">125</text><text x="9" y="160" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">120</text><text x="9" y="232" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">115</text><text x="9" y="305" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">110</text><text x="9" y="377" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">105</text><text x="9" y="449" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">100</text><text x="18" y="521" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">95</text><text x="18" y="594" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">90</text><path d="M 42 10
-L 790 10" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 42 82
-L 790 82" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 42 155
-L 790 155" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 42 227
-L 790 227" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 42 300
-L 790 300" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 42 372
-L 790 372" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 42 445
-L 790 445" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 42 517
+L 0 0" style="stroke:none;fill:white"/><text x="9" y="16" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">130</text><text x="9" y="88" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">125</text><text x="9" y="160" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">120</text><text x="9" y="232" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">115</text><text x="9" y="305" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">110</text><text x="9" y="377" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">105</text><text x="9" y="449" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">100</text><text x="18" y="521" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">95</text><text x="18" y="594" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">90</text><path d="M 43 10
+L 790 10" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 43 82
+L 790 82" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 43 155
+L 790 155" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 43 227
+L 790 227" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 43 300
+L 790 300" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 43 372
+L 790 372" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 43 445
+L 790 445" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 43 517
 L 790 517" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 77 300
 L 77 373" style="stroke-width:1;stroke:rgb(34,197,94);fill:none"/><path d="M 77 445
 L 77 518" style="stroke-width:1;stroke:rgb(34,197,94);fill:none"/><path d="M 65 300
@@ -103,94 +103,94 @@ L 783 300
 L 783 329
 L 735 329
 L 735 300" style="stroke:none;fill:rgb(34,197,94)"/><path d="M 206 345
-L 266 345
-L 266 345
-A 4 4 0 0 1 270 349
-L 270 362
-L 270 362
-A 4 4 0 0 1 266 366
-L 206 366
-L 206 366
-A 4 4 0 0 1 202 362
+L 269 345
+L 269 345
+A 4 4 0 0 1 273 349
+L 273 363
+L 273 363
+A 4 4 0 0 1 269 367
+L 206 367
+L 206 367
+A 4 4 0 0 1 202 363
 L 202 349
 L 202 349
 A 4 4 0 0 1 206 345
-Z" style="stroke-width:1.2;stroke:rgb(34,197,94);fill:rgba(255,255,255,0.706)"/><text x="206" y="362" style="stroke:none;fill:rgb(13,75,36);font-size:12.8px;font-family:'Roboto Medium',sans-serif">Γ Hammer</text><path d="M 330 142
-L 428 142
-L 428 142
-A 4 4 0 0 1 432 146
-L 432 159
-L 432 159
-A 4 4 0 0 1 428 163
-L 330 163
-L 330 163
-A 4 4 0 0 1 326 159
+Z" style="stroke-width:1.2;stroke:rgb(34,197,94);fill:rgba(255,255,255,0.706)"/><text x="206" y="363" style="stroke:none;fill:rgb(13,75,36);font-size:13.3px;font-family:'Roboto Medium',sans-serif">Γ Hammer</text><path d="M 330 142
+L 432 142
+L 432 142
+A 4 4 0 0 1 436 146
+L 436 160
+L 436 160
+A 4 4 0 0 1 432 164
+L 330 164
+L 330 164
+A 4 4 0 0 1 326 160
 L 326 146
 L 326 146
 A 4 4 0 0 1 330 142
-Z" style="stroke-width:1.2;stroke:rgb(34,197,94);fill:rgba(255,255,255,0.706)"/><text x="330" y="159" style="stroke:none;fill:rgb(13,75,36);font-size:12.8px;font-family:'Roboto Medium',sans-serif">▲ Bull Marubozu</text><path d="M 392 432
-L 494 432
-L 494 432
-A 4 4 0 0 1 498 436
-L 498 449
-L 498 449
-A 4 4 0 0 1 494 453
-L 392 453
-L 392 453
-A 4 4 0 0 1 388 449
+Z" style="stroke-width:1.2;stroke:rgb(34,197,94);fill:rgba(255,255,255,0.706)"/><text x="330" y="160" style="stroke:none;fill:rgb(13,75,36);font-size:13.3px;font-family:'Roboto Medium',sans-serif">▲ Bull Marubozu</text><path d="M 392 432
+L 499 432
+L 499 432
+A 4 4 0 0 1 503 436
+L 503 450
+L 503 450
+A 4 4 0 0 1 499 454
+L 392 454
+L 392 454
+A 4 4 0 0 1 388 450
 L 388 436
 L 388 436
 A 4 4 0 0 1 392 432
-Z" style="stroke-width:1.2;stroke:rgb(239,68,68);fill:rgba(255,255,255,0.706)"/><text x="392" y="449" style="stroke:none;fill:rgb(151,13,13);font-size:12.8px;font-family:'Roboto Medium',sans-serif">▼ Bear Marubozu</text><path d="M 516 229
-L 607 229
-L 607 229
-A 4 4 0 0 1 611 233
-L 611 246
-L 611 246
-A 4 4 0 0 1 607 250
-L 516 250
-L 516 250
-A 4 4 0 0 1 512 246
+Z" style="stroke-width:1.2;stroke:rgb(239,68,68);fill:rgba(255,255,255,0.706)"/><text x="392" y="450" style="stroke:none;fill:rgb(151,13,13);font-size:13.3px;font-family:'Roboto Medium',sans-serif">▼ Bear Marubozu</text><path d="M 516 229
+L 611 229
+L 611 229
+A 4 4 0 0 1 615 233
+L 615 247
+L 615 247
+A 4 4 0 0 1 611 251
+L 516 251
+L 516 251
+A 4 4 0 0 1 512 247
 L 512 233
 L 512 233
 A 4 4 0 0 1 516 229
-Z" style="stroke-width:1.2;stroke:rgb(34,197,94);fill:rgba(255,255,255,0.706)"/><text x="516" y="246" style="stroke:none;fill:rgb(13,75,36);font-size:12.8px;font-family:'Roboto Medium',sans-serif">Λ Bull Engulfing</text><path d="M 578 325
-L 668 325
-L 668 325
-A 4 4 0 0 1 672 329
-L 672 355
-L 672 355
-A 4 4 0 0 1 668 359
-L 578 359
-L 578 359
-A 4 4 0 0 1 574 355
-L 574 329
-L 574 329
-A 4 4 0 0 1 578 325
-Z" style="stroke-width:1.2;stroke:rgb(200,200,200);fill:rgba(255,255,255,0.706)"/><text x="578" y="342" style="stroke:none;fill:rgb(129,129,129);font-size:12.8px;font-family:'Roboto Medium',sans-serif">※ Shooting Star</text><text x="581" y="355" style="stroke:none;fill:rgb(129,129,129);font-size:12.8px;font-family:'Roboto Medium',sans-serif">Ʇ Inv. Hammer</text><path d="M 640 297
-L 708 297
-L 708 297
-A 4 4 0 0 1 712 301
-L 712 327
-L 712 327
-A 4 4 0 0 1 708 331
-L 640 331
-L 640 331
-A 4 4 0 0 1 636 327
-L 636 301
-L 636 301
-A 4 4 0 0 1 640 297
-Z" style="stroke-width:1.2;stroke:rgb(34,197,94);fill:rgba(255,255,255,0.706)"/><text x="644" y="314" style="stroke:none;fill:rgb(13,75,36);font-size:12.8px;font-family:'Roboto Medium',sans-serif">Γ Hammer</text><text x="640" y="327" style="stroke:none;fill:rgb(13,75,36);font-size:12.8px;font-family:'Roboto Medium',sans-serif">ψ Dragonfly</text><path d="M 702 302
-L 792 302
-L 792 302
-A 4 4 0 0 1 796 306
-L 796 345
-L 796 345
-A 4 4 0 0 1 792 349
-L 702 349
-L 702 349
-A 4 4 0 0 1 698 345
-L 698 306
-L 698 306
-A 4 4 0 0 1 702 302
-Z" style="stroke-width:1.2;stroke:rgb(239,68,68);fill:rgba(255,255,255,0.706)"/><text x="702" y="319" style="stroke:none;fill:rgb(151,13,13);font-size:12.8px;font-family:'Roboto Medium',sans-serif">※ Shooting Star</text><text x="709" y="332" style="stroke:none;fill:rgb(151,13,13);font-size:12.8px;font-family:'Roboto Medium',sans-serif">† Gravestone</text><text x="705" y="345" style="stroke:none;fill:rgb(151,13,13);font-size:12.8px;font-family:'Roboto Medium',sans-serif">Ʇ Inv. Hammer</text></svg>
+Z" style="stroke-width:1.2;stroke:rgb(34,197,94);fill:rgba(255,255,255,0.706)"/><text x="516" y="247" style="stroke:none;fill:rgb(13,75,36);font-size:13.3px;font-family:'Roboto Medium',sans-serif">Λ Bull Engulfing</text><path d="M 578 324
+L 672 324
+L 672 324
+A 4 4 0 0 1 676 328
+L 676 356
+L 676 356
+A 4 4 0 0 1 672 360
+L 578 360
+L 578 360
+A 4 4 0 0 1 574 356
+L 574 328
+L 574 328
+A 4 4 0 0 1 578 324
+Z" style="stroke-width:1.2;stroke:rgb(200,200,200);fill:rgba(255,255,255,0.706)"/><text x="578" y="342" style="stroke:none;fill:rgb(129,129,129);font-size:13.3px;font-family:'Roboto Medium',sans-serif">※ Shooting Star</text><text x="582" y="356" style="stroke:none;fill:rgb(129,129,129);font-size:13.3px;font-family:'Roboto Medium',sans-serif">Ʇ Inv. Hammer</text><path d="M 640 296
+L 711 296
+L 711 296
+A 4 4 0 0 1 715 300
+L 715 328
+L 715 328
+A 4 4 0 0 1 711 332
+L 640 332
+L 640 332
+A 4 4 0 0 1 636 328
+L 636 300
+L 636 300
+A 4 4 0 0 1 640 296
+Z" style="stroke-width:1.2;stroke:rgb(34,197,94);fill:rgba(255,255,255,0.706)"/><text x="644" y="314" style="stroke:none;fill:rgb(13,75,36);font-size:13.3px;font-family:'Roboto Medium',sans-serif">Γ Hammer</text><text x="640" y="328" style="stroke:none;fill:rgb(13,75,36);font-size:13.3px;font-family:'Roboto Medium',sans-serif">ψ Dragonfly</text><path d="M 702 301
+L 796 301
+L 796 301
+A 4 4 0 0 1 800 305
+L 800 347
+L 800 347
+A 4 4 0 0 1 796 351
+L 702 351
+L 702 351
+A 4 4 0 0 1 698 347
+L 698 305
+L 698 305
+A 4 4 0 0 1 702 301
+Z" style="stroke-width:1.2;stroke:rgb(239,68,68);fill:rgba(255,255,255,0.706)"/><text x="702" y="319" style="stroke:none;fill:rgb(151,13,13);font-size:13.3px;font-family:'Roboto Medium',sans-serif">※ Shooting Star</text><text x="709" y="333" style="stroke:none;fill:rgb(151,13,13);font-size:13.3px;font-family:'Roboto Medium',sans-serif">† Gravestone</text><text x="706" y="347" style="stroke:none;fill:rgb(151,13,13);font-size:13.3px;font-family:'Roboto Medium',sans-serif">Ʇ Inv. Hammer</text></svg>

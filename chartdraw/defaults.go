@@ -14,8 +14,6 @@ const (
 	// DefaultAxisLineWidth is the line width of the axis lines.
 	DefaultAxisLineWidth = 1.0
 
-	defaultDPI = 92.0
-
 	// DefaultFontSize is the default font size.
 	DefaultFontSize = 10.0
 	// DefaultTitleFontSize is the default title font size.

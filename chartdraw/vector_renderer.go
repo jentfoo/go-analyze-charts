@@ -461,7 +461,7 @@ func newCanvas(w io.Writer) *canvas {
 	return &canvas{
 		w:   w,
 		bb:  bytes.NewBuffer(make([]byte, 0, 200)),
-		dpi: defaultDPI,
+		dpi: drawing.DefaultDPI,
 	}
 }
 

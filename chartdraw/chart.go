@@ -7,6 +7,8 @@ import (
 	"slices"
 
 	"github.com/golang/freetype/truetype"
+
+	"github.com/go-analyze/charts/chartdraw/drawing"
 )
 
 // Chart is what we're drawing.
@@ -39,7 +41,7 @@ func (c Chart) GetDPI(defaults ...float64) float64 {
 		if len(defaults) > 0 {
 			return defaults[0]
 		}
-		return defaultDPI
+		return drawing.DefaultDPI
 	}
 	return c.DPI
 }
@@ -81,7 +83,7 @@ func (c Chart) Render(rp RendererProvider, w io.Writer) error {
 	if c.Font == nil {
 		c.Font = GetDefaultFont()
 	}
-	r.SetDPI(c.GetDPI(defaultDPI))
+	r.SetDPI(c.GetDPI(drawing.DefaultDPI))
 
 	c.drawBackground(r)
 

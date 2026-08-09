@@ -2,19 +2,19 @@
 L 600 0
 L 600 400
 L 0 400
-L 0 0" style="stroke:none;fill:white"/><text x="9" y="16" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">0.9</text><text x="9" y="142" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">0.6</text><text x="9" y="268" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">0.3</text><text x="22" y="394" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">0</text><path d="M 37 10
-L 590 10" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 37 136
-L 590 136" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 37 263
-L 590 263" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 80 348
-L 158 306
-L 236 348
+L 0 0" style="stroke:none;fill:white"/><text x="9" y="16" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">0.9</text><text x="9" y="142" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">0.6</text><text x="9" y="268" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">0.3</text><text x="22" y="394" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">0</text><path d="M 38 10
+L 590 10" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 38 136
+L 590 136" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 38 263
+L 590 263" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 81 348
+L 159 306
+L 237 348
 L 315 306
-L 393 222
+L 394 222
 L 472 306
-L 550 348" style="stroke-width:2;stroke:rgb(84,112,198);fill:none"/><path d="M 80 306
-L 158 222
-L 236 53
+L 550 348" style="stroke-width:2;stroke:rgb(84,112,198);fill:none"/><path d="M 81 306
+L 159 222
+L 237 53
 L 315 222
-L 393 306
+L 394 306
 L 472 348
 L 550 306" style="stroke-width:2;stroke:rgb(145,204,117);fill:none"/></svg>

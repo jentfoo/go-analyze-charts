@@ -5,6 +5,8 @@ import (
 	"io"
 
 	"github.com/golang/freetype/truetype"
+
+	"github.com/go-analyze/charts/chartdraw/drawing"
 )
 
 // DonutChart is a chart that draws sections of a circle based on percentages with a hole.
@@ -34,7 +36,7 @@ func (pc DonutChart) GetDPI(defaults ...float64) float64 {
 		if len(defaults) > 0 {
 			return defaults[0]
 		}
-		return defaultDPI
+		return drawing.DefaultDPI
 	}
 	return pc.DPI
 }
@@ -71,7 +73,7 @@ func (pc DonutChart) Render(rp RendererProvider, w io.Writer) error {
 	if pc.Font == nil {
 		pc.Font = GetDefaultFont()
 	}
-	r.SetDPI(pc.GetDPI(defaultDPI))
+	r.SetDPI(pc.GetDPI(drawing.DefaultDPI))
 
 	canvasBox := pc.getDefaultCanvasBox()
 	canvasBox = pc.getCircleAdjustedCanvasBox(canvasBox)

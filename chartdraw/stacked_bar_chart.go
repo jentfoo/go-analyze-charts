@@ -7,6 +7,8 @@ import (
 	"math"
 
 	"github.com/golang/freetype/truetype"
+
+	"github.com/go-analyze/charts/chartdraw/drawing"
 )
 
 // StackedBar is a bar within a StackedBarChart.
@@ -57,7 +59,7 @@ func (sbc StackedBarChart) GetDPI(defaults ...float64) float64 {
 		if len(defaults) > 0 {
 			return defaults[0]
 		}
-		return defaultDPI
+		return drawing.DefaultDPI
 	}
 	return sbc.DPI
 }
@@ -102,7 +104,7 @@ func (sbc StackedBarChart) Render(rp RendererProvider, w io.Writer) error {
 	if sbc.Font == nil {
 		sbc.Font = GetDefaultFont()
 	}
-	r.SetDPI(sbc.GetDPI(defaultDPI))
+	r.SetDPI(sbc.GetDPI(drawing.DefaultDPI))
 
 	sbc.drawBackground(r)
 

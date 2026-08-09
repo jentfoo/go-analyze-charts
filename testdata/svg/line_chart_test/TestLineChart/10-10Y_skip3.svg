@@ -2,24 +2,24 @@
 L 600 0
 L 600 400
 L 0 400
-L 0 0" style="stroke:none;fill:white"/><text x="9" y="16" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">1.44k</text><text x="21" y="184" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">800</text><text x="21" y="352" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">160</text><text x="39" y="394" style="stroke:none;fill:rgb(70,70,70);font-size:15.3px;font-family:'Roboto Medium',sans-serif">0</text><path d="M 54 10
-L 590 10" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 54 52
-L 590 52" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 54 94
-L 590 94" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 54 136
-L 590 136" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 54 178
-L 590 178" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 54 221
-L 590 221" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 54 263
-L 590 263" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 54 305
-L 590 305" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 54 347
-L 590 347" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 96 359
-L 172 356
-L 248 364
+L 0 0" style="stroke:none;fill:white"/><text x="9" y="16" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">1.44k</text><text x="22" y="184" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">800</text><text x="22" y="352" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">160</text><text x="40" y="394" style="stroke:none;fill:rgb(70,70,70);font-size:16px;font-family:'Roboto Medium',sans-serif">0</text><path d="M 56 10
+L 590 10" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 56 52
+L 590 52" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 56 94
+L 590 94" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 56 136
+L 590 136" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 56 178
+L 590 178" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 56 221
+L 590 221" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 56 263
+L 590 263" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 56 305
+L 590 305" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 56 347
+L 590 347" style="stroke-width:1;stroke:rgb(224,230,242);fill:none"/><path d="M 97 359
+L 173 356
+L 249 364
 L 324 355
 L 400 367
 L 476 330
-L 552 335" style="stroke-width:2;stroke:rgb(84,112,198);fill:none"/><path d="M 96 174
-L 172 145
-L 248 153
+L 552 335" style="stroke-width:2;stroke:rgb(84,112,198);fill:none"/><path d="M 97 174
+L 173 145
+L 249 153
 L 324 144
 L 400 50
 L 476 40
