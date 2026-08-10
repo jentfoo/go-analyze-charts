@@ -261,6 +261,7 @@ func (vr *vectorRenderer) ResetStyle() {
 			Font: vr.s.Font,
 		},
 	}
+	vr.ClearTextRotation()
 }
 
 // GetDPI returns the dpi.

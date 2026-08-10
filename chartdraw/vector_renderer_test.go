@@ -771,6 +771,26 @@ func TestCanvasCircleDashArray(t *testing.T) {
 	})
 }
 
+func TestVectorRendererResetStyleClearsTextRotation(t *testing.T) {
+	t.Parallel()
+
+	vr := SVG(20, 30).(*vectorRenderer)
+	vr.SetClassName("cls")
+	vr.SetStrokeColor(drawing.ColorBlack)
+	vr.SetFillColor(drawing.ColorRed)
+	vr.SetTextRotation(math.Pi / 2)
+	vr.Text("A", 10, 5)
+	vr.ResetStyle()
+	vr.Text("B", 6, 20)
+
+	buf := bytes.Buffer{}
+	require.NoError(t, vr.Save(&buf))
+	out := buf.String()
+	assert.Contains(t, out, "rotate(90.00")
+	// only first (rotated) text carries a transform; ResetStyle cleared the second
+	assert.Equal(t, 1, strings.Count(out, `transform="rotate(`))
+}
+
 func TestVectorRendererTextRotation(t *testing.T) {
 	t.Parallel()
 
