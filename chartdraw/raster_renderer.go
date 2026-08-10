@@ -165,11 +165,20 @@ func (rr *rasterRenderer) Text(body string, x, y int) {
 	if body == "" {
 		return
 	}
-	xf, yf := rr.getCoords(x, y)
 	rr.gc.SetFont(rr.s.Font)
 	rr.gc.SetFontSize(rr.s.FontSize)
 	rr.gc.SetFillColor(rr.s.FontColor)
-	if _, err := rr.gc.CreateStringPath(body, float64(xf), float64(yf)); err != nil {
+
+	xf, yf := float64(x), float64(y)
+	if rr.rotateRadians != nil {
+		// rotate about the anchor for this draw only, matching the vector renderer
+		tr := rr.gc.GetMatrixTransform()
+		defer rr.gc.SetMatrixTransform(tr)
+		rr.gc.Translate(xf, yf)
+		rr.gc.Rotate(*rr.rotateRadians)
+		xf, yf = 0, 0
+	}
+	if _, err := rr.gc.CreateStringPath(body, xf, yf); err != nil {
 		rr.renderErrs = append(rr.renderErrs, err)
 	}
 	rr.gc.Fill()
@@ -205,21 +214,8 @@ func (rr *rasterRenderer) SetTextRotation(radians float64) {
 	rr.rotateRadians = &radians
 }
 
-func (rr *rasterRenderer) getCoords(x, y int) (xf, yf int) {
-	if rr.rotateRadians == nil {
-		xf = x
-		yf = y
-		return
-	}
-
-	rr.gc.Translate(float64(x), float64(y))
-	rr.gc.Rotate(*rr.rotateRadians)
-	return
-}
-
 // ClearTextRotation clears text rotation.
 func (rr *rasterRenderer) ClearTextRotation() {
-	rr.gc.SetMatrixTransform(drawing.NewIdentityMatrix())
 	rr.rotateRadians = nil
 }
 

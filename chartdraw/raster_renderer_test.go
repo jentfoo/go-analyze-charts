@@ -26,24 +26,76 @@ func hashImage(t *testing.T, r *rasterRenderer) uint32 {
 	return crc32.ChecksumIEEE(rgba.Pix)
 }
 
-func TestRasterRendererRotationAndSave(t *testing.T) {
+func TestRasterRendererRotationNonAccumulating(t *testing.T) {
 	t.Parallel()
 
-	rr := PNG(20, 20).(*rasterRenderer)
-	x, y := rr.getCoords(5, 5)
-	assert.Equal(t, 5, x)
-	assert.Equal(t, 5, y)
+	texts := []struct {
+		body string
+		x, y int
+	}{
+		{"hi", 4, 6},
+		{"yo", 12, 14},
+	}
 
+	// one rotation setup for both draws, the pattern that used to compound the transform
+	single := PNG(50, 60).(*rasterRenderer)
+	single.SetFont(GetDefaultFont())
+	single.SetFontSize(10)
+	single.SetFontColor(drawing.ColorBlack)
+	single.SetTextRotation(math.Pi / 2)
+	for _, tt := range texts {
+		single.Text(tt.body, tt.x, tt.y)
+	}
+
+	// each draw bracketed by its own rotation setup, always correct
+	bracketed := PNG(50, 60).(*rasterRenderer)
+	for _, tt := range texts {
+		bracketed.SetFont(GetDefaultFont())
+		bracketed.SetFontSize(10)
+		bracketed.SetFontColor(drawing.ColorBlack)
+		bracketed.SetTextRotation(math.Pi / 2)
+		bracketed.Text(tt.body, tt.x, tt.y)
+		bracketed.ClearTextRotation()
+	}
+
+	blank := hashImage(t, PNG(50, 60).(*rasterRenderer))
+	assert.NotEqual(t, blank, hashImage(t, bracketed)) // guard against comparing empty canvases
+	assert.Equal(t, hashImage(t, single), hashImage(t, bracketed))
+}
+
+func TestRasterRendererRotationRestoresTransform(t *testing.T) {
+	t.Parallel()
+
+	rr := PNG(50, 60).(*rasterRenderer)
+	rr.SetFont(GetDefaultFont())
+	rr.SetFontSize(10)
+	rr.SetFontColor(drawing.ColorBlack)
 	rr.SetTextRotation(math.Pi / 2)
-	x, y = rr.getCoords(5, 5)
-	assert.Zero(t, x)
-	assert.Zero(t, y)
+	rr.Text("hi", 4, 6)
 
-	iw := &ImageWriter{}
-	require.NoError(t, rr.Save(iw))
-	img, err := iw.Image()
-	require.NoError(t, err)
-	assert.Equal(t, 20, img.Bounds().Dx())
+	assert.Equal(t, drawing.NewIdentityMatrix(), rr.gc.GetMatrixTransform())
+}
+
+func TestRasterRendererRotationLinesUnaffected(t *testing.T) {
+	t.Parallel()
+
+	rr := PNG(50, 60).(*rasterRenderer)
+	rr.SetFont(GetDefaultFont())
+	rr.SetFontSize(10)
+	rr.SetFontColor(drawing.ColorBlack)
+	rr.SetTextRotation(math.Pi / 2)
+	rr.Text("hi", 4, 6)
+
+	// a line drawn after rotated text must land at its literal coordinates
+	rr.SetStrokeColor(drawing.ColorBlack)
+	rr.SetStrokeWidth(2)
+	rr.MoveTo(0, 55)
+	rr.LineTo(49, 55)
+	rr.Stroke()
+
+	assert.Equal(t, drawing.ColorBlack, at(rr.i, 24, 54))
+	assert.Equal(t, drawing.ColorBlack, at(rr.i, 24, 55))
+	assert.Zero(t, at(rr.i, 24, 53).A)
 }
 
 func TestRasterRendererSavePNG(t *testing.T) {
