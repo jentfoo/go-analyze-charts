@@ -714,6 +714,25 @@ func TestStroke(t *testing.T) {
 		assert.NotZero(t, img.RGBAAt(14, 14).A)
 	})
 
+	t.Run("non_positive_width_no_stroke", func(t *testing.T) {
+		blank := image.NewRGBA(image.Rect(0, 0, 50, 30)).Pix
+		stroke := func(width float64) *image.RGBA {
+			img := image.NewRGBA(image.Rect(0, 0, 50, 30))
+			rgc := NewRasterGraphicContext(img)
+			rgc.SetStrokeColor(color.RGBA{R: 255, A: 1})
+			rgc.SetLineWidth(width)
+			rgc.MoveTo(2, 10)
+			rgc.LineTo(38, 20)
+			rgc.Stroke()
+			return img
+		}
+
+		// negative, zero, and NaN widths draw nothing (blank), matching SVG's invalid-width handling
+		for _, width := range []float64{0, -1, -5, math.NaN()} {
+			assert.Equal(t, blank, stroke(width).Pix, "width %v", width)
+		}
+	})
+
 	t.Run("zero_gap_dash_solid", func(t *testing.T) {
 		img := strokeDashed([]float64{6, 0}, 0) // zero length gaps draw a solid line
 
@@ -949,6 +968,29 @@ func TestFillStroke(t *testing.T) {
 
 		for _, dash := range [][]float64{{0, 0}, {-5, 5}, {5, -5}} {
 			assert.Equal(t, solid.Pix, fillStrokeDashed(dash).Pix, dash)
+		}
+	})
+
+	t.Run("invalid_width_fill_only", func(t *testing.T) {
+		fillStroke := func(width float64) *image.RGBA {
+			img := image.NewRGBA(image.Rect(0, 0, 50, 30))
+			rgc := NewRasterGraphicContext(img)
+			rgc.SetFillColor(color.RGBA{B: 255, A: 255})
+			rgc.SetStrokeColor(color.RGBA{R: 255, A: 255})
+			rgc.SetLineWidth(width)
+			rgc.MoveTo(2, 2)
+			rgc.LineTo(38, 2)
+			rgc.LineTo(38, 20)
+			rgc.Close()
+			rgc.FillStroke()
+			return img
+		}
+
+		for _, width := range []float64{0, -1, math.NaN()} {
+			img := fillStroke(width)
+			assert.NotZero(t, img.RGBAAt(20, 10).A, "width %v: fill draws", width)
+			assert.Equal(t, uint8(255), img.RGBAAt(20, 10).B, "width %v: fill color", width)
+			assert.Zero(t, img.RGBAAt(20, 10).R, "width %v: no stroke color", width)
 		}
 	})
 }

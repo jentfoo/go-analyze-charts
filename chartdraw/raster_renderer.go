@@ -140,6 +140,11 @@ func (rr *rasterRenderer) FillStroke() {
 // Circle adds a circle to the current path; it is only painted by a completion call
 // (Stroke/Fill/FillStroke), and renders nothing without one.
 func (rr *rasterRenderer) Circle(radius float64, x, y int) {
+	if nonFinite(radius) || radius <= 0 {
+		// keep current point consistent with valid-radius path
+		rr.gc.MoveTo(float64(x), float64(y))
+		return
+	}
 	xf, yf := float64(x), float64(y)
 	rr.gc.MoveTo(xf+radius, yf) // explicit MoveTo at arc start to avoid LineTo from prior path, see issue #78
 	rr.gc.ArcTo(xf, yf, radius, radius, 0, _2pi)

@@ -245,7 +245,7 @@ func (rgc *RasterGraphicContext) paint(rasterizer *raster.Rasterizer, color colo
 
 // Stroke strokes the paths with the color specified by SetStrokeColor
 func (rgc *RasterGraphicContext) Stroke(paths ...*Path) {
-	if rgc.current.LineWidth == 0 {
+	if !(rgc.current.LineWidth > 0) { // guard against zero, negative, and NaN widths
 		rgc.current.Path.Clear()
 		return
 	}
@@ -356,9 +356,18 @@ func (rgc *RasterGraphicContext) FillStroke(paths ...*Path) {
 	}
 
 	rgc.fillRasterizer.UseNonZeroWinding = rgc.current.FillRule == FillRuleWinding
-	rgc.strokeRasterizer.UseNonZeroWinding = true
 
 	flattener := Transformer{Tr: rgc.current.Tr, Flattener: FtLineBuilder{Adder: rgc.fillRasterizer}}
+
+	if !(rgc.current.LineWidth > 0) { // fill only when stroke width is not positive
+		for _, p := range paths {
+			Flatten(p, flattener, rgc.current.Tr.GetScale())
+		}
+		rgc.paint(rgc.fillRasterizer, rgc.current.FillColor)
+		return
+	}
+
+	rgc.strokeRasterizer.UseNonZeroWinding = true
 
 	stroker := NewLineStroker(Transformer{Tr: rgc.current.Tr, Flattener: FtLineBuilder{Adder: rgc.strokeRasterizer}})
 	stroker.HalfLineWidth = rgc.current.LineWidth / 2

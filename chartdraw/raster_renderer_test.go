@@ -256,6 +256,22 @@ func BenchmarkRaterCircle(b *testing.B) {
 	}
 }
 
+func TestRasterRendererCircleInvalidRadiusDrawsNothing(t *testing.T) {
+	t.Parallel()
+
+	blank := hashImage(t, PNG(40, 50).(*rasterRenderer))
+
+	for _, radius := range []float64{0, -1, -5, math.NaN(), math.Inf(1), math.Inf(-1)} {
+		rr := PNG(40, 50).(*rasterRenderer)
+		rr.SetFillColor(drawing.ColorBlack)
+		rr.Circle(radius, 20, 25)
+		rr.Fill()
+
+		// non-positive or non-finite radius draws nothing, matching SVG's invalid-value behavior
+		assert.Equal(t, blank, hashImage(t, rr), "radius %v", radius)
+	}
+}
+
 func TestRasterRendererSaveWithQueuedError(t *testing.T) {
 	t.Parallel()
 
