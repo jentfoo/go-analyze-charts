@@ -438,6 +438,98 @@ func TestBarChart(t *testing.T) {
 			},
 			pngCRC: 0x44a995f1,
 		},
+		{
+			name: "negative_values",
+			makeOptions: func() BarChartOption {
+				opt := NewBarChartOptionWithData([][]float64{
+					{-12, -5, -2, -5, -12, -19, -22, -19},
+					{-16, -9, -6, -9, -16, -23, -26, -23},
+				})
+				opt.CategoryAxis.Labels = []string{"A", "B", "C", "D", "E", "F", "G", "H"}
+				return opt
+			},
+			pngCRC: 0x5da4b14a,
+		},
+		{
+			name: "mixed_sign",
+			makeOptions: func() BarChartOption {
+				opt := NewBarChartOptionWithData([][]float64{
+					{0, 7, 10, 7, 0, -7, -10, -7},
+					{10, 7, 0, -7, -10, -7, 0, 7},
+				})
+				opt.CategoryAxis.Labels = []string{"A", "B", "C", "D", "E", "F", "G", "H"}
+				return opt
+			},
+			pngCRC: 0x9f4d96e3,
+		},
+		{
+			name: "stack_series_negative",
+			makeOptions: func() BarChartOption {
+				// mixed signs so stacks diverge above and below zero
+				opt := NewBarChartOptionWithData([][]float64{
+					{0, 7, 10, 7, 0, -7, -10, -7},
+					{-7, -10, -7, 0, 7, 10, 7, 0},
+					{3, 5, 3, 0, -3, -5, -3, 0},
+				})
+				opt.StackSeries = Ptr(true)
+				opt.CategoryAxis.Labels = []string{"A", "B", "C", "D", "E", "F", "G", "H"}
+				return opt
+			},
+			pngCRC: 0x684cea37,
+		},
+		{
+			name: "stack_series_all_negative",
+			makeOptions: func() BarChartOption {
+				opt := NewBarChartOptionWithData([][]float64{
+					{-12, -5, -2, -5, -12, -19, -22, -19},
+					{-6, -2, -1, -2, -6, -9, -11, -9},
+				})
+				opt.StackSeries = Ptr(true)
+				opt.CategoryAxis.Labels = []string{"A", "B", "C", "D", "E", "F", "G", "H"}
+				return opt
+			},
+			pngCRC: 0x54f6920e,
+		},
+		{
+			name: "rounded_caps_negative",
+			makeOptions: func() BarChartOption {
+				opt := NewBarChartOptionWithData([][]float64{
+					{5, 10, 5, -5, -10, -5},
+					{-10, -5, 5, 10, 5, -5},
+				})
+				opt.RoundedBarCaps = Ptr(true)
+				opt.CategoryAxis.Labels = []string{"A", "B", "C", "D", "E", "F"}
+				return opt
+			},
+			pngCRC: 0x157db831,
+		},
+		{
+			name: "label_negative",
+			makeOptions: func() BarChartOption {
+				opt := NewBarChartOptionWithData([][]float64{
+					{5, 10, 5, -5, -10, -5},
+					{-10, -5, 5, 10, 5, -5},
+				})
+				for i := range opt.SeriesList {
+					opt.SeriesList[i].Label.Show = Ptr(true)
+				}
+				opt.CategoryAxis.Labels = []string{"A", "B", "C", "D", "E", "F"}
+				return opt
+			},
+			pngCRC: 0x4558aa6c,
+		},
+		{
+			name: "mark_point_negative",
+			makeOptions: func() BarChartOption {
+				opt := NewBarChartOptionWithData([][]float64{
+					{5, 10, 5, -5, -10, -5},
+				})
+				opt.SeriesList[0].MarkPoint = NewMarkPoint(SeriesMarkTypeMin, SeriesMarkTypeMax)
+				opt.CategoryAxis.Labels = []string{"A", "B", "C", "D", "E", "F"}
+				return opt
+			},
+			pngCRC: 0xa0a20d13,
+		},
 	}
 
 	for i, tt := range tests {
@@ -1013,6 +1105,105 @@ func TestBarChartHorizontal(t *testing.T) {
 				return opt
 			},
 			pngCRC: 0x7066191e,
+		},
+		{
+			name: "negative_values",
+			makeOptions: func() BarChartOption {
+				opt := NewBarChartOptionWithData([][]float64{
+					{-12, -5, -2, -5, -12, -19, -22, -19},
+					{-16, -9, -6, -9, -16, -23, -26, -23},
+				})
+				opt.Horizontal = true
+				opt.CategoryAxis.Labels = []string{"A", "B", "C", "D", "E", "F", "G", "H"}
+				return opt
+			},
+			pngCRC: 0xdc0ceafc,
+		},
+		{
+			name: "mixed_sign",
+			makeOptions: func() BarChartOption {
+				opt := NewBarChartOptionWithData([][]float64{
+					{0, 7, 10, 7, 0, -7, -10, -7},
+					{10, 7, 0, -7, -10, -7, 0, 7},
+				})
+				opt.Horizontal = true
+				opt.CategoryAxis.Labels = []string{"A", "B", "C", "D", "E", "F", "G", "H"}
+				return opt
+			},
+			pngCRC: 0xbe6a3016,
+		},
+		{
+			name: "mixed_sign_reversed",
+			makeOptions: func() BarChartOption {
+				opt := NewBarChartOptionWithData([][]float64{
+					{0, 7, 10, 7, 0, -7, -10, -7},
+					{10, 7, 0, -7, -10, -7, 0, 7},
+				})
+				opt.Horizontal = true
+				opt.CategoryAxis.Position = PositionRight
+				opt.CategoryAxis.Labels = []string{"A", "B", "C", "D", "E", "F", "G", "H"}
+				return opt
+			},
+			pngCRC: 0x91215cf8,
+		},
+		{
+			name: "stack_series_negative",
+			makeOptions: func() BarChartOption {
+				// mixed signs so stacks diverge above and below zero
+				opt := NewBarChartOptionWithData([][]float64{
+					{0, 7, 10, 7, 0, -7, -10, -7},
+					{-7, -10, -7, 0, 7, 10, 7, 0},
+					{3, 5, 3, 0, -3, -5, -3, 0},
+				})
+				opt.Horizontal = true
+				opt.StackSeries = Ptr(true)
+				opt.CategoryAxis.Labels = []string{"A", "B", "C", "D", "E", "F", "G", "H"}
+				return opt
+			},
+			pngCRC: 0xaadc92f3,
+		},
+		{
+			name: "rounded_caps_negative",
+			makeOptions: func() BarChartOption {
+				opt := NewBarChartOptionWithData([][]float64{
+					{5, 10, 5, -5, -10, -5},
+					{-10, -5, 5, 10, 5, -5},
+				})
+				opt.Horizontal = true
+				opt.RoundedBarCaps = Ptr(true)
+				opt.CategoryAxis.Labels = []string{"A", "B", "C", "D", "E", "F"}
+				return opt
+			},
+			pngCRC: 0xadc6af8a,
+		},
+		{
+			name: "label_negative",
+			makeOptions: func() BarChartOption {
+				opt := NewBarChartOptionWithData([][]float64{
+					{5, 10, 5, -5, -10, -5},
+					{-10, -5, 5, 10, 5, -5},
+				})
+				for i := range opt.SeriesList {
+					opt.SeriesList[i].Label.Show = Ptr(true)
+				}
+				opt.Horizontal = true
+				opt.CategoryAxis.Labels = []string{"A", "B", "C", "D", "E", "F"}
+				return opt
+			},
+			pngCRC: 0x741d1b05,
+		},
+		{
+			name: "mark_point_negative",
+			makeOptions: func() BarChartOption {
+				opt := NewBarChartOptionWithData([][]float64{
+					{5, 10, 5, -5, -10, -5},
+				})
+				opt.Horizontal = true
+				opt.SeriesList[0].MarkPoint = NewMarkPoint(SeriesMarkTypeMin, SeriesMarkTypeMax)
+				opt.CategoryAxis.Labels = []string{"A", "B", "C", "D", "E", "F"}
+				return opt
+			},
+			pngCRC: 0x71aeb0c8,
 		},
 	}
 
