@@ -14,8 +14,6 @@ linters:
       - linters:
           - gosec
         path: "_test\\.go$"
-  disable:
-    - staticcheck
   enable:
     - asasalint
     - asciicheck
@@ -53,6 +51,8 @@ linters:
     - wastedassign
     - whitespace
   settings:
+    staticcheck:
+      checks: ["all", "-ST1000", "-ST1018", "-QF1003", "-QF1008"]
     goconst:
       min-len: 4
       min-occurrences: 4

@@ -1,9 +1,5 @@
 package chartdraw
 
-import (
-	"github.com/go-analyze/bulk"
-)
-
 // Value is a chart value.
 type Value struct {
 	Style Style
@@ -35,14 +31,18 @@ func (vs Values) Normalize() []Value {
 		total += v.Value
 	}
 
-	return bulk.SliceFilterTransform(func(v Value) bool { return v.Value > 0 },
-		func(v Value) Value {
-			return Value{
-				Style: v.Style,
-				Label: v.Label,
-				Value: RoundDown(v.Value/total, 0.0001),
-			}
-		}, vs)
+	normalized := make([]Value, 0, len(vs))
+	for _, v := range vs {
+		if v.Value <= 0 {
+			continue
+		}
+		normalized = append(normalized, Value{
+			Style: v.Style,
+			Label: v.Label,
+			Value: RoundDown(v.Value/total, 0.0001),
+		})
+	}
+	return normalized
 }
 
 // Value2 is a two axis value.

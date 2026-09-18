@@ -127,7 +127,7 @@ func (s Style) String() string {
 			if i > 0 {
 				dashArray.WriteString(", ")
 			}
-			dashArray.WriteString(fmt.Sprintf("%.2f", v))
+			fmt.Fprintf(&dashArray, "%.2f", v)
 		}
 		output = append(output, "\"stroke_dash_array\": ["+dashArray.String()+"]")
 	} else {

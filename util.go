@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/dustin/go-humanize"
-	"github.com/go-analyze/bulk"
 
 	"github.com/go-analyze/charts/chartdraw"
 )
@@ -75,14 +74,23 @@ func autoDivideSpans(max, size int, spans []int) []int {
 	return values
 }
 
+// mapSlice applies conversion to each element of slice, returning a new slice.
+func mapSlice[T any, R any](slice []T, conversion func(T) R) []R {
+	result := make([]R, 0, len(slice))
+	for _, item := range slice {
+		result = append(result, conversion(item))
+	}
+	return result
+}
+
 // SliceToFloat64 converts a slice of arbitrary types to float64 using the provided conversion function.
 func SliceToFloat64[T any](slice []T, conversion func(T) float64) []float64 {
-	return bulk.SliceTransform(conversion, slice)
+	return mapSlice(slice, conversion)
 }
 
 // IntSliceToFloat64 converts an int slice to a float64 slice for use in charts.
 func IntSliceToFloat64(slice []int) []float64 {
-	return bulk.SliceTransform(func(i int) float64 { return float64(i) }, slice)
+	return mapSlice(slice, func(i int) float64 { return float64(i) })
 }
 
 func sliceMaxLen[T any](values ...[]T) int {

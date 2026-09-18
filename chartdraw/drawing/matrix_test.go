@@ -147,8 +147,8 @@ func TestNewMatrixFromRects(t *testing.T) {
 func TestMatrixDeterminant(t *testing.T) {
 	t.Parallel()
 
-	mId := NewIdentityMatrix()
-	assert.InDelta(t, 1.0, mId.Determinant(), 0)
+	mID := NewIdentityMatrix()
+	assert.InDelta(t, 1.0, mID.Determinant(), 0)
 
 	m := Matrix{2, 0, 0, 3, 0, 0}
 	assert.InDelta(t, 6.0, m.Determinant(), 0)
