@@ -139,14 +139,14 @@ func TestAxisRender(t *testing.T) {
 				const count = 1000
 				labelLen := len(strconv.Itoa(count))
 				labels := make([]string, count)
-				tsl := testSeriesList{}
+				tsl := make(testSeriesList, count)
 				for i := range labels {
 					label := strconv.Itoa(i + 1)
 					for len(label) < labelLen {
 						label = "0" + label
 					}
 					labels[i] = label
-					tsl = append(tsl, testSeries{values: []float64{float64(i)}})
+					tsl[i] = testSeries{values: []float64{float64(i)}}
 				}
 				return axisOption{
 					theme: axisTheme,

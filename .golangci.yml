@@ -13,6 +13,7 @@ linters:
         path: "chartdraw/examples/"
       - linters:
           - gosec
+          - goconst
         path: "_test\\.go$"
   enable:
     - asasalint
