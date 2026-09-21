@@ -145,7 +145,7 @@ func TestLineChart(t *testing.T) {
 			name:        "basic_themed",
 			themed:      true,
 			makeOptions: makeFullLineChartOption,
-			pngCRC:      0x1aa9321c,
+			pngCRC:      0x52fa78ed,
 		},
 		{
 			name: "boundary_gap_disable",
@@ -157,7 +157,7 @@ func TestLineChart(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x731fbef,
+			pngCRC: 0x88f15ef6,
 		},
 		{
 			name: "boundary_gap_enable",
@@ -166,7 +166,7 @@ func TestLineChart(t *testing.T) {
 				opt.XAxis.BoundaryGap = Ptr(true)
 				return opt
 			},
-			pngCRC: 0xee3ec707,
+			pngCRC: 0x7144d794,
 		},
 		{
 			name: "08Y_skip1",
@@ -180,7 +180,7 @@ func TestLineChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x750bad59,
+			pngCRC: 0x3b897293,
 		},
 		{
 			name: "09Y_skip1",
@@ -194,7 +194,7 @@ func TestLineChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x63f2d619,
+			pngCRC: 0xba6bca34,
 		},
 		{
 			name: "08Y_skip2",
@@ -208,7 +208,7 @@ func TestLineChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x8e0b7d3d,
+			pngCRC: 0xfb90d3a0,
 		},
 		{
 			name: "09Y_skip2",
@@ -222,7 +222,7 @@ func TestLineChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0xcb9a5751,
+			pngCRC: 0x5d3b860b,
 		},
 		{
 			name: "10Y_skip2",
@@ -236,7 +236,7 @@ func TestLineChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0xae5ddcb5,
+			pngCRC: 0xb96c026b,
 		},
 		{
 			name: "08Y_skip3",
@@ -250,7 +250,7 @@ func TestLineChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x2058d8e9,
+			pngCRC: 0x229c5d3f,
 		},
 		{
 			name: "09Y_skip3",
@@ -264,7 +264,7 @@ func TestLineChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0xd5ce8ff0,
+			pngCRC: 0x3e930daa,
 		},
 		{
 			name: "10Y_skip3",
@@ -278,7 +278,7 @@ func TestLineChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x2d6b5d10,
+			pngCRC: 0x75985499,
 		},
 		{
 			name: "11Y_skip3",
@@ -292,7 +292,7 @@ func TestLineChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x95067bfb,
+			pngCRC: 0xa7cba64e,
 		},
 		{
 			name: "no_yaxis_split_line",
@@ -306,7 +306,7 @@ func TestLineChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0xc8213bbe,
+			pngCRC: 0x708f25ce,
 		},
 		{
 			name: "yaxis_spine_line_show",
@@ -320,7 +320,7 @@ func TestLineChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0xb7a0a73f,
+			pngCRC: 0xf652fa42,
 		},
 		{
 			name: "dual_yaxis",
@@ -336,7 +336,7 @@ func TestLineChart(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x15be9ec7,
+			pngCRC: 0xce271706,
 		},
 		{
 			name: "no_nice_interval",
@@ -354,7 +354,7 @@ func TestLineChart(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x472eb9f8,
+			pngCRC: 0xb9e5929b,
 		},
 		{
 			name: "left_nice_interval",
@@ -372,7 +372,7 @@ func TestLineChart(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x5356cd7f,
+			pngCRC: 0x47c064d3,
 		},
 		{
 			name: "right_nice_interval",
@@ -391,7 +391,7 @@ func TestLineChart(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x15be9ec7,
+			pngCRC: 0xce271706,
 		},
 		{
 			name: "right_yaxis",
@@ -404,7 +404,7 @@ func TestLineChart(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x71cdd61b,
+			pngCRC: 0x8f3d5c12,
 		},
 		{
 			name: "zero_data",
@@ -417,7 +417,7 @@ func TestLineChart(t *testing.T) {
 				opt.SeriesList = NewSeriesListLine(values)
 				return opt
 			},
-			pngCRC: 0x5aa12024,
+			pngCRC: 0x49382f31,
 		},
 		{
 			name: "tiny_range",
@@ -430,7 +430,7 @@ func TestLineChart(t *testing.T) {
 				opt.SeriesList = NewSeriesListLine(values)
 				return opt
 			},
-			pngCRC: 0x3057b80,
+			pngCRC: 0x5689a425,
 		},
 		{
 			name: "custom_font",
@@ -442,7 +442,7 @@ func TestLineChart(t *testing.T) {
 				opt.Title.FontStyle = customFont
 				return opt
 			},
-			pngCRC: 0x4f3646cb,
+			pngCRC: 0x8e4b48dd,
 		},
 		{
 			name: "title_offset_center_legend_right",
@@ -452,7 +452,7 @@ func TestLineChart(t *testing.T) {
 				opt.Legend.Offset = OffsetRight
 				return opt
 			},
-			pngCRC: 0xdb6db1de,
+			pngCRC: 0xf6f4e38c,
 		},
 		{
 			name: "title_offset_right",
@@ -461,7 +461,7 @@ func TestLineChart(t *testing.T) {
 				opt.Title.Offset = OffsetRight
 				return opt
 			},
-			pngCRC: 0x3dbadc53,
+			pngCRC: 0x93ce6a04,
 		},
 		{
 			name: "title_offset_bottom_center",
@@ -473,7 +473,7 @@ func TestLineChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x19e07839,
+			pngCRC: 0x656c0ebf,
 		},
 		{
 			name: "legend_offset_bottom",
@@ -484,7 +484,7 @@ func TestLineChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0xa19e615f,
+			pngCRC: 0xd62051f5,
 		},
 		{
 			name: "legend_padding_top",
@@ -496,7 +496,7 @@ func TestLineChart(t *testing.T) {
 				opt.YAxis[0].Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x1a7485a1,
+			pngCRC: 0x2241de55,
 		},
 		{
 			name: "legend_padding_bottom",
@@ -511,7 +511,7 @@ func TestLineChart(t *testing.T) {
 				opt.YAxis[0].Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0xb071c402,
+			pngCRC: 0x80ffe1fc,
 		},
 		{
 			name: "title_and_legend_offset_bottom",
@@ -525,7 +525,7 @@ func TestLineChart(t *testing.T) {
 				opt.Legend.Offset = bottomOffset
 				return opt
 			},
-			pngCRC: 0xbac098a5,
+			pngCRC: 0xa9d67e7,
 		},
 		{
 			name: "vertical_legend_offset_right",
@@ -535,7 +535,7 @@ func TestLineChart(t *testing.T) {
 				opt.Legend.Offset = OffsetRight
 				return opt
 			},
-			pngCRC: 0x90652e33,
+			pngCRC: 0xd7460c71,
 		},
 		{
 			name: "legend_overlap_chart",
@@ -549,7 +549,7 @@ func TestLineChart(t *testing.T) {
 				opt.XAxis.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x8792965e,
+			pngCRC: 0xa596baf4,
 		},
 		{
 			name: "legend_boxed_offset_bottom",
@@ -561,7 +561,7 @@ func TestLineChart(t *testing.T) {
 				opt.Legend.BorderWidth = 2.0
 				return opt
 			},
-			pngCRC: 0x1845e757,
+			pngCRC: 0x270d4545,
 		},
 		{
 			name: "vertical_legend_boxed_offset_right",
@@ -572,7 +572,7 @@ func TestLineChart(t *testing.T) {
 				opt.Legend.BorderWidth = 2.0
 				return opt
 			},
-			pngCRC: 0x999e45c2,
+			pngCRC: 0x832d65a1,
 		},
 		{
 			name: "legend_boxed_overlap_chart",
@@ -584,7 +584,7 @@ func TestLineChart(t *testing.T) {
 				opt.Legend.BorderWidth = 2.0
 				return opt
 			},
-			pngCRC: 0x671bf61d,
+			pngCRC: 0xc037109d,
 		},
 		{
 			name: "curved_line",
@@ -593,7 +593,7 @@ func TestLineChart(t *testing.T) {
 				opt.StrokeSmoothingTension = 0.8
 				return opt
 			},
-			pngCRC: 0xcd21511b,
+			pngCRC: 0xcc77682,
 		},
 		{
 			name: "line_gap",
@@ -602,7 +602,7 @@ func TestLineChart(t *testing.T) {
 				opt.SeriesList[0].Values[3] = GetNullValue()
 				return opt
 			},
-			pngCRC: 0xb895824a,
+			pngCRC: 0xa6e0a4bc,
 		},
 		{
 			name: "line_gap_dot",
@@ -613,7 +613,7 @@ func TestLineChart(t *testing.T) {
 				opt.SeriesList[0].Values[5] = GetNullValue()
 				return opt
 			},
-			pngCRC: 0xe1eba09a,
+			pngCRC: 0xbc873d6f,
 		},
 		{
 			name: "line_gap_fill_area",
@@ -623,7 +623,7 @@ func TestLineChart(t *testing.T) {
 				opt.FillArea = Ptr(true)
 				return opt
 			},
-			pngCRC: 0x69b70987,
+			pngCRC: 0x233854f6,
 		},
 		{
 			name: "line_gap_start_fill_area",
@@ -635,7 +635,7 @@ func TestLineChart(t *testing.T) {
 				opt.FillArea = Ptr(true)
 				return opt
 			},
-			pngCRC: 0x8506ed2a,
+			pngCRC: 0xa2bab800,
 		},
 		{
 			name: "curved_line_gap",
@@ -645,7 +645,7 @@ func TestLineChart(t *testing.T) {
 				opt.SeriesList[0].Values[3] = GetNullValue()
 				return opt
 			},
-			pngCRC: 0x75cef853,
+			pngCRC: 0x233d27c1,
 		},
 		{
 			name: "curved_line_gap_fill_area",
@@ -656,7 +656,7 @@ func TestLineChart(t *testing.T) {
 				opt.FillArea = Ptr(true)
 				return opt
 			},
-			pngCRC: 0x9505247f,
+			pngCRC: 0x6806e5e4,
 		},
 		{
 			name: "fill_area",
@@ -666,7 +666,7 @@ func TestLineChart(t *testing.T) {
 				opt.FillOpacity = 100
 				return opt
 			},
-			pngCRC: 0x9ffe1bb0,
+			pngCRC: 0x70c6eb9a,
 		},
 		{
 			name: "fill_area_boundary_gap",
@@ -682,7 +682,7 @@ func TestLineChart(t *testing.T) {
 				opt.YAxis[0].Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x343198a9,
+			pngCRC: 0xdd2bd8af,
 		},
 		{
 			name: "fill_area_curved_boundary_gap",
@@ -693,7 +693,7 @@ func TestLineChart(t *testing.T) {
 				opt.XAxis.BoundaryGap = Ptr(true)
 				return opt
 			},
-			pngCRC: 0x71714953,
+			pngCRC: 0xc6a3436a,
 		},
 		{
 			name: "fill_area_curved_no_gap",
@@ -704,7 +704,7 @@ func TestLineChart(t *testing.T) {
 				opt.XAxis.BoundaryGap = Ptr(false)
 				return opt
 			},
-			pngCRC: 0xb0e7edda,
+			pngCRC: 0x15163b36,
 		},
 		{
 			name: "value_formatter",
@@ -715,7 +715,7 @@ func TestLineChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x43cd79f7,
+			pngCRC: 0xc90eb045,
 		},
 		{
 			name: "mark_line",
@@ -732,7 +732,7 @@ func TestLineChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x3b0437b,
+			pngCRC: 0xfa470fa4,
 		},
 		{
 			name: "mark_point",
@@ -748,7 +748,7 @@ func TestLineChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x976ef11e,
+			pngCRC: 0xe3b2aeb2,
 		},
 		{
 			name: "series_label",
@@ -769,12 +769,12 @@ func TestLineChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0xc99ba436,
+			pngCRC: 0xbdfb2735,
 		},
 		{
 			name:        "stack_series",
 			makeOptions: makeFullLineChartStackedOption,
-			pngCRC:      0xda1109e2,
+			pngCRC:      0xef38a02,
 		},
 		{
 			name: "stack_series_global_mark_point",
@@ -789,7 +789,7 @@ func TestLineChart(t *testing.T) {
 				opt.XAxis.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x14d70e1d,
+			pngCRC: 0x7bcbee5a,
 		},
 		{
 			name: "stack_series_global_mark_line",
@@ -809,7 +809,7 @@ func TestLineChart(t *testing.T) {
 				opt.XAxis.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x64ec637,
+			pngCRC: 0x233fe78f,
 		},
 		{
 			name: "stack_series_dual_yaxis",
@@ -826,7 +826,7 @@ func TestLineChart(t *testing.T) {
 				opt.XAxis.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0xf437aff8,
+			pngCRC: 0xccbe959e,
 		},
 		{
 			name: "series_legend_order_sync",
@@ -844,7 +844,7 @@ func TestLineChart(t *testing.T) {
 				opt.XAxis.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0xe621ba07,
+			pngCRC: 0xeb191626,
 		},
 		{
 			name: "symbol_dot",
@@ -857,7 +857,7 @@ func TestLineChart(t *testing.T) {
 				opt.YAxis[0].Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0xe8ffc0eb,
+			pngCRC: 0x33859a07,
 		},
 		{
 			name: "symbol_circle",
@@ -870,7 +870,7 @@ func TestLineChart(t *testing.T) {
 				opt.YAxis[0].Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x1a16022a,
+			pngCRC: 0xf7c0d9ae,
 		},
 		{
 			name: "symbol_square",
@@ -883,7 +883,7 @@ func TestLineChart(t *testing.T) {
 				opt.YAxis[0].Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x449431a5,
+			pngCRC: 0x83dd6a0e,
 		},
 		{
 			name: "symbol_diamond",
@@ -896,7 +896,7 @@ func TestLineChart(t *testing.T) {
 				opt.YAxis[0].Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x5191efa3,
+			pngCRC: 0xbddccbce,
 		},
 		{
 			name: "symbol_mixed",
@@ -916,7 +916,7 @@ func TestLineChart(t *testing.T) {
 				opt.YAxis[0].Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0xafc7027e,
+			pngCRC: 0xa7b40e67,
 		},
 		{
 			name: "text_color_themes",
@@ -937,7 +937,7 @@ func TestLineChart(t *testing.T) {
 				opt.Legend.SeriesNames = opt.Legend.SeriesNames[:2]
 				return opt
 			},
-			pngCRC: 0x632aa67c,
+			pngCRC: 0x919d7456,
 		},
 		{
 			name: "axis_titles",
@@ -962,7 +962,7 @@ func TestLineChart(t *testing.T) {
 				opt.YAxis[1].SpineLineShow = Ptr(true)
 				return opt
 			},
-			pngCRC: 0x6f009630,
+			pngCRC: 0xbcfc784,
 		},
 		{
 			name: "trend_line_linear",
@@ -977,7 +977,7 @@ func TestLineChart(t *testing.T) {
 				})
 				return opt
 			},
-			pngCRC: 0x5f59d6e7,
+			pngCRC: 0xf21ddbfa,
 		},
 		{
 			name: "trend_line_cubic",
@@ -992,7 +992,7 @@ func TestLineChart(t *testing.T) {
 				})
 				return opt
 			},
-			pngCRC: 0x136d9bf2,
+			pngCRC: 0x340d6f93,
 		},
 		{
 			name: "trend_line_average",
@@ -1007,7 +1007,7 @@ func TestLineChart(t *testing.T) {
 				})
 				return opt
 			},
-			pngCRC: 0xf23bdf0e,
+			pngCRC: 0xe9a03555,
 		},
 		{
 			name: "trend_line_sma",
@@ -1022,7 +1022,7 @@ func TestLineChart(t *testing.T) {
 				})
 				return opt
 			},
-			pngCRC: 0xf23bdf0e,
+			pngCRC: 0xe9a03555,
 		},
 		{
 			name: "trend_line_multiple",
@@ -1040,7 +1040,7 @@ func TestLineChart(t *testing.T) {
 				})
 				return opt
 			},
-			pngCRC: 0x8e03a815,
+			pngCRC: 0x568632fb,
 		},
 		{
 			name: "bollinger",
@@ -1056,7 +1056,7 @@ func TestLineChart(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0xe1a0646b,
+			pngCRC: 0xedfc68db,
 		},
 		{
 			name: "rsi",
@@ -1069,7 +1069,7 @@ func TestLineChart(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x3b38a969,
+			pngCRC: 0x4740d37e,
 		},
 		{
 			name: "empty_series",
@@ -1084,7 +1084,7 @@ func TestLineChart(t *testing.T) {
 				opt.YAxis = []YAxisOption{{Show: Ptr(true)}, {Show: Ptr(true)}}
 				return opt
 			},
-			pngCRC: 0xda086549,
+			pngCRC: 0x90f329bc,
 		},
 		{
 			name: "symbol_large_size",
@@ -1097,7 +1097,7 @@ func TestLineChart(t *testing.T) {
 				opt.YAxis[0].Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0xf43677c9,
+			pngCRC: 0x54d49b79,
 		},
 		{
 			name: "legend_collision",
@@ -1123,7 +1123,7 @@ func TestLineChart(t *testing.T) {
 					}),
 				}
 			},
-			pngCRC: 0xe9795dc2,
+			pngCRC: 0x6cfef6c6,
 		},
 		{
 			name: "legend_collision_stacked",
@@ -1150,7 +1150,7 @@ func TestLineChart(t *testing.T) {
 					}),
 				}
 			},
-			pngCRC: 0x6b43733a,
+			pngCRC: 0x8eaaf7,
 		},
 		{
 			name: "legend_collision_markpoint",
@@ -1173,7 +1173,7 @@ func TestLineChart(t *testing.T) {
 					SeriesList: sl,
 				}
 			},
-			pngCRC: 0x345b4f22,
+			pngCRC: 0x7c39a260,
 		},
 		{
 			// Threshold formatter hides some labels, shortening the label slice below the data length
@@ -1193,7 +1193,7 @@ func TestLineChart(t *testing.T) {
 					Legend: LegendOption{Show: Ptr(false)},
 				}
 			},
-			pngCRC: 0x4f5ccc88,
+			pngCRC: 0xf0926140,
 		},
 		{
 			name: "line_gap_label",
@@ -1203,7 +1203,7 @@ func TestLineChart(t *testing.T) {
 				opt.SeriesList[0].Values[3] = GetNullValue()
 				return opt
 			},
-			pngCRC: 0xc90a14a3,
+			pngCRC: 0xee721984,
 		},
 		{
 			name: "stack_series_interleaved_marks",
@@ -1222,7 +1222,7 @@ func TestLineChart(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x79b8c33b,
+			pngCRC: 0xf2dbbcd5,
 		},
 		{
 			name: "stack_series_global_mark_point_null_last",
@@ -1239,7 +1239,7 @@ func TestLineChart(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x47ee98e1,
+			pngCRC: 0x870327b4,
 		},
 		{
 			name: "stack_series_global_mark_point_null_series",
@@ -1256,7 +1256,7 @@ func TestLineChart(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x55f200ff,
+			pngCRC: 0x9385e79e,
 		},
 	}
 

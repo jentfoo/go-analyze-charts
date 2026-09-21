@@ -50,7 +50,7 @@ func TestFunnelChart(t *testing.T) {
 			name:        "basic_themed",
 			themed:      true,
 			makeOptions: makeBasicFunnelChartOption,
-			pngCRC:      0x304e4d0d,
+			pngCRC:      0x78cad462,
 		},
 		{
 			name: "custom_legend",
@@ -66,7 +66,7 @@ func TestFunnelChart(t *testing.T) {
 				opt.Title.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x18b3583c,
+			pngCRC: 0x6b2241c3,
 		},
 		{
 			name: "with_label_formatter",
@@ -91,7 +91,7 @@ func TestFunnelChart(t *testing.T) {
 					},
 				}
 			},
-			pngCRC: 0x1b70bafa,
+			pngCRC: 0x4cc816dd,
 		},
 		{
 			name: "with_styled_labels",
@@ -141,7 +141,7 @@ func TestFunnelChart(t *testing.T) {
 					},
 				}
 			},
-			pngCRC: 0x58d2b5a6,
+			pngCRC: 0xfa1c5fc5,
 		},
 		{
 			name: "border_without_background",
@@ -159,14 +159,14 @@ func TestFunnelChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0xfaef52c9,
+			pngCRC: 0x6dac84ec,
 		},
 		{
 			name: "unsorted",
 			makeOptions: func() FunnelChartOption {
 				return NewFunnelChartOptionWithData([]float64{50, 100, 25})
 			},
-			pngCRC: 0x7a147f14,
+			pngCRC: 0x81697281,
 		},
 		{
 			name: "empty_series",
@@ -179,7 +179,7 @@ func TestFunnelChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x83721fd3,
+			pngCRC: 0x5f81192d,
 		},
 		{
 			name: "null_values",
@@ -192,7 +192,7 @@ func TestFunnelChart(t *testing.T) {
 				})
 				return opt
 			},
-			pngCRC: 0x33680261,
+			pngCRC: 0x11c68d72,
 		},
 	}
 

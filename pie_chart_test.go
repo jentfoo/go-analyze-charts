@@ -69,13 +69,13 @@ func TestPieChart(t *testing.T) {
 				opt.Legend.Vertical = nil
 				return opt
 			},
-			pngCRC: 0x6b235e57,
+			pngCRC: 0x2606b306,
 		},
 		{
 			name:        "basic_themed",
 			themed:      true,
 			makeOptions: makeBasicPieChartOption,
-			pngCRC:      0x4c904385,
+			pngCRC:      0xadea6b1,
 		},
 		{
 			name:   "lots_labels-sortedDescending",
@@ -137,7 +137,7 @@ func TestPieChart(t *testing.T) {
 					},
 				}
 			},
-			pngCRC: 0xbe277b27,
+			pngCRC: 0x7c573be5,
 		},
 		{
 			name:   "lots_labels-unsorted",
@@ -199,7 +199,7 @@ func TestPieChart(t *testing.T) {
 					},
 				}
 			},
-			pngCRC: 0x36063f3e,
+			pngCRC: 0x6c9af7a,
 		},
 		{
 			name:   "100labels-sorted",
@@ -223,7 +223,7 @@ func TestPieChart(t *testing.T) {
 					},
 				}
 			},
-			pngCRC: 0x4c98e4c3,
+			pngCRC: 0x54f3e3a,
 		},
 		{
 			name:   "fix_label_pos",
@@ -267,7 +267,7 @@ func TestPieChart(t *testing.T) {
 					},
 				}
 			},
-			pngCRC: 0xd2b1bd24,
+			pngCRC: 0xf104138,
 		},
 		{
 			name: "pie_chart_with_value_formatter",
@@ -286,7 +286,7 @@ func TestPieChart(t *testing.T) {
 					}),
 				}
 			},
-			pngCRC: 0xd38bee72,
+			pngCRC: 0x64ae3239,
 		},
 		{
 			name: "pie_chart_with_label_formatter_precedence",
@@ -308,7 +308,7 @@ func TestPieChart(t *testing.T) {
 					}),
 				}
 			},
-			pngCRC: 0xaa48ab68,
+			pngCRC: 0x48248bd9,
 		},
 		{
 			name: "custom_fonts",
@@ -320,7 +320,7 @@ func TestPieChart(t *testing.T) {
 				opt.Title.FontStyle = customFont
 				return opt
 			},
-			pngCRC: 0x1d1cdb08,
+			pngCRC: 0x9d778181,
 		},
 		{
 			name: "legend_bottom_right",
@@ -332,7 +332,7 @@ func TestPieChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x7b81b33e,
+			pngCRC: 0xcd779c73,
 		},
 		{
 			name: "variable_series_radius",
@@ -346,7 +346,7 @@ func TestPieChart(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0x18ee5a65,
+			pngCRC: 0xf2fc720f,
 		},
 		{
 			name: "segment_gap",
@@ -361,7 +361,7 @@ func TestPieChart(t *testing.T) {
 				opt.Legend.Show = Ptr(false)
 				return opt
 			},
-			pngCRC: 0xb7038d40,
+			pngCRC: 0x2e114184,
 		},
 		{
 			name: "mixed_label_style",
@@ -401,7 +401,7 @@ func TestPieChart(t *testing.T) {
 					},
 				}
 			},
-			pngCRC: 0x7ee6ef3a,
+			pngCRC: 0x27381492,
 		},
 		{
 			name: "border_styling",
@@ -430,7 +430,7 @@ func TestPieChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x5b51e5fe,
+			pngCRC: 0xc66dd8ee,
 		},
 		{
 			name: "label_title_collision",
@@ -448,7 +448,7 @@ func TestPieChart(t *testing.T) {
 					},
 				}
 			},
-			pngCRC: 0x3b5d5957,
+			pngCRC: 0xe73acaaa,
 		},
 		{
 			name: "title_legend_overlap",
@@ -464,7 +464,7 @@ func TestPieChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0x9ed54e32,
+			pngCRC: 0x704bfa42,
 		},
 		{
 			name: "vertical_legend_title_collision",
@@ -478,7 +478,7 @@ func TestPieChart(t *testing.T) {
 				opt.Legend.Vertical = Ptr(true)
 				return opt
 			},
-			pngCRC: 0xbaab90c6,
+			pngCRC: 0x5ab6dee5,
 		},
 		{
 			name: "explicit_offset_no_reposition",
@@ -492,7 +492,7 @@ func TestPieChart(t *testing.T) {
 				opt.Legend.Offset = OffsetStr{Top: "10"}
 				return opt
 			},
-			pngCRC: 0x9bce3a66,
+			pngCRC: 0x417cf440,
 		},
 		{
 			name: "empty_series",
@@ -505,7 +505,7 @@ func TestPieChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0xdabda93b,
+			pngCRC: 0x1b53fe1b,
 		},
 		{
 			name: "zero_sum",
@@ -518,7 +518,7 @@ func TestPieChart(t *testing.T) {
 				}
 				return opt
 			},
-			pngCRC: 0xdabda93b,
+			pngCRC: 0x1b53fe1b,
 		},
 	}
 
